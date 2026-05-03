@@ -5,7 +5,13 @@
 #define TF 100
 #define TFR 15
 #define TS 1000
-	        
+
+// struct Produto -  id, nome, medida, marca, categoria, data_validade
+typedef struct {
+	int id;
+	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
+} Produto;
+// struct Assinatura - id_cliente, plano, Data vencimento, status
 
 void exibirMenuInicial() {
     printf("\n==============================================\n");
