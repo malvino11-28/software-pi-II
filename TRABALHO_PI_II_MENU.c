@@ -5,6 +5,7 @@
 #define TF 100
 #define TFR 15
 #define TS 1000
+	        
 
 void exibirMenuInicial() {
     printf("\n==============================================\n");
@@ -20,7 +21,7 @@ void exibirMenuInicial() {
     printf(" Selecione uma opcao: ");
 }
 
-/* MENU PESSOAS */
+// MENU PESSOAS
 void exibirMenuPessoas() {
     printf("\n==============================================\n");
     printf("           CORTE IMPERIAL - PESSOAS           \n");
@@ -82,7 +83,6 @@ void exibirMenuAssinaturas() {
     printf("  [1] Criar Assinatura para Cliente\n");
     printf("  [2] Renovar Assinatura\n");
     printf("  [3] Consultar Status da Assinatura\n");
-    printf("  [4] Listar Proximas do Vencimento\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -109,12 +109,13 @@ void exibirMenuRelatorios() {
     printf("  [1] Vendas por Periodo\n");
     printf("  [2] Produtos com Estoque Baixo\n");
     printf("  [3] Ticket Medio por Cliente\n");
+    printf("  [4] Listar Proximas do Vencimento\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
 }
 
-/* FUNCOES PESSOAS - CLIENTES */
+// FUNCOES PESSOAS - CLIENTES
 
 //Cadastro Clientes
 void cad_cli() {
@@ -286,7 +287,7 @@ void excl_cli() {
     } while (esc != 1 && esc != 0);
 }
 
-/* FUNCOES PESSOAS - FORNECEDORES */
+// FUNCOES PESSOAS - FORNECEDORES
 
 //Cadastro Fornecedores
 void cad_forn() {
@@ -485,7 +486,7 @@ void cadastrarProduto() {
                 printf("Nome do produto: ");
                 fgets(descricao, sizeof(descricao), stdin);
 
-                printf("Unidade de medida (ex: UN, KG, MÇ, LT): ");
+                printf("Unidade de medida (ex: UN, KG, M�, LT): ");
                 fgets(medida, sizeof(medida), stdin);
 
                 printf("Marca do produto: ");
@@ -736,7 +737,7 @@ void gerenciarCategorias() {
     }
 }
 
-/* FUNCOES ASSINATURAS */
+// FUNCOES ASSINATURAS
 
 void criarAssinatura() {
     int op;
@@ -750,7 +751,7 @@ void criarAssinatura() {
     scanf("%d", &op);
 
     while (op != 0) {
-        printf("Informe o ID do cliente que receberá a assinatura: ");
+        printf("Informe o ID do cliente que recebera a assinatura: ");
         scanf("%d", &idCliente);
 
         getchar();
@@ -761,7 +762,7 @@ void criarAssinatura() {
         scanf("%d %d %d", &dia, &mes, &ano);
 
         printf("Informe o status da assinatura: \n");
-        printf("[1] Ativo\n[2] Em período de teste\n");
+        printf("[1] Ativo\n[2] Em periodo de teste\n");
         scanf("%d", &status);
 
         printf("\nAssinatura para o cliente [%d] criada!\n", idCliente);
@@ -827,7 +828,7 @@ void consultarVencimento() {
     }
 }
 
-/* FUNCOES VENDAS */
+// FUNCOES VENDAS 
 
 void atualizarVenda() {
     int cod;
@@ -952,7 +953,7 @@ void finalizarPedido() {
 
 }
 
-/* FUNCOES RELATORIOS GERENCIONAIS */
+// FUNCOES RELATORIOS GERENCIONAIS
 
 void exibirVendasPeriodo() {
     int op;
@@ -1196,10 +1197,6 @@ int main() {
                             consultarStatus();
                             break;
 
-                        case 4:
-                            consultarVencimento();
-                            break;
-
                         case 0:
                             break;
 
@@ -1269,6 +1266,11 @@ int main() {
                             exibirTicket();
                             break;
                         
+                        case 4:
+                            consultarVencimento();
+                            break;
+
+                        	break;
                         default:
                             printf("\nOpcao invalida!\n");
                             break;
