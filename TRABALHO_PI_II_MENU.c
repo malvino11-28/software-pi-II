@@ -976,41 +976,43 @@ void excluirProduto() {
 }
 
 void gerenciarMarcas() {
-    int op;
-
-    printf("\n---------GERENCIAR MARCAS-----------\n");
-    printf("Deseja consultar as marcas dos produtos do sistema?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\n--------------------------------------------\n");
-        printf("teste 1\n");
-        printf("teste 2\n");
-        printf("teste 3\n");
+    int op, vazio = 1;
+    PRODUTO p; // struct
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n-------------------MARCAS---------------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+            vazio = 0;
+            printf("%s", p.marca);
+        }
+        if (vazio == 1) {
+        printf("\n[Nenhuma marca cadastrada]\n");
+        }
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
+        }
     }
 }
 
 void gerenciarCategorias() {
-    int op;
-
-    printf("\n---------GERENCIAR CATEGORIAS-----------\n");
-    printf("Deseja consultar as categorias dos produtos do sistema?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\n--------------------------------------------\n");
-        printf("Bovino\n");
-        printf("Lacteo\n");
-        printf("Domestico\n");
+    int op, vazio = 1;
+    PRODUTO p; //struct
+    FILE *arc = fopen("produtos.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--------------CATEGORIAS----------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+            vazio = 0;
+            printf("%s", p.categoria);
+        }
+        if (vazio == 1) {
+        printf("\n[Nenhuma categoria cadastrada]\n");
+        }
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
-    }
+        }
 }
 
 // FUNCOES ASSINATURAS
