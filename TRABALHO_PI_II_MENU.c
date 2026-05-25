@@ -975,7 +975,7 @@ void excluirProduto() {
     }
 }
 
-void gerenciarMarcas() {
+void gerenciarMarcas() { // ok~
     int op, vazio = 1;
     PRODUTO p; // struct
     if (arc == NULL) printf("\nErro\n");
@@ -994,7 +994,7 @@ void gerenciarMarcas() {
         }
 }
 
-void gerenciarCategorias() {
+void gerenciarCategorias() { //ok~
     int op, vazio = 1;
     PRODUTO p; //struct
     FILE *arc = fopen("produtos.bin", "rb");
