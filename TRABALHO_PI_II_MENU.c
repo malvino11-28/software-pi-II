@@ -992,7 +992,6 @@ void gerenciarMarcas() {
         printf("\n[0] Sair\n");
         scanf("%d", &op);
         }
-    }
 }
 
 void gerenciarCategorias() {
