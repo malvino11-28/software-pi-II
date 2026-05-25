@@ -1110,7 +1110,7 @@ void consultarStatus() { // ok~
     }
 }
 
-void consultarVencimento() {
+void consultarVencimento() { // ok~
     int op;
     int mes, ano;
     ASSINATURA a;
@@ -1153,7 +1153,7 @@ typedef struct { // depois levo la pra cima
     char status[20]; 
 } PEDIDO;
 
-int buscarPedido(FILE *arc, int cod) {
+int buscarPedido(FILE *arc, int cod) { // ok~
     PEDIDO p;
     rewind(arc); 
     while (!feof(arc)&&p.id == cod) 
@@ -1163,7 +1163,7 @@ int buscarPedido(FILE *arc, int cod) {
     return -1;
 }
 
-void cadastrarPedido() {
+void cadastrarPedido() { // ok~
     int op;
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "ab+");
@@ -1199,7 +1199,7 @@ void cadastrarPedido() {
     }
 }
 
-void atualizarVenda() {
+void atualizarVenda() { // ok~
     int op, opStatus;
     int b;
     PEDIDO p;
@@ -1249,7 +1249,7 @@ void atualizarVenda() {
     }
 }
 
-void exibirStatusPedido() {
+void exibirStatusPedido() { // ok~
     int op, cod;
     int b;
     PEDIDO p;
@@ -1279,7 +1279,7 @@ void exibirStatusPedido() {
     }
 }
 
-void confirmarRetirada() {
+void confirmarRetirada() { // ok~
     int op, cod;
     int b;
     PEDIDO p;
@@ -1321,7 +1321,7 @@ void confirmarRetirada() {
     }
 }
 
-void confirmarEntrega() {
+void confirmarEntrega() { // ok~
     int op, cod;
     int b;
     PEDIDO p;
