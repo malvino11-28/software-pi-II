@@ -1013,7 +1013,7 @@ void gerenciarCategorias() {
     }
 }
 
-// FUNCOES ASSINATURAS
+/* FUNCOES ASSINATURAS */
 typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra cima
     int idCliente;
     DATA d;
@@ -1145,129 +1145,248 @@ void consultarVencimento() {
         }
 }
 
-// FUNCOES VENDAS 
+/* FUNCOES VENDAS */ 
+typedef struct { // depois levo la pra cima
+    int id;
+    char descricao[100];
+    float valorTotal;
+    char status[20]; 
+} PEDIDO;
+
+int buscarPedido(FILE *arc, int cod) {
+    PEDIDO p;
+    rewind(arc); 
+    while (!feof(arc)&&p.id == cod) 
+        fread(&p, sizeof(PEDIDO), 1, arc)
+    if (!feof(arc))
+        return (ftell(arc)-sizeof(PEDIDO));
+    return -1;
+}
+
+void cadastrarPedido() {
+    int op;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "ab+");
+    
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--- CADASTRAR PEDIDO ---\n");
+        printf("Digite o id do pedido: ");
+        scanf("%d", &p.id);
+
+        int b = buscarPedido(arc, p.id);
+
+        if (b != -1) {
+            printf("\n[ID de pedido ja cadastrado!]\n");
+        } else {
+            getchar(); 
+            printf("Descricao os itens: ");
+            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
+            p.descricao[strcspn(p.descricao, "\n")] = '\0';
+            
+            printf("Valor total: R$ ");
+            scanf("%f", &p.valorTotal);
+            
+            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
+            
+            fwrite(&p, sizeof(PEDIDO), 1, arc);
+            printf("\n[Pedido [%d] cadastrado com sucesso!]\n", p.id);
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+    }
+}
 
 void atualizarVenda() {
-    int cod;
-    printf("\n--- ATUALIZAR STATUS ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf(" [1] Recebido\n");
-                printf(" [2] Em Preparo\n");
-                printf(" [3] Pronto (Retirada)\n");
-                printf(" [4] Saiu para Entrega\n");
-                printf(" [5] Finalizado\n");
-                printf(" Selecione o novo status: ");
-                scanf(" %d", &cod);
-                printf("\nStatus atualizado com sucesso!\n");
-                printf("\n [1] Atualizar novamente\n [0] Sair\n");
-                scanf(" %d", &cod);
-                break;
+    int op, opStatus;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--- ATUALIZAR STATUS ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &p.id);
+        
+        b = buscarPedido(arc, p.id);
+        if (b == -1) 
+            printf("\n[Pedido nao cadastrado]\n");
+        else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\nStatus atual: %s\n", p.status);
+            printf(" [1] Recebido\n");
+            printf(" [2] Em Preparo\n");
+            printf(" [3] Pronto (Retirada)\n");
+            printf(" [4] Saiu para Entrega\n");
+            printf(" [5] Finalizado\n");
+            printf(" Selecione o novo status: ");
+            scanf("%d", &opStatus);
+            
+            switch (opStatus) {
+                case 1: strcpy(p.status, "Recebido"); break;
+                case 2: strcpy(p.status, "Em Preparo"); break;
+                case 3: strcpy(p.status, "Pronto (Retirada)"); break;
+                case 4: strcpy(p.status, "Saiu para Entrega"); break;
+                case 5: strcpy(p.status, "Finalizado"); break;
+                default: printf("\n[Opcao invalida]\n"); break;
+            }
+            
+            if (opStatus == 1 || opStatus == 2 || opStatus == 3 || opStatus == 4 || opStatus == 5) {
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\n[Status atualizado com sucesso]\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
 void exibirStatusPedido() {
-    int cod;
-    printf("\n--- EXIBIR STATUS ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Status do Pedido: Entregue\n");
-                printf("\n [0] Sair\n");
-                scanf(" %d", &cod);
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- EXIBIR STATUS ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Status do Pedido [%d]: %s\n", p.id, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
 void confirmarRetirada() {
-    int cod;
-    printf("\n--- CONFIRMAR RETIRADA ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Dados do pedido: \n");
-                printf("\n--------------------------------------------\n");
-                printf("\n--------------------------------------------\n");
-                printf("\n [1] Confirmar a retirada\n [0] Voltar\n");
-                scanf(" %d", &cod);
-
-                switch (cod) {
-                    case 1:
-                        printf("\nRetirada confirmada com sucesso!\n");
-                        printf("\n[0] Sair\n");
-                        scanf(" %d", &cod);
-                        break;
-
-                    case 0:
-                        break;
-                }
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- CONFIRMAR RETIRADA ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Dados do pedido: \n");
+            printf("--------------------------------------------\n");
+            printf("Itens: %s | Valor: R$ %.2f | Status: %s\n", p.descricao, p.valorTotal, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n [1] Confirmar a retirada\n [0] Voltar\n");
+            scanf("%d", &op);
+            
+            if (op == 1) {
+                strcpy(p.status, "Finalizado");
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\n[Retirada confirmada com sucesso]\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
 void confirmarEntrega() {
-    int cod;
-    printf("\n--- CONFIRMAR ENTREGA ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Dados do pedido: \n");
-                printf("\n--------------------------------------------\n");
-                printf("\n--------------------------------------------\n");
-                printf("\n [1] Confirmar a entrega\n [0] Voltar\n");
-                scanf(" %d", &cod);
-
-                switch (cod) {
-                    case 1:
-                        printf("\nEntrega confirmada com sucesso!\n");
-                        printf("\n[0] Sair\n");
-                        scanf(" %d", &cod);
-                        break;
-
-                    case 0:
-                        break;
-                }
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- CONFIRMAR ENTREGA ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Dados do pedido: \n");
+            printf("--------------------------------------------\n");
+            printf("Itens: %s | Valor: R$ %.2f | Status: %s\n", p.descricao, p.valorTotal, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n [1] Confirmar a entrega\n [0] Voltar\n");
+            scanf("%d", &op);
+            
+            if (op == 1) {
+                strcpy(p.status, "Finalizado");
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\nEntrega confirmada com sucesso!\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
-void finalizarPedido() {
-
+void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redundantes, depois eu ajeito, vou finalizar os outros primeiro
+    int op;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n----------- TODOS OS PEDIDOS FINALIZADOS -----------\n");
+        int encontrou = 0;
+        while(fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+            if (strcmp(p.status, "Finalizado") == 0) {
+                printf("Pedido [%d] | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
+                encontrou = 1;
+            }
+        }
+        if (!encontrou) {
+            printf("\n[Nenhum pedido finalizado encontrado]\n");
+        }
+        printf("----------------------------------------------------\n");
+        printf("\n[0] Sair\n");
+        scanf("%d", &op);
+        fclose(arc);
+    }
 }
 
 // FUNCOES RELATORIOS GERENCIONAIS
