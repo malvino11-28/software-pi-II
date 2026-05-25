@@ -1014,94 +1014,135 @@ void gerenciarCategorias() {
 }
 
 // FUNCOES ASSINATURAS
+typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra cima
+    int idCliente;
+    DATA d;
+    char plano[TF], status[20];
+} ASSINATURA;
 
-void criarAssinatura() {
-    int op;
-    int idCliente, status;
-    char plano[TF];
-    int dia, mes, ano;
-
-    printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
-    printf("Deseja criar uma assinatura para um cliente?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
+void criarAssinatura() { // ok~
+    int op, b;
+    ASSINATURA a;
+    CADASTRO c;
+    FILE *cli, *arc = fopen("assinatura.bin", "ab+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        cli = fopen("cliente.bin", "rb");
+        printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
         printf("Informe o ID do cliente que recebera a assinatura: ");
-        scanf("%d", &idCliente);
+        scanf("%d", &c.id);
+        b = buscarAssinatura(arc, &c.id);
+        if (b == -1) printf("\n[ID de cleinte nao cadastrado]\n");
+        else {
+            a.idCliente = c.id; // vinculando
+            getchar();
+            printf("Informe o plano da assinatura: ");
+            fgets(a.plano, sizeof(a.plano), stdin);
+            a.plano[strcspn(a.plano, "\n")] = '\0';
 
-        getchar();
-        printf("Informe o plano da assinatura: ");
-        fgets(plano, sizeof(plano), stdin);
+            printf("Informe a data de vencimento da assinatura (dia mes ano): ");
+            scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
 
-        printf("Informe a data de vencimento da assinatura (dia mes ano): ");
-        scanf("%d %d %d", &dia, &mes, &ano);
+            getchar();
+            printf("Informe o status da assinatura (Ativo/Teste/Inativo): \n");
+            fgets(a.status, sizeof(a.status), stdin);
+            a.status[strcspn(a.status, "\n")] = '\0';
 
-        printf("Informe o status da assinatura: \n");
-        printf("[1] Ativo\n[2] Em periodo de teste\n");
-        scanf("%d", &status);
+            fwrite(&a, sizeof(ASSINATURA), 1, arc);
+            printf("\n[Assinatura para o cliente [%d] criada!]\n", c.id);
 
-        printf("\nAssinatura para o cliente [%d] criada!\n", idCliente);
-
-        printf("\n[1] Continuar criando\n[0] Sair\n");
-        scanf("%d", &op);
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+        fclose(cli);
     }
 }
 
-void renovarAssinatura() {
-    int op, idCliente;
+void renovarAssinatura() { // ok~
+    int op, b;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n---------RENOVAR ASSINATURA-----------\n");
 
-    printf("\n---------RENOVAR ASSINATURA-----------\n");
-    printf("Deseja renovar uma assinatura?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
         printf("Informe o ID do cliente: ");
-        scanf("%d", &idCliente);
+        scanf("%d", &a.idCliente);
 
-        printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", idCliente);
-
-        printf("\n[1] Continuar\n[0] Sair\n");
-        scanf("%d", &op);
+        b = buscar(arc, a.idCliente);
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+            fseek(arc, b, SEEK_SET); 
+            fread(&a, sizeof(ASSINATURA), 1, arc);
+            if (stricmp(a.status, "Ativo") == 0) 
+                printf("\n[Assinatura ja esta ativa. Nao precisa renovar!]\n");
+            else {
+                printf("\n--------------------------------------------\n");
+                printf("Informe a nova data de vencimento da assinatura (dia mes ano): ");
+                scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
+                strcpy(a.status, "Ativo");
+                printf("--------------------------------------------\n");
+                fseek(arc, b, SEEK_SET);
+                fwrite(&a, sizeof(ASSINATURA), 1, arc);
+                printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", a.idCliente);
+            }
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
     }
 }
 
-void consultarStatus() {
-    int op, idCliente;
-
-    printf("\n---------CONSULTAR STATUS DA ASSINATURA-----------\n");
-    printf("Deseja consultar o status de uma assinatura?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("Informe o ID do cliente: ");
-        scanf("%d", &idCliente);
-
-        printf("\nStatus da assinatura do cliente [%d]: ATIVA\n", idCliente);
-
-        printf("\n[1] Continuar\n[0] Sair\n");
+void consultarStatus() { // ok~
+    int op;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n-----------CONSULTAR STATUS DA ASSINATURA-----------\n");
+        while(fread(&a, sizeof(ASSINATURA), 1, arc)==1) 
+            printf("Cliente [%d] | Plano: %s | Status: %s\n", a.idCliente, a.plano, a.status);
+        printf("--------------------------------------------\n");
+        printf("\n[0] Sair\n");
         scanf("%d", &op);
+        fclose(arc);
     }
 }
 
 void consultarVencimento() {
     int op;
-
+    int mes, ano;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
     printf("\n---------LISTAR PROXIMAS DO VENCIMENTO-----------\n");
-    printf("Deseja consultar assinaturas próximas do vencimento?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
+        // pede apenas o mes e o ano que o usuario quer checar
+        printf("\nDigite o mes e o ano que deseja consultar (Ex: 12 2026): ");
+        scanf("%d %d", &mes, &ano);
+        
 
-    while (op != 0) {
-        printf("\ncliente 1 - vencimento: 10/12/2025\n");
-        printf("cliente 2 - vencimento: 15/12/2025\n");
-        printf("cliente 3 - vencimento: 20/12/2025\n");
+        printf("\n--- ASSINATURAS QUE VENCEM EM %d/%d ---\n", mes, ano);
+        int encontrou = 0;
+        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            // verifica se o mes e o ano da assinatura forem iguais ao que o usuario digitou
+            if (a.d.mes == mes && a.d.ano == ano) {
+                printf("Cliente [%d] | Plano: %s | Vence em: %d/%d/%d\n", a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
+                encontrou = 1;
+            }
+        }
 
-        printf("\n[1] Consultar novamente\n[0] Sair\n");
+        if (!encontrou) {
+            printf("\n[Nenhuma assinatura proxima do vencimento]\n");
+        }
+
+        printf("---------------------------------------------------\n");
+        fclose(arc);
+        
+        printf("\n[0] Voltar ao menu principal\n");
         scanf("%d", &op);
-    }
+        }
 }
 
 // FUNCOES VENDAS 
