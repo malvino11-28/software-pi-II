@@ -38,6 +38,12 @@ typedef struct {
     
 } CADASTRO;
 
+// struct Produto -  id, nome, medida, marca, categoria, data_validade
+typedef struct {
+	int id;
+	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
+} PRODUTO;
+
 void exibirMenuInicial() {
     printf("\n==============================================\n");
     printf("               CORTE IMPERIAL                 \n");
