@@ -1556,7 +1556,7 @@ void exibirProdutosQTDBaixo() {
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
             if (p.quantidade <= baixo) {
-                printf("Cod: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
+                printf("ID: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
                 prod = 1;
             }
         }
