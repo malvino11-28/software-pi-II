@@ -1260,6 +1260,23 @@ void cadastrarPedido() { // ok~
             fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
             p.descricao[strcspn(p.descricao, "\n")] = '\0';
             
+            printf("\nSelecione um dos periodos.\n");
+            printf(" [1] Carnaval\n");
+            printf(" [2] Pascoa\n");
+            printf(" [3] Copa do mundo 2026\n");
+            printf(" [4] Natal\n");
+            printf(" [5] Reveillon\n");
+            printf(" [0] Sem periodo\n");
+            scanf("%d", &p.periodo);
+
+            if (p.periodo == 1) strcpy(p.periodo, "Carnaval");
+            if (p.periodo == 2) strcpy(p.periodo, "Pascoa");
+            if (p.periodo == 3) strcpy(p.periodo, "Copa do mundo 2026");
+            if (p.periodo == 4) strcpy(p.periodo, "Natal");
+            if (p.periodo == 5) strcpy(p.periodo, "Reveillon");
+            if (p.periodo >= 6 || <= 0) strcpy(p.periodo, "Sem periodo");
+
+
             printf("Valor total: R$ ");
             scanf("%f", &p.valorTotal);
             
