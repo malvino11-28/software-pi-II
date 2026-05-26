@@ -10,7 +10,7 @@
 typedef struct {
 	int id;
 	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
-} Produto;
+} PRODUTO;
 // struct Assinatura - id_cliente, plano, Data vencimento, status
 
 void exibirMenuInicial() {
@@ -492,7 +492,7 @@ void cadastrarProduto() {
                 printf("Nome do produto: ");
                 fgets(descricao, sizeof(descricao), stdin);
 
-                printf("Unidade de medida (ex: UN, KG, MÇ, LT): ");
+                printf("Unidade de medida (ex: UN, KG, Mï¿½, LT): ");
                 fgets(medida, sizeof(medida), stdin);
 
                 printf("Marca do produto: ");
