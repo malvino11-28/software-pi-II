@@ -6,12 +6,43 @@
 #define TFR 15
 #define TS 1000
 
+//STRUCTS GERAIS
+
+typedef struct {
+
+    int dia, mes, ano;
+
+} DATA;
+
+typedef struct {
+    
+    char rua[100], bairro[50], cidade[100], estado[2], cep[10];
+    int num;
+    
+} ENDERECO;
+
+typedef struct {
+    
+    char email[100], tel[20];
+    
+} CONTATO;
+
+//STRUCTS CADASTRO PESSOAS
+
+typedef struct {
+    
+    DATA nasc;
+    ENDERECO end_cad;
+    CONTATO ctt_cad;
+    char nome[100], cpf[14], rg[12];
+    
+} CADASTRO;
+
 // struct Produto -  id, nome, medida, marca, categoria, data_validade
 typedef struct {
 	int id;
 	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
 } PRODUTO;
-// struct Assinatura - id_cliente, plano, Data vencimento, status
 
 void exibirMenuInicial() {
     printf("\n==============================================\n");
@@ -123,174 +154,419 @@ void exibirMenuRelatorios() {
 
 // FUNCOES PESSOAS - CLIENTES
 
+int busca(FILE *fp, char cpf[]) {
+    
+    CADASTRO cli;
+    
+    rewind(fp);
+    fread(&cli, sizeof(CADASTRO), 1, fp);
+    while(!feof(fp) && stricmp(cpf, cli.cpf) != 0){
+        
+        fread(&cli, sizeof(CADASTRO), 1, fp);
+    }
+    if(!feof(fp)){
+        
+        return (ftell(fp) - sizeof(CADASTRO));
+        
+    } else {
+        
+        return -1;
+    }
+}
+
 //Cadastro Clientes
 void cad_cli() {
-    char nome[50], cpf[50], rg[50], data_nasc[1000], ender[100], email[100], tel[20];
-    printf("\n========================================================\n");
-    printf("         CORTE IMPERIAL - CADASTRAR CLIENTES            \n");
-    printf("========================================================\n");
+    
+    CADASTRO cli;
+    int pos;
+    
+    FILE *fp;
+    fp = fopen("cadastros.bin", "ab+");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo");
+        
+    } else {
+        
+        do{
+            printf("\n========================================================\n");
+            printf("         CORTE IMPERIAL - CADASTRAR CLIENTES            \n");
+            printf("========================================================\n");
+        
+            printf("\nDigite o Nome Completo: "); fflush(stdin);
+            gets(cli.nome);
+            printf("\nDigite o CPF: "); fflush(stdin);
+            gets(cli.cpf);
+            
+            pos = busca(fp, cli.cpf);
+            if(pos == -1) {
+                
+                printf("\nDigite o RG: "); fflush(stdin);
+                gets(cli.rg);
+                printf("\nDigite a Data de Nascimento (dd mm aaaa): ");
+                scanf("%d%d%d", &cli.nasc.dia, &cli.nasc.mes, &cli.nasc.ano);
+                printf("\nDigite o Rua: "); fflush(stdin);
+                gets(cli.end_cad.rua);
+                printf("\nDigite o No: ");
+                scanf("%d", &cli.end_cad.num);
+                printf("\nDigite o Bairro: "); fflush(stdin);
+                gets(cli.end_cad.bairro);
+                printf("\nDigite a Cidade: "); fflush(stdin);
+                gets(cli.end_cad.cidade);
+                printf("\nDigite o Estado (SP): "); fflush(stdin);
+                gets(cli.end_cad.estado);
+                printf("\nDigite o CEP: "); fflush(stdin);
+                gets(cli.end_cad.cep);
+                printf("\nDigite o E-mail: "); fflush(stdin);
+                gets(cli.ctt_cad.email);
+                printf("\nDigite o Telefone: "); fflush(stdin);
+                gets(cli.ctt_cad.tel);
+                fwrite(&cli, sizeof(CADASTRO), 1, fp);
+            	printf("\n----------------------------------------------\n");
+                printf("\nCadastro realizado com sucesso!!!\n");
+                
+            } else {
 
-    printf("\nDigite o Nome Completo: "); fflush(stdin);
-    gets(nome);
-    printf("\nDigite o CPF: "); fflush(stdin);
-    gets(cpf);
-    printf("\nDigite o RG: "); fflush(stdin);
-    gets(rg);
-    printf("\nDigite a Data de Nascimento: "); fflush(stdin);
-    gets(data_nasc);
-    printf("\nDigite o Endereco: "); fflush(stdin);
-    gets(ender);
-    printf("\nDigite o E-mail: "); fflush(stdin);
-    gets(email);
-    printf("\nDigite o Telefone: "); fflush(stdin);
-    gets(tel);
-	printf("----------------------------------------------\n");
-    printf("Cadastro realizado com sucesso!!!\n");
+                fseek(fp, pos, 0);
+                fread(&cli, sizeof(CADASTRO), 1, fp);
+                printf("\nCPF ja cadastrado no sistema.");
+                system("pause");
+            }
+            
+            printf("\nDeseja continuar S/N ");
+
+        } while(toupper(getche()) == 'S');
+        fclose(fp);
+    }
 }
-
+//perguntar pra prof se podemos fazer uma funcao que receba como parametro a posicao da info no arquivo binario afim de exibir direto as info
 //Para buscar o cliente que sera alterado / Colocar dentro da funcao alterar_forc*
-void exibir_cli() {
-    printf("\nNome Completo: ------SAIDA--------\n");
-    printf("CPF: ------------------SAIDA--------\n");
-    printf("RG: -------------------SAIDA--------\n");
-    printf("Data de Nascimento: ---SAIDA--------\n");
-    printf("Endereco: -------------SAIDA--------\n");
-    printf("E-mail: ---------------SAIDA--------\n");
-    printf("Telefone: -------------SAIDA--------\n");
-}
+// void exibir_cli() {
+    
+//     CADASTRO cli;
+    
+//     FILE *fp;
+//     fp = fopen("cadastros.bin", "rb");
+//     if(fp == NULL){
+        
+//         printf("Erro na ABERTURA do arquivo.");
+        
+//     } else {
+        
+//         system("cls");
+//         while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
+
+//             printf("\nNome Completo: %s", cli.nome);
+//             printf("\nCPF: %s", cli.cpf);
+//             printf("\nRG: %s", cli.rg);
+//             printf("\nData de Nascimento: %d/%d/%d", cli.end_cad.dia, cli.end_cad.mes, cli.end_cad.ano);
+//             printf("\nRua: %s", cli.end_cad.rua);
+//             printf("\nNº: %d", cli.end_cad.num);
+//             printf("\nBairro: %s", cli.end_cad.bairro);
+//             printf("\nCidade: %s", cli.end_cad.cidade);
+//             printf("\nEstado: %s", cli.end_cad.estado);
+//             printf("\nCEP: %s", cli.end_cad.cep);
+//             printf("\nE-mail: %s", cli.ctt_cad.email);
+//             printf("\nTelefone: %s", cli.ctt_cad.tel);
+//             printf("----------------------------------------------\n");
+//             printf("\n");
+//         }
+//     }
+//     fclose(fp);
+//     system("pause");
+//     system("cls");
+// }
 
 //Alterar Cadastro Cliente
 void alterar_cli() {
-    int opcao = -1, alterou = 0;
-    char teste[1000];
-    char cpf_busca[100];
+    
+    CADASTRO cli;
+    int pos, op;
 
-    printf("\n========================================================\n");
-    printf("           CORTE IMPERIAL - ALTERAR CLIENTE             \n");
-    printf("========================================================\n");
+    FILE *fp;
+    fp = fopen("cadastros.bin", "rb+");
+    if(fp == NULL){
 
-    printf("\nDigite o CPF do Cliente: ");
-    fflush(stdin);
-    gets(cpf_busca);
+        printf("Erro na ABERTURA do arquivo.");
 
-    exibir_cli(); //*
+    } else {
 
-    while (opcao != 0) {
-        printf("\n----------------------------------------------\n");
-		printf("\nQual informacao voce deseja alterar?\n\n");
-        printf("  [1] Nome Completo\n");
-        printf("  [2] RG\n");
-        printf("  [3] Data de Nascimento\n");
-        printf("  [4] Endereco\n");
-        printf("  [5] E-mail\n");
-        printf("  [6] Telefone\n");
-        printf("  [0] Voltar\n");
-        printf("\n----------------------------------------------\n");
-		printf(" Selecione uma opcao: ");
-		scanf("%d", &opcao);
+        system("cls");
+        printf("\n========================================================\n");
+        printf("           CORTE IMPERIAL - ALTERAR CLIENTE             \n");
+        printf("========================================================\n");
 
-        switch (opcao) {
-            case 1:
-                printf("\n Digite o novo Nome Completo: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+        printf("\nDigite o CPF do Cliente: "); fflush(stdin);
+        gets(cli.cpf);
+        while(stricmp(cli.cpf, "") != 0) {
+            
+            pos = busca(fp, cli.cpf);
+            if(pos == -1){
 
-            case 2:
-                printf("\n Digite o novo RG: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                printf("\nCliente Nao Cadastrado.");
+            
+            } else {
 
-            case 3:
-                printf("\n Digite a nova Data de Nascimento: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                fseek(fp, pos, 0);
+                fread(&cli, sizeof(CADASTRO), 1, fp);
+                printf("\nNome Completo: %s", cli.nome);
+                printf("\nRG: %s", cli.rg);
+                printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
+                printf("\nRua: %s", cli.end_cad.rua);
+                printf("\nNº: %d", cli.end_cad.num);
+                printf("\nBairro: %s", cli.end_cad.bairro);
+                printf("\nCidade: %s", cli.end_cad.cidade);
+                printf("\nEstado: %s", cli.end_cad.estado);
+                printf("\nCEP: %s", cli.end_cad.cep);
+                printf("\nE-mail: %s", cli.ctt_cad.email);
+                printf("\nTelefone: %s", cli.ctt_cad.tel);
+                printf("\n----------------------------------------------\n");
 
-            case 4:
-                printf("\n Digite o novo Endereco: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                printf("\nQual informacao voce deseja alterar?\n\n");
+                printf("  [1] Nome Completo    [2] RG              [3] Data de Nascimento\n");
+                printf("  [4] Rua              [5] Numero          [6] Bairro\n");
+                printf("  [7] Cidade           [8] Estado          [9] CEP\n");
+                printf("  [10] E-mail          [11] Telefone\n");
+                printf("\n  [0] Voltar\n");
+                printf("\n----------------------------------------------\n");
+                printf("Selecione uma opcao: ");
+                scanf("%d", &op);
 
-            case 5:
-                printf("\n Digite o novo E-mail: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                switch (op) {
+                    case 1:
+                        printf("\nDigite o novo Nome Completo: "); fflush(stdin);
+                        gets(cli.nome);
+                        fseek(fp,pos,0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
 
-            case 6:
-                printf("\n Digite o novo Telefone: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                    case 2:
+                        printf("\nDigite o novo RG: "); fflush(stdin);
+                        gets(cli.rg);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
 
-            case 0:
-                break;
+                    case 3:
+                        printf("\nDigite a nova Data de Nascimento: ");
+                        scanf("%d%d%d", &cli.nasc.dia, &cli.nasc.mes, &cli.nasc.ano);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
 
-            default:
-                printf("\n Opcao Invalida!!!");
-                break;
+                    case 4:
+                        printf("\nDigite a nova Rua: "); fflush(stdin);
+                        gets(cli.end_cad.rua);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 5:
+                        printf("\nDigite o novo No: ");
+                        scanf("%d", &cli.end_cad.num);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 6:
+                        printf("\nDigite o novo Bairro: "); fflush(stdin);
+                        gets(cli.end_cad.bairro);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 7:
+                        printf("\nDigite a nova Cidade: "); fflush(stdin);
+                        gets(cli.end_cad.cidade);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("Registro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 8:
+                        printf("\nDigite o novo Estado: "); fflush(stdin);
+                        gets(cli.end_cad.estado);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 9:
+                        printf("\nDigite o novo CEP: "); fflush(stdin);
+                        gets(cli.end_cad.cep);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 10:
+                        printf("\nDigite o novo E-mail: "); fflush(stdin);
+                        gets(cli.ctt_cad.email);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 11:
+
+                        printf("\nDigite o novo Telefone: "); fflush(stdin);
+                        gets(cli.ctt_cad.tel);
+                        fseek(fp, pos, 0);
+                        fwrite(&cli, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 0:
+                        break;
+
+                    default:
+                        printf("\nOpcao Invalida!!!");
+                        break;
+                }
+            }
+            system("cls");
+            printf("\nDigite o CPF do Cliente: "); fflush(stdin);
+            gets(cli.cpf);
         }
-    }
-
-    if (alterou != 0) {
-        printf("\n Alteracao realizada com sucesso!!!");
+        fclose(fp);
     }
 }
 
 //Consultar Cliente
 void consul_cli() {
-    char cpf_busca[100];
 
-    printf("\n========================================================\n");
-    printf("          CORTE IMPERIAL - CONSULTAR CLIENTE            \n");
-    printf("========================================================\n");
+    CADASTRO cli;
+    int pos;
+    
+    FILE *fp;
+    fp = fopen("cadastros.bin", "rb");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo.");
+        
+    } else {
+        
+        printf("\n========================================================\n");
+        printf("          CORTE IMPERIAL - CONSULTAR CLIENTE            \n");
+        printf("========================================================\n");
 
-    printf("\nDigite o CPF do Cliente: ");
-    fflush(stdin);
-    gets(cpf_busca);
+        printf("\nDigite o CPF do Cliente: "); fflush(stdin);
+        gets(cli.cpf);
 
-    exibir_cli();
+        pos = busca(fp, cli.cpf);
+        if(pos == -1){
+
+            printf("\nCliente Nao Encontrado.");
+
+        } else {
+
+            fseek(fp, pos, 0);
+            fread(&cli, sizeof(CADASTRO), 1, fp);
+            printf("\nNome Completo: %s", cli.nome);
+            printf("\nCPF: %s", cli.cpf);
+            printf("\nRG: %s", cli.rg);
+            printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
+            printf("\nRua: %s", cli.end_cad.rua);
+            printf("\nNo: %d", cli.end_cad.num);
+            printf("\nBairro: %s", cli.end_cad.bairro);
+            printf("\nCidade: %s", cli.end_cad.cidade);
+            printf("\nEstado: %s", cli.end_cad.estado);
+            printf("\nCEP: %s", cli.end_cad.cep);
+            printf("\nE-mail: %s", cli.ctt_cad.email);
+            printf("\nTelefone: %s", cli.ctt_cad.tel);
+            printf("\n----------------------------------------------\n");
+            printf("\n");
+            system("pause");
+        }
+    }
+    fclose(fp);
+    system("cls");
 }
 
 //Excluir Cliente
 void excl_cli() {
-    int esc;
+
+    CADASTRO cli;
+    int pos;
     char cpf_busca[100];
 
-    printf("\nDigite o CPF do Cliente: ");
-    fflush(stdin);
-    gets(cpf_busca);
+    FILE *fp, *aux;
+    fp = fopen("cadastros.bin", "rb");
+    if(fp == NULL) {
 
-    printf("\n----- CPF ENCONTRADO!!! ------\n");
-    exibir_cli();
+        printf("Erro na ABERTURA do arquivo");
 
-    do {
-        printf("\nVoce tem certeza que deseja excluir esse Cliente?\n");
-        printf("Esta acao nao pode ser desfeita.\n\n");
-        printf(" [1] Confirmar\n");
-        printf(" [0] Cancelar\n");
-        printf("----------------------------------------------\n");
-		printf(" Selecione uma opcao: ");
-        scanf("%d", &esc);
+    } else {
 
-        if (esc == 1) {
-            printf("\n Cliente Excluido com Sucesso!!!\n");
-        } else if (esc == 0) {
-            printf("\nOperacao cancelada!\n");
+        system("cls");
+        printf("\nDigite o CPF do cliente que deseja excluir: "); fflush(stdin);
+        gets(cpf_busca);
+        pos = busca(fp, cpf_busca);
+        if(pos == -1){
+
+            printf("Cliente Nao Encontrado.");
+
         } else {
-            printf("\nOpcao invalida!!!\n");
-        }
 
-    } while (esc != 1 && esc != 0);
+            fseek(fp, pos, 0);
+            fread(&cli, sizeof(CADASTRO), 1, fp);
+            printf("\nNome Completo: %s", cli.nome);
+            printf("\nCPF: %s", cli.cpf);
+            printf("\nRG: %s", cli.rg);
+            printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
+            printf("\nRua: %s", cli.end_cad.rua);
+            printf("\nNº: %d", cli.end_cad.num);
+            printf("\nBairro: %s", cli.end_cad.bairro);
+            printf("\nCidade: %s", cli.end_cad.cidade);
+            printf("\nEstado: %s", cli.end_cad.estado);
+            printf("\nCEP: %s", cli.end_cad.cep);
+            printf("\nE-mail: %s", cli.ctt_cad.email);
+            printf("\nTelefone: %s", cli.ctt_cad.tel);
+            printf("----------------------------------------------\n");
+            printf("\nDeseja excluir esse cliente? (S/N): ");
+            if(toupper(getche()) == 'S'){
+
+                aux = fopen("auxiliar.bin", "wb");
+                rewind(fp);
+                while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
+                    
+                    if(strcmp(cli.cpf, cpf_busca) != 0){
+                        fwrite(&cli, sizeof(CADASTRO), 1, aux);
+                    }
+                }
+                fclose(aux);
+                fclose(fp);
+                remove("cadastros.bin");
+                rename("auxiliar.bin", "cadastros.bin");
+                printf("O cadastro foi excluido com sucesso!!! <ENTER para voltar ao menu");
+                getchar();
+                system("cls");
+
+            } else {
+
+                fclose(fp);
+                printf("\nOperacao Cancelada.");
+            }
+        }
+        
+    }
 }
 
 // FUNCOES PESSOAS - FORNECEDORES
@@ -705,258 +981,419 @@ void excluirProduto() {
     }
 }
 
-void gerenciarMarcas() {
-    int op;
-
-    printf("\n---------GERENCIAR MARCAS-----------\n");
-    printf("Deseja consultar as marcas dos produtos do sistema?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\n--------------------------------------------\n");
-        printf("teste 1\n");
-        printf("teste 2\n");
-        printf("teste 3\n");
+void gerenciarMarcas() { // ok~
+    int op, vazio = 1;
+    PRODUTO p; // struct
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n-------------------MARCAS---------------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+            vazio = 0;
+            printf("%s", p.marca);
+        }
+        if (vazio == 1) {
+        printf("\n[Nenhuma marca cadastrada]\n");
+        }
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
-    }
+        }
 }
 
-void gerenciarCategorias() {
-    int op;
-
-    printf("\n---------GERENCIAR CATEGORIAS-----------\n");
-    printf("Deseja consultar as categorias dos produtos do sistema?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\n--------------------------------------------\n");
-        printf("Bovino\n");
-        printf("Lacteo\n");
-        printf("Domestico\n");
+void gerenciarCategorias() { //ok~
+    int op, vazio = 1;
+    PRODUTO p; //struct
+    FILE *arc = fopen("produtos.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--------------CATEGORIAS----------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+            vazio = 0;
+            printf("%s", p.categoria);
+        }
+        if (vazio == 1) {
+        printf("\n[Nenhuma categoria cadastrada]\n");
+        }
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
-    }
+        }
 }
 
-// FUNCOES ASSINATURAS
+/* FUNCOES ASSINATURAS */
+typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra cima
+    int idCliente;
+    DATA d;
+    char plano[TF], status[20];
+} ASSINATURA;
 
-void criarAssinatura() {
-    int op;
-    int idCliente, status;
-    char plano[TF];
-    int dia, mes, ano;
-
-    printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
-    printf("Deseja criar uma assinatura para um cliente?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
+void criarAssinatura() { // ok~
+    int op, b;
+    ASSINATURA a;
+    CADASTRO c;
+    FILE *cli, *arc = fopen("assinatura.bin", "ab+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        cli = fopen("cliente.bin", "rb");
+        printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
         printf("Informe o ID do cliente que recebera a assinatura: ");
-        scanf("%d", &idCliente);
+        scanf("%d", &c.id);
+        b = buscarAssinatura(arc, &c.id);
+        if (b == -1) printf("\n[ID de cleinte nao cadastrado]\n");
+        else {
+            a.idCliente = c.id; // vinculando
+            getchar();
+            printf("Informe o plano da assinatura: ");
+            fgets(a.plano, sizeof(a.plano), stdin);
+            a.plano[strcspn(a.plano, "\n")] = '\0';
 
-        getchar();
-        printf("Informe o plano da assinatura: ");
-        fgets(plano, sizeof(plano), stdin);
+            printf("Informe a data de vencimento da assinatura (dia mes ano): ");
+            scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
 
-        printf("Informe a data de vencimento da assinatura (dia mes ano): ");
-        scanf("%d %d %d", &dia, &mes, &ano);
+            getchar();
+            printf("Informe o status da assinatura (Ativo/Teste/Inativo): \n");
+            fgets(a.status, sizeof(a.status), stdin);
+            a.status[strcspn(a.status, "\n")] = '\0';
 
-        printf("Informe o status da assinatura: \n");
-        printf("[1] Ativo\n[2] Em periodo de teste\n");
-        scanf("%d", &status);
+            fwrite(&a, sizeof(ASSINATURA), 1, arc);
+            printf("\n[Assinatura para o cliente [%d] criada!]\n", c.id);
 
-        printf("\nAssinatura para o cliente [%d] criada!\n", idCliente);
-
-        printf("\n[1] Continuar criando\n[0] Sair\n");
-        scanf("%d", &op);
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+        fclose(cli);
     }
 }
 
-void renovarAssinatura() {
-    int op, idCliente;
+void renovarAssinatura() { // ok~
+    int op, b;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n---------RENOVAR ASSINATURA-----------\n");
 
-    printf("\n---------RENOVAR ASSINATURA-----------\n");
-    printf("Deseja renovar uma assinatura?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
         printf("Informe o ID do cliente: ");
-        scanf("%d", &idCliente);
+        scanf("%d", &a.idCliente);
 
-        printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", idCliente);
-
-        printf("\n[1] Continuar\n[0] Sair\n");
-        scanf("%d", &op);
+        b = buscar(arc, a.idCliente);
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+            fseek(arc, b, SEEK_SET); 
+            fread(&a, sizeof(ASSINATURA), 1, arc);
+            if (stricmp(a.status, "Ativo") == 0) 
+                printf("\n[Assinatura ja esta ativa. Nao precisa renovar!]\n");
+            else {
+                printf("\n--------------------------------------------\n");
+                printf("Informe a nova data de vencimento da assinatura (dia mes ano): ");
+                scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
+                strcpy(a.status, "Ativo");
+                printf("--------------------------------------------\n");
+                fseek(arc, b, SEEK_SET);
+                fwrite(&a, sizeof(ASSINATURA), 1, arc);
+                printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", a.idCliente);
+            }
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
     }
 }
 
-void consultarStatus() {
-    int op, idCliente;
-
-    printf("\n---------CONSULTAR STATUS DA ASSINATURA-----------\n");
-    printf("Deseja consultar o status de uma assinatura?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("Informe o ID do cliente: ");
-        scanf("%d", &idCliente);
-
-        printf("\nStatus da assinatura do cliente [%d]: ATIVA\n", idCliente);
-
-        printf("\n[1] Continuar\n[0] Sair\n");
-        scanf("%d", &op);
-    }
-}
-
-void consultarVencimento() {
+void consultarStatus() { // ok~
     int op;
-
-    printf("\n---------LISTAR PROXIMAS DO VENCIMENTO-----------\n");
-    printf("Deseja consultar assinaturas próximas do vencimento?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\ncliente 1 - vencimento: 10/12/2025\n");
-        printf("cliente 2 - vencimento: 15/12/2025\n");
-        printf("cliente 3 - vencimento: 20/12/2025\n");
-
-        printf("\n[1] Consultar novamente\n[0] Sair\n");
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n-----------CONSULTAR STATUS DA ASSINATURA-----------\n");
+        while(fread(&a, sizeof(ASSINATURA), 1, arc)==1) 
+            printf("Cliente [%d] | Plano: %s | Status: %s\n", a.idCliente, a.plano, a.status);
+        printf("--------------------------------------------\n");
+        printf("\n[0] Sair\n");
         scanf("%d", &op);
+        fclose(arc);
     }
 }
 
-// FUNCOES VENDAS 
+void consultarVencimento() { // ok~
+    int op;
+    int mes, ano;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+    printf("\n---------LISTAR PROXIMAS DO VENCIMENTO-----------\n");
+        // pede apenas o mes e o ano que o usuario quer checar
+        printf("\nDigite o mes e o ano que deseja consultar (Ex: 12 2026): ");
+        scanf("%d %d", &mes, &ano);
+        
 
-void atualizarVenda() {
-    int cod;
-    printf("\n--- ATUALIZAR STATUS ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf(" [1] Recebido\n");
-                printf(" [2] Em Preparo\n");
-                printf(" [3] Pronto (Retirada)\n");
-                printf(" [4] Saiu para Entrega\n");
-                printf(" [5] Finalizado\n");
-                printf(" Selecione o novo status: ");
-                scanf(" %d", &cod);
-                printf("\nStatus atualizado com sucesso!\n");
-                printf("\n [1] Atualizar novamente\n [0] Sair\n");
-                scanf(" %d", &cod);
-                break;
+        printf("\n--- ASSINATURAS QUE VENCEM EM %d/%d ---\n", mes, ano);
+        int encontrou = 0;
+        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            // verifica se o mes e o ano da assinatura forem iguais ao que o usuario digitou
+            if (a.d.mes == mes && a.d.ano == ano) {
+                printf("Cliente [%d] | Plano: %s | Vence em: %d/%d/%d\n", a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
+                encontrou = 1;
+            }
         }
-    } while (cod != 0);
+
+        if (!encontrou) {
+            printf("\n[Nenhuma assinatura proxima do vencimento]\n");
+        }
+
+        printf("---------------------------------------------------\n");
+        fclose(arc);
+        
+        printf("\n[0] Voltar ao menu principal\n");
+        scanf("%d", &op);
+        }
 }
 
-void exibirStatusPedido() {
-    int cod;
-    printf("\n--- EXIBIR STATUS ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
+/* FUNCOES VENDAS */ 
+typedef struct { // depois levo la pra cima
+    int id;
+    char descricao[100];
+    float valorTotal;
+    char status[20]; 
+} PEDIDO;
 
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Status do Pedido: Entregue\n");
-                printf("\n [0] Sair\n");
-                scanf(" %d", &cod);
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
-        }
-    } while (cod != 0);
+int buscarPedido(FILE *arc, int cod) { // ok~
+    PEDIDO p;
+    rewind(arc); 
+    while (!feof(arc)&&p.id == cod) 
+        fread(&p, sizeof(PEDIDO), 1, arc)
+    if (!feof(arc))
+        return (ftell(arc)-sizeof(PEDIDO));
+    return -1;
 }
 
-void confirmarRetirada() {
-    int cod;
-    printf("\n--- CONFIRMAR RETIRADA ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
+void cadastrarPedido() { // ok~
+    int op;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "ab+");
+    
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--- CADASTRAR PEDIDO ---\n");
+        printf("Digite o id do pedido: ");
+        scanf("%d", &p.id);
 
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Dados do pedido: \n");
-                printf("\n--------------------------------------------\n");
-                printf("\n--------------------------------------------\n");
-                printf("\n [1] Confirmar a retirada\n [0] Voltar\n");
-                scanf(" %d", &cod);
+        int b = buscarPedido(arc, p.id);
 
-                switch (cod) {
-                    case 1:
-                        printf("\nRetirada confirmada com sucesso!\n");
-                        printf("\n[0] Sair\n");
-                        scanf(" %d", &cod);
-                        break;
-
-                    case 0:
-                        break;
-                }
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
+        if (b != -1) {
+            printf("\n[ID de pedido ja cadastrado!]\n");
+        } else {
+            getchar(); 
+            printf("Descricao os itens: ");
+            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
+            p.descricao[strcspn(p.descricao, "\n")] = '\0';
+            
+            printf("Valor total: R$ ");
+            scanf("%f", &p.valorTotal);
+            
+            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
+            
+            fwrite(&p, sizeof(PEDIDO), 1, arc);
+            printf("\n[Pedido [%d] cadastrado com sucesso!]\n", p.id);
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
-void confirmarEntrega() {
-    int cod;
-    printf("\n--- CONFIRMAR ENTREGA ---\n");
-    printf("\nDigite o codigo de um pedido: ");
-    scanf("%d", &cod);
-
-    do {
-        switch (cod) {
-            case 1:
-                printf("\n Dados do pedido: \n");
-                printf("\n--------------------------------------------\n");
-                printf("\n--------------------------------------------\n");
-                printf("\n [1] Confirmar a entrega\n [0] Voltar\n");
-                scanf(" %d", &cod);
-
-                switch (cod) {
-                    case 1:
-                        printf("\nEntrega confirmada com sucesso!\n");
-                        printf("\n[0] Sair\n");
-                        scanf(" %d", &cod);
-                        break;
-
-                    case 0:
-                        break;
-                }
-                break;
-
-            case 0:
-                printf("\nCodigo invalido!\n");
-                printf("\n [1] Tentar novamente\n [0] Sair\n");
-                scanf("%d", &cod);
-                break;
+void atualizarVenda() { // ok~
+    int op, opStatus;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n--- ATUALIZAR STATUS ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &p.id);
+        
+        b = buscarPedido(arc, p.id);
+        if (b == -1) 
+            printf("\n[Pedido nao cadastrado]\n");
+        else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\nStatus atual: %s\n", p.status);
+            printf(" [1] Recebido\n");
+            printf(" [2] Em Preparo\n");
+            printf(" [3] Pronto (Retirada)\n");
+            printf(" [4] Saiu para Entrega\n");
+            printf(" [5] Finalizado\n");
+            printf(" Selecione o novo status: ");
+            scanf("%d", &opStatus);
+            
+            switch (opStatus) {
+                case 1: strcpy(p.status, "Recebido"); break;
+                case 2: strcpy(p.status, "Em Preparo"); break;
+                case 3: strcpy(p.status, "Pronto (Retirada)"); break;
+                case 4: strcpy(p.status, "Saiu para Entrega"); break;
+                case 5: strcpy(p.status, "Finalizado"); break;
+                default: printf("\n[Opcao invalida]\n"); break;
+            }
+            
+            if (opStatus == 1 || opStatus == 2 || opStatus == 3 || opStatus == 4 || opStatus == 5) {
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\n[Status atualizado com sucesso]\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
         }
-    } while (cod != 0);
+        fclose(arc);
+    }
 }
 
-void finalizarPedido() {
+void exibirStatusPedido() { // ok~
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- EXIBIR STATUS ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Status do Pedido [%d]: %s\n", p.id, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+    }
+}
 
+void confirmarRetirada() { // ok~
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- CONFIRMAR RETIRADA ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Dados do pedido: \n");
+            printf("--------------------------------------------\n");
+            printf("Itens: %s | Valor: R$ %.2f | Status: %s\n", p.descricao, p.valorTotal, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n [1] Confirmar a retirada\n [0] Voltar\n");
+            scanf("%d", &op);
+            
+            if (op == 1) {
+                strcpy(p.status, "Finalizado");
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\n[Retirada confirmada com sucesso]\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+    }
+}
+
+void confirmarEntrega() { // ok~
+    int op, cod;
+    int b;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n--- CONFIRMAR ENTREGA ---\n");
+        printf("Digite o id de um pedido: ");
+        scanf("%d", &cod);
+        
+        b = buscarPedido(arc, cod);
+        if (b == -1) {
+            printf("\n[Pedido nao cadastrado]\n");
+        } else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PEDIDO), 1, arc);
+            
+            printf("\n Dados do pedido: \n");
+            printf("--------------------------------------------\n");
+            printf("Itens: %s | Valor: R$ %.2f | Status: %s\n", p.descricao, p.valorTotal, p.status);
+            printf("--------------------------------------------\n");
+            
+            printf("\n [1] Confirmar a entrega\n [0] Voltar\n");
+            scanf("%d", &op);
+            
+            if (op == 1) {
+                strcpy(p.status, "Finalizado");
+                fseek(arc, b, 0);
+                fwrite(&p, sizeof(PEDIDO), 1, arc);
+                printf("\nEntrega confirmada com sucesso!\n");
+            }
+            
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+        }
+        fclose(arc);
+    }
+}
+
+void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redundantes, depois eu ajeito, vou finalizar os outros primeiro
+    int op;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb");
+    
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo\n");
+    } else {
+        printf("\n----------- TODOS OS PEDIDOS FINALIZADOS -----------\n");
+        int encontrou = 0;
+        while(fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+            if (strcmp(p.status, "Finalizado") == 0) {
+                printf("Pedido [%d] | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
+                encontrou = 1;
+            }
+        }
+        if (!encontrou) {
+            printf("\n[Nenhum pedido finalizado encontrado]\n");
+        }
+        printf("----------------------------------------------------\n");
+        printf("\n[0] Sair\n");
+        scanf("%d", &op);
+        fclose(arc);
+    }
 }
 
 // FUNCOES RELATORIOS GERENCIONAIS
@@ -1276,7 +1713,6 @@ int main() {
                             consultarVencimento();
                             break;
 
-                        	break;
                         default:
                             printf("\nOpcao invalida!\n");
                             break;
