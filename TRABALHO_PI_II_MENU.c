@@ -1146,6 +1146,74 @@ void consultarVencimento() { // ok~
         }
 }
 
+void ordenarAssinaturas() {
+    int qtd = 0, i;
+    ASSINATURA a, ax;
+    FILE *arc = fopen("assinatura.bin", "rb+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        fseek(arc, 0, 2);
+        qtd = ftell(arc) / sizeof(ASSINATURA);
+
+        while (qtd > 1){ // bubble sort
+            for (i=0;i<qtd-1;i++) {
+                fseek(arc, i * sizeof(ASSINATURA), 0); // lendo struct no arquivo na posicao I
+                fread(&a, sizeof(ASSINATURA), 0);
+
+                fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                fread(&ax, sizeof(ASSINATURA), 0);
+
+                int dataInt1 = (a.d.ano * 10000) + (a.d.m * 100) + a.d.d;
+                int dataInt2 = (ax.d.ano * 10000) + (ax.d.m * 100) + ax.d.d;
+                if (dataInt1 < dataInt2) { // se a data atual for menor, inverter as posicoes 
+                    fseek(arc, i * sizeof(ASSINATURA), 0);
+                    fwrite(&ax, sizeof(ASSINATURA), 1, arc);
+
+                    fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                    fwrite(&a, sizeof(ASSINATURA), 1, arc);
+                }
+            }
+            qtd--;
+        }
+        fclose(arc);
+    }
+}
+
+
+void listarAssinaturas() { // ok~
+    int op;
+    ASSINATURA a;
+    FILE *arc;
+    
+    // ordena antes de exibir
+    ordenarAssinaturas();
+    
+    arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) {
+        printf("\nErro\n");
+    } else {
+        printf("\n-----------LISTA DE ASSINATURAS-----------\n");
+        int assi = 0;
+        
+        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            assi = 1;
+            printf("ID Cliente: [%d] | Plano: %s | Vencimento: %02d/%02d/%04d | Status: %s\n", 
+                    a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
+        }
+        
+        if (assi == 0) {
+            printf("[Nenhuma assinatura encontrada para listagem]\n");
+        }
+        
+        printf("-----------------------------------------------------\n");
+        fclose(arc);
+        
+        printf("\n[0] Voltar ao menu principal\n");
+        scanf("%d", &op);
+    }
+}
+
+
 /* FUNCOES VENDAS */ 
 typedef struct { // depois levo la pra cima
     int id;
