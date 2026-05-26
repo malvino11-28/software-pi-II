@@ -38,10 +38,11 @@ typedef struct {
     
 } CADASTRO;
 
-// struct Produto -  id, nome, medida, marca, categoria, data_validade
+// struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
-	int id;
-	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
+	int id, quantidade;
+	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
+    float valor;
 } PRODUTO;
 
 void exibirMenuInicial() {
@@ -1152,10 +1153,78 @@ void consultarVencimento() { // ok~
         }
 }
 
+void ordenarAssinaturas() {
+    int qtd = 0, i;
+    ASSINATURA a, ax;
+    FILE *arc = fopen("assinatura.bin", "rb+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        fseek(arc, 0, 2);
+        qtd = ftell(arc) / sizeof(ASSINATURA);
+
+        while (qtd > 1){ // bubble sort
+            for (i=0;i<qtd-1;i++) {
+                fseek(arc, i * sizeof(ASSINATURA), 0); // lendo struct no arquivo na posicao I
+                fread(&a, sizeof(ASSINATURA), 0);
+
+                fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                fread(&ax, sizeof(ASSINATURA), 0);
+
+                int dataInt1 = (a.d.ano * 10000) + (a.d.m * 100) + a.d.d;
+                int dataInt2 = (ax.d.ano * 10000) + (ax.d.m * 100) + ax.d.d;
+                if (dataInt1 < dataInt2) { // se a data atual for menor, inverter as posicoes 
+                    fseek(arc, i * sizeof(ASSINATURA), 0);
+                    fwrite(&ax, sizeof(ASSINATURA), 1, arc);
+
+                    fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                    fwrite(&a, sizeof(ASSINATURA), 1, arc);
+                }
+            }
+            qtd--;
+        }
+        fclose(arc);
+    }
+}
+
+
+void listarAssinaturas() { // ok~
+    int op;
+    ASSINATURA a;
+    FILE *arc;
+    
+    // ordena antes de exibir
+    ordenarAssinaturas();
+    
+    arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) {
+        printf("\nErro\n");
+    } else {
+        printf("\n-----------LISTA DE ASSINATURAS-----------\n");
+        int assi = 0;
+        
+        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            assi = 1;
+            printf("ID Cliente: [%d] | Plano: %s | Vencimento: %02d/%02d/%04d | Status: %s\n", 
+                    a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
+        }
+        
+        if (assi == 0) {
+            printf("[Nenhuma assinatura encontrada para listagem]\n");
+        }
+        
+        printf("-----------------------------------------------------\n");
+        fclose(arc);
+        
+        printf("\n[0] Voltar ao menu principal\n");
+        scanf("%d", &op);
+    }
+}
+
+
 /* FUNCOES VENDAS */ 
 typedef struct { // depois levo la pra cima
     int id;
-    char descricao[100];
+    char descricao[100], status[20], periodo[30]; // ex: carnaval
     float valorTotal;
     char status[20]; 
 } PEDIDO;
@@ -1191,6 +1260,23 @@ void cadastrarPedido() { // ok~
             fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
             p.descricao[strcspn(p.descricao, "\n")] = '\0';
             
+            printf("\nSelecione um dos periodos.\n");
+            printf(" [1] Carnaval\n");
+            printf(" [2] Pascoa\n");
+            printf(" [3] Copa do mundo 2026\n");
+            printf(" [4] Natal\n");
+            printf(" [5] Reveillon\n");
+            printf(" [0] Sem periodo\n");
+            scanf("%d", &p.periodo);
+
+            if (p.periodo == 1) strcpy(p.periodo, "Carnaval");
+            if (p.periodo == 2) strcpy(p.periodo, "Pascoa");
+            if (p.periodo == 3) strcpy(p.periodo, "Copa do mundo 2026");
+            if (p.periodo == 4) strcpy(p.periodo, "Natal");
+            if (p.periodo == 5) strcpy(p.periodo, "Reveillon");
+            if (p.periodo >= 6 || <= 0) strcpy(p.periodo, "Sem periodo");
+
+
             printf("Valor total: R$ ");
             scanf("%f", &p.valorTotal);
             
@@ -1400,95 +1486,139 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
 
 void exibirVendasPeriodo() {
     int op;
+    PEDIDO p;
+    FILE *arc;
+    char periodo[30];
     
     do {
         printf("\n--- VENDAS POR PERIODO ---\n");
-        printf("\nSelecione um dos periodos.\n");
         printf(" [1] Carnaval\n");
         printf(" [2] Pascoa\n");
         printf(" [3] Copa do mundo 2026\n");
         printf(" [4] Natal\n");
         printf(" [5] Reveillon\n");
         printf(" [0] Voltar\n");
+        printf("Selecione um dos periodos: ");
         scanf("%d", &op);
-        
+
         switch (op) {
-            case 1:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: CARNAVAL\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 2:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: PASCOA\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 3:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: COPA DO MUNDO 2026\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 4:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: NATAL\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 5:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: REVEILLON\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-                
+            case 1: strcpy(periodo, "Carnaval"); break;
+            case 2: strcpy(periodo, "Pascoa"); break;
+            case 3: strcpy(periodo, "Copa do mundo 2026"); break;
+            case 4: strcpy(periodo, "Natal"); break;
+            case 5: strcpy(periodo, "Reveillon"); break;
+            case 0: break;
             default:
-                printf("\nOpcao invalida!\n");
-                break;
-        } 
+                printf("\n[Opcao invalida]\n");
+            break;
+        }
+        
+        arc = fopen("pedidos.bin", "rb");
+        if (arc == NULL) 
+            printf("\nErro\n");
+        else {
+            printf("\n--------------------------------------------\n");
+            printf("Vendas do periodo: %s\n",  periodo);
+            printf("--------------------------------------------\n");
+            
+            int pedido = 0;
+            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
+                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
+                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.codigo, p.descricao, p.valorTotal);
+                        pedido = 1;
+                    }
+            }
+            
+            if (!pedido) {
+                printf("[Nenhuma venda finalizada neste periodo]\n");
+            }
+            printf("--------------------------------------------\n");
+            fclose(arc);
+        }
+        
     } while(op != 0);
 }
 
+
 void exibirProdutosQTDBaixo() {
-    printf("\n--- PRODUTOS COM ESTOQUE BAIXO ---\n");
+    int op;
+    PRODUTO p;
+    FILE *arc = fopen("produtos.bin", "rb");
+    int baixo = 5; // a partir de 5 sera estoque baixo
+    int prod = 0;
     
-    printf("\n--------------------------------------------");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\n--------------------------------------------\n");
+    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
+    
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        printf("\n--------------------------------------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+            if (p.quantidade <= baixo) {
+                printf("ID: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
+                prod = 1;
+            }
+        }
+        if (!prod) {
+            printf("[Sem produto com estoque baixo]\n");
+        }
+        printf("--------------------------------------------\n");
+        fclose(arc);
+    }
+    
+    printf("\n[0] Voltar\n");
+    scanf("%d", &op);
 }
 
 void exibirTicket() {
+    int op;
+    CADASTRO c; (A struct de cliente que você usou no seu exemplo)
+    PEDIDO p;
+    FILE *arcC, *arcP;
+    
     printf("\n--- TICKET MEDIO POR CLIENTE ---\n");
+    printf("\n--------------------------------------------\n");
 
-    printf("\nCliente: Joao\n");
-    printf("Total gasto: R$ 300.00\n");
-    printf("Quantidade de compras: 3\n");
-    printf("Ticket medio: R$ 100.00\n");
+    arcC = fopen("cliente.bin", "rb");
+    if (arcC == NULL) 
+        printf("\nErro\n");
+    else {
+        while (fread(&c, sizeof(CADASTRO), 1, arcC) == 1) {
+            arcP = fopen("pedidos.bin", "rb");
+            float totalGasto = 0;
+            int qtdCompras = 0;
+            
+            if (arcP == NULL) 
+                printf("\nErro\n");
+            else {
+                while (fread(&p, sizeof(PEDIDO), 1, arcP) == 1) {
+                    // caso o pedido seja do cliente (comparando id), e esteja finalizado
+                    if (p.idCliente == c.id && strcmp(p.status, "Finalizado") == 0) {
+                        totalGasto += p.valorTotal;
+                        qtdCompras++;
+                    }
+                }
+                fclose(arcP);
+            }
+            
+            if (qtdCompras > 0) {
+                float ticketMedio = totalGasto / qtdCompras;
+                printf("Cliente [%d]: %s\n", c.id, c.nome);
+                printf("  Total gasto: R$ %.2f\n", totalGasto);
+                printf("  Quantidade de compras: %d\n", qtdCompras);
+                printf("  Ticket medio: R$ %.2f\n\n", ticketMedio);
+            }
+        }
+    }
+    fclose(arcC);
+    fclose(arcP);
 
-    printf("\nCliente: Maria\n");
-    printf("Total gasto: R$ 200.00\n");
-    printf("Quantidade de compras: 2\n");
-    printf("Ticket medio: R$ 100.00\n");
+    printf("--------------------------------------------\n");
+    printf("\n[0] Voltar\n");
+    scanf("%d", &op);
 }
+
 
 int main() {
     int opcoes, subOpcoes;
