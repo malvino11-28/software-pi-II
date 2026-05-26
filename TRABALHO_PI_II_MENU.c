@@ -38,10 +38,11 @@ typedef struct {
     
 } CADASTRO;
 
-// struct Produto -  id, nome, medida, marca, categoria, data_validade
+// struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
-	int id;
-	char nome[TF], medida[TFR], marca[TF], categoria[TF], Data validade; 
+	int id, quantidade;
+	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
+    float valor;
 } PRODUTO;
 
 void exibirMenuInicial() {
@@ -1223,7 +1224,7 @@ void listarAssinaturas() { // ok~
 /* FUNCOES VENDAS */ 
 typedef struct { // depois levo la pra cima
     int id;
-    char descricao[100];
+    char descricao[100], status[20], periodo[30]; // ex: carnaval
     float valorTotal;
     char status[20]; 
 } PEDIDO;
