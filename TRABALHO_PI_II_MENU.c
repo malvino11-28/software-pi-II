@@ -1482,6 +1482,77 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
     }
 }
 
+
+void ordenarPedidos() {
+    PEDIDO p, px;
+    int qtde = 0, i;
+    
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        fseek(arc, 0, 2);
+        qtde = ftell(arc) / sizeof(PEDIDO);
+        
+        while (qtde > 1) {
+            for (i=0;i<qtde-1;i++) {
+                
+                fseek(arc, i * sizeof(PEDIDO), 0); 
+                fread(&p, sizeof(PEDIDO), 1, arc);
+                
+                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
+                fread(&px, sizeof(PEDIDO), 1, arc);
+                
+                if (p.id > px.id) { // id crescente
+                    fseek(arc, i * sizeof(PEDIDO), 0);
+                    fwrite(&px, sizeof(PEDIDO), 1, arc);
+
+                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
+                    fwrite(&p, sizeof(PEDIDO), 1, arc);
+                }
+            }
+            qtde--;
+        }
+        fclose(arc);
+        printf("\n[Arquivo de pedidos ordenado por ID com sucesso]\n");
+    }
+}
+
+
+void listarPedidosOrdenados() {
+    int op;
+    PEDIDO p;
+    FILE *arc = fopen("pedidos.bin", "rb");
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        ordenarPedidos(); // ordenando por ID
+
+        else {
+            printf("\n-----------LISTA DE PEDIDOS-----------\n");
+            int pedido = 0;
+            
+            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+                pedido = 1;
+                printf("ID: [%d] | Itens: %s | Total: R$ %.2f | Status: %s\n", 
+                        p.id, p.descricao, p.valorTotal, p.status);
+            }
+            
+            if (!pedido) {
+                printf("[Nenhum pedido encontrado no sistema]\n");
+            }
+            
+            printf("--------------------------------------------------\n");
+            fclose(arc);
+            
+            printf("\n[0] Voltar\n");
+            scanf("%d", &op);
+        }
+    }
+}
+
+
+
 // FUNCOES RELATORIOS GERENCIONAIS
 
 void exibirVendasPeriodo() {
