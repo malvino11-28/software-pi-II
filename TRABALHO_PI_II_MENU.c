@@ -1572,18 +1572,53 @@ void exibirProdutosQTDBaixo() {
 }
 
 void exibirTicket() {
+    int op;
+    CADASTRO c; (A struct de cliente que você usou no seu exemplo)
+    PEDIDO p;
+    FILE *arcC, *arcP;
+    
     printf("\n--- TICKET MEDIO POR CLIENTE ---\n");
+    printf("\n--------------------------------------------\n");
 
-    printf("\nCliente: Joao\n");
-    printf("Total gasto: R$ 300.00\n");
-    printf("Quantidade de compras: 3\n");
-    printf("Ticket medio: R$ 100.00\n");
+    arcC = fopen("cliente.bin", "rb");
+    if (arcC == NULL) 
+        printf("\nErro\n");
+    else {
+        while (fread(&c, sizeof(CADASTRO), 1, arcC) == 1) {
+            arcP = fopen("pedidos.bin", "rb");
+            float totalGasto = 0;
+            int qtdCompras = 0;
+            
+            if (arcP == NULL) 
+                printf("\nErro\n");
+            else {
+                while (fread(&p, sizeof(PEDIDO), 1, arcP) == 1) {
+                    // caso o pedido seja do cliente (comparando id), e esteja finalizado
+                    if (p.idCliente == c.id && strcmp(p.status, "Finalizado") == 0) {
+                        totalGasto += p.valorTotal;
+                        qtdCompras++;
+                    }
+                }
+                fclose(arcP);
+            }
+            
+            if (qtdCompras > 0) {
+                float ticketMedio = totalGasto / qtdCompras;
+                printf("Cliente [%d]: %s\n", c.id, c.nome);
+                printf("  Total gasto: R$ %.2f\n", totalGasto);
+                printf("  Quantidade de compras: %d\n", qtdCompras);
+                printf("  Ticket medio: R$ %.2f\n\n", ticketMedio);
+            }
+        }
+    }
+    fclose(arcC);
+    fclose(arcP);
 
-    printf("\nCliente: Maria\n");
-    printf("Total gasto: R$ 200.00\n");
-    printf("Quantidade de compras: 2\n");
-    printf("Ticket medio: R$ 100.00\n");
+    printf("--------------------------------------------\n");
+    printf("\n[0] Voltar\n");
+    scanf("%d", &op);
 }
+
 
 int main() {
     int opcoes, subOpcoes;
