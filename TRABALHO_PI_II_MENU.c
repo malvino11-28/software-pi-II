@@ -1486,70 +1486,60 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
 
 void exibirVendasPeriodo() {
     int op;
+    PEDIDO p;
+    FILE *arc;
+    char periodo[30];
     
     do {
         printf("\n--- VENDAS POR PERIODO ---\n");
-        printf("\nSelecione um dos periodos.\n");
         printf(" [1] Carnaval\n");
         printf(" [2] Pascoa\n");
         printf(" [3] Copa do mundo 2026\n");
         printf(" [4] Natal\n");
         printf(" [5] Reveillon\n");
         printf(" [0] Voltar\n");
+        printf("Selecione um dos periodos: ");
         scanf("%d", &op);
-        
+
         switch (op) {
-            case 1:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: CARNAVAL\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 2:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: PASCOA\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 3:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: COPA DO MUNDO 2026\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 4:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: NATAL\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-            
-            case 5:
-                printf("\n--------------------------------------------\n");
-                printf("Vendas do periodo: REVEILLON\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                printf("\nVenda <1>\n");
-                printf("\n--------------------------------------------\n");
-                break;
-                
+            case 1: strcpy(periodo, "Carnaval"); break;
+            case 2: strcpy(periodo, "Pascoa"); break;
+            case 3: strcpy(periodo, "Copa do mundo 2026"); break;
+            case 4: strcpy(periodo, "Natal"); break;
+            case 5: strcpy(periodo, "Reveillon"); break;
+            case 0: break;
             default:
-                printf("\nOpcao invalida!\n");
-                break;
-        } 
+                printf("\n[Opcao invalida]\n");
+            break;
+        }
+        
+        arc = fopen("pedidos.bin", "rb");
+        if (arc == NULL) 
+            printf("\nErro\n");
+        else {
+            printf("\n--------------------------------------------\n");
+            printf("Vendas do periodo: %s\n",  periodo);
+            printf("--------------------------------------------\n");
+            
+            int pedido = 0;
+            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
+                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
+                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.codigo, p.descricao, p.valorTotal);
+                        pedido = 1;
+                    }
+            }
+            
+            if (!pedido) {
+                printf("[Nenhuma venda finalizada neste periodo]\n");
+            }
+            printf("--------------------------------------------\n");
+            fclose(arc);
+        }
+        
     } while(op != 0);
 }
+
 
 void exibirProdutosQTDBaixo() {
     printf("\n--- PRODUTOS COM ESTOQUE BAIXO ---\n");
