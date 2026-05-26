@@ -1542,14 +1542,33 @@ void exibirVendasPeriodo() {
 
 
 void exibirProdutosQTDBaixo() {
-    printf("\n--- PRODUTOS COM ESTOQUE BAIXO ---\n");
+    int op;
+    PRODUTO p;
+    FILE *arc = fopen("produtos.bin", "rb");
+    int baixo = 5; // a partir de 5 sera estoque baixo
+    int prod = 0;
     
-    printf("\n--------------------------------------------");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\nProduto: teste -- QTD: 0");
-    printf("\n--------------------------------------------\n");
+    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
+    
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        printf("\n--------------------------------------------\n");
+        while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+            if (p.quantidade <= baixo) {
+                printf("Cod: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
+                prod = 1;
+            }
+        }
+        if (!prod) {
+            printf("[Sem produto com estoque baixo]\n");
+        }
+        printf("--------------------------------------------\n");
+        fclose(arc);
+    }
+    
+    printf("\n[0] Voltar\n");
+    scanf("%d", &op);
 }
 
 void exibirTicket() {
