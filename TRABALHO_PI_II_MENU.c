@@ -1096,6 +1096,17 @@ typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra c
     char plano[TF], status[20];
 } ASSINATURA;
 
+int buscarAssinatura(FILE *arc, int b) {
+    ASSINATURA a;
+    rewind(arc);
+    fread(&a, sizeof(ASSINATURA), 1, arc);
+    while(!feof(arc)&&b!=a.idCliente)
+        fread(&a, sizeof(ASSINATURA), 1, arc)
+    if (!feof(arc))
+        return (ftell(arc)-sizeof(arc));
+    else return -1;
+}
+
 void criarAssinatura() { // ok~
     int op, b;
     ASSINATURA a;
@@ -1233,13 +1244,13 @@ void ordenarAssinaturas() {
         while (qtd > 1){ // bubble sort
             for (i=0;i<qtd-1;i++) {
                 fseek(arc, i * sizeof(ASSINATURA), 0); // lendo struct no arquivo na posicao I
-                fread(&a, sizeof(ASSINATURA), 0);
+                fread(&a, sizeof(ASSINATURA), 1, arc);
 
                 fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
-                fread(&ax, sizeof(ASSINATURA), 0);
+                fread(&ax, sizeof(ASSINATURA), 1, arc);
 
-                int dataInt1 = (a.d.ano * 10000) + (a.d.m * 100) + a.d.d;
-                int dataInt2 = (ax.d.ano * 10000) + (ax.d.m * 100) + ax.d.d;
+                int dataInt1 = (a.d.ano * 10000) + (a.d.mes * 100) + a.d.dia;
+                int dataInt2 = (ax.d.ano * 10000) + (ax.d.mes * 100) + ax.d.dia;
                 if (dataInt1 < dataInt2) { // se a data atual for menor, inverter as posicoes 
                     fseek(arc, i * sizeof(ASSINATURA), 0);
                     fwrite(&ax, sizeof(ASSINATURA), 1, arc);
@@ -1293,15 +1304,14 @@ void listarAssinaturas() { // ok~
 typedef struct { // depois levo la pra cima
     int id;
     char descricao[100], status[20], periodo[30]; // ex: carnaval
-    float valorTotal;
-    char status[20]; 
+    float valorTotal; 
 } PEDIDO;
 
 int buscarPedido(FILE *arc, int cod) { // ok~
     PEDIDO p;
     rewind(arc); 
-    while (!feof(arc)&&p.id == cod) 
-        fread(&p, sizeof(PEDIDO), 1, arc)
+    while (!feof(arc)&&p.id != cod) 
+        fread(&p, sizeof(PEDIDO), 1, arc);
     if (!feof(arc))
         return (ftell(arc)-sizeof(PEDIDO));
     return -1;
@@ -1335,14 +1345,14 @@ void cadastrarPedido() { // ok~
             printf(" [4] Natal\n");
             printf(" [5] Reveillon\n");
             printf(" [0] Sem periodo\n");
-            scanf("%d", &p.periodo);
+            scanf("%d", &op);
 
-            if (p.periodo == 1) strcpy(p.periodo, "Carnaval");
-            if (p.periodo == 2) strcpy(p.periodo, "Pascoa");
-            if (p.periodo == 3) strcpy(p.periodo, "Copa do mundo 2026");
-            if (p.periodo == 4) strcpy(p.periodo, "Natal");
-            if (p.periodo == 5) strcpy(p.periodo, "Reveillon");
-            if (p.periodo >= 6 || <= 0) strcpy(p.periodo, "Sem periodo");
+            if (op == 1) strcpy(p.periodo, "Carnaval");
+            if (op == 2) strcpy(p.periodo, "Pascoa");
+            if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
+            if (op == 4) strcpy(p.periodo, "Natal");
+            if (op == 5) strcpy(p.periodo, "Reveillon");
+            if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
 
 
             printf("Valor total: R$ ");
@@ -1593,7 +1603,7 @@ void exibirVendasPeriodo() {
             while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
                 // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
                 if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
-                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.codigo, p.descricao, p.valorTotal);
+                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
                         pedido = 1;
                     }
             }
