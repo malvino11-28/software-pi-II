@@ -738,248 +738,313 @@ void excl_forn() {
 }
 
 /* FUNCOES PRODUTOS */
+// typedef struct {
+// 	int id, qtd;
+// 	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
+//  float valor;
+// } PRODUTO;
 
-void exibirProduto() {
-    printf("\n--------------------------------------------");
-    printf("\nNome do Produto: teste");
-    printf("\nUnidade de medida: UN");
-    printf("\nMarca do Produto: teste");
-    printf("\nQuantidade em estoque: 10.00");
-    printf("\nCategoria do Produto: 1");
-    printf("\nCodigo do produto: 1");
-    printf("\n--------------------------------------------\n");
+int buscarProduto(FILE *arc, int b) {
+    PRODUTO p;
+    rewind(arc);
+    fread(&p, sizeof(PRODUTO), 1, arc);
+    while (!feof(arc)&&b!=p.id)
+        fread(&p, sizeof(PRODUTO), 1);
+    if (!feof(arc))
+        return (ftell(arc)-sizeof(PRODUTO));
+    else return -1;
 }
 
 void cadastrarProduto() {
-    int opcao = -1;
-    char descricao[TF], medida[TFR], marca[TF];
-    int categoriaCod;
+    PRODUTO p;
+    FILE *arc = fopen("produtos.bin", "ab+");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n---------CADASTRO DE PRODUTO-----------\n");
+        printf("\nDigite o ID do produto a ser cadastrado: ");
+        scanf("%d", &p.id);
+        int b = buscarProduto(arc, p.id);
+        
+        if (p.id != -1) printf("\n[ID do produto ja cadastrado]\n");
+        else {
+            getchar();
 
-    printf("\n---------CADASTRO DE PRODUTO-----------\n");
-    while (opcao != 0) {
-        printf("Deseja cadastrar? \n");
-        printf("[1] Continuar\n[0] Sair\n");
-        scanf("%d", &opcao);
+            printf("Nome do produto: ");
+            fgets(p.nome, sizeof(p.nome), stdin);
 
-        switch (opcao) {
-            case 1:
-                getchar();
+            printf("Unidade de medida (ex: UN, KG, MC, LT): ");
+            fgets(p.medida, sizeof(p.medida), stdin);
 
-                printf("Nome do produto: ");
-                fgets(descricao, sizeof(descricao), stdin);
+            printf("Marca do produto: ");
+            fgets(p.marca, sizeof(p.marca), stdin);
 
-                printf("Unidade de medida (ex: UN, KG, M�, LT): ");
-                fgets(medida, sizeof(medida), stdin);
+            printf("Categoria do produto: \n");
+            fgets(p.categoria, sizeof(p.categoria), stdin);
 
-                printf("Marca do produto: ");
-                fgets(marca, sizeof(marca), stdin);
+            printf("Valor do produto: \n");
+            scanf("%f", &p.valor);
 
-                printf("Categoria do produto: \n");
-                printf("[1] Bovino\n[2] Lacteo\n[3] Domestico\n");
-                scanf("%d", &categoriaCod);
+            printf("Quantidade de produto: \n");
+            scanf("%d", &p.qtd);
 
-                printf("\nProduto cadastrado!\nCodigo do produto: %d\n\n", 1);
-                break;
-
-            case 0:
-                printf("\n[Saindo...]\n");
-                break;
-
-            default:
-                printf("Opcao invalida! Tente novamente\n");
-                break;
+            fwrite(&p, sizeof(PRODUTO), 1, arc);
+            printf("\n[Produto cadastrado!\nCodigo do produto: %d]\n\n", p.id);
         }
+        fclose(arc);
+    }
+}
+
+void exibirProduto() {
+    PRODUTO p;
+    FILE *arc = fopen("produtos.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        int prod = 0;
+        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+            printf("\n--------------------[%d]---------------------", p.id);
+            printf("\nNome do Produto: %s", p.nome);
+            printf("\nUnidade de medida: %s", p.medida);
+            printf("\nMarca do Produto: %s", p.marca);
+            printf("\nCategoria do Produto: %s", p.categoria);
+            printf("\nValor do produto: %.2f", p.valor);
+            printf("\nQuantidade em estoque: %d", p.qtd);
+            printf("\n--------------------------------------------\n");
+            prod = 1;
+        }
+        if (prod = 0) printf("\n[Sem produtos cadastrados]");
+        fclose(arc);
     }
 }
 
 void alterarProduto() {
-    int opcao, op;
-    char descricao[TF], medida[TFR], marca[TF];
-    float qtd;
-    int categoriaCod;
-
-    printf("\n---------ALTERAR PRODUTO-----------\n");
-    printf("Deseja alterar algum produto?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &opcao);
-
-    while (opcao != 0) {
-        printf("Selecione o produto pelo codigo dele.\n");
-        printf("[0] Voltar\n");
-        printf("Codigo: ");
-        scanf("%d", &opcao);
-
-        switch (opcao != 0) {
-            case 1:
-                do {
-                    printf("\n--------------------------------------------");
-                    printf("\nNome do Produto: teste");
-                    printf("\nUnidade de medida: UN");
-                    printf("\nMarca do Produto: teste");
-                    printf("\nQuantidade em estoque: 10.00");
-                    printf("\nCategoria do Produto: 1");
-                    printf("\nCodigo do produto: %d", opcao);
-                    printf("\n--------------------------------------------\n");
-                    printf("\nDeseja alterar alguma informacao?\n");
-                    printf("[1] Alterar nome\n[2] Alterar unidade de medida\n");
-                    printf("[3] Alterar marca\n[4] Alterar quantidade\n[5] Alterar categoria\n[0] Voltar\n");
-
-                    scanf("%d", &op);
+    int id, op, b;
+    PRODUTO p; 
+    FILE *arc = fopen("produtos.bin", "rb+"); 
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n---------ALTERAR PRODUTO-----------\n");
+        printf("\nInforme o ID do produto a ser alterado: \n");
+        scanf("%d", &id);
+  
+        b = buscarProduto(arc, id); 
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+            fseek(arc, b, 0); 
+            fread(&p, sizeof(PRODUTO), 1, arc);
+                printf("\n--------------------[%d]---------------------", p.id);
+                printf("\nNome do Produto: %s", p.nome);
+                printf("\nUnidade de medida: %s", p.medida);
+                printf("\nMarca do Produto: %s", p.marca);
+                printf("\nCategoria do Produto: %s", p.categoria); 
+                printf("\nValor do produto: %.2f", p.valor);
+                printf("\nQuantidade em estoque: %d", p.qtd);
+                printf("\n--------------------------------------------\n");
+                    
+            do {
+                printf("\nDeseja alterar alguma informacao?\n");
+                printf("[1] Alterar nome\n[2] Alterar unidade de medida\n");
+                printf("[3] Alterar marca\n[4] Alterar quantidade\n[5] Alterar categoria\n[6] Alterar valor\n[0] Salvar e Voltar\n");
+                printf("Selecione uma opcao: ");
+                scanf("%d", &op);
 
                     switch (op) {
                         case 1:
                             getchar();
                             printf("Novo nome: ");
-                            fgets(descricao, sizeof(descricao), stdin);
-                            printf("\nNome alterado com sucesso! Deseja realizar mais alguma alteracao?");
-                            printf("\n[1] Continuar\n[0] Sair\n");
-                            scanf("%d", &op);
-                            break;
+                            fgets(p.nome, sizeof(p.nome), stdin);
+                            printf("\nNome alterado localmente com sucesso!\n");
+                        break;
 
                         case 2:
                             getchar();
                             printf("Nova unidade de medida: ");
-                            fgets(medida, sizeof(medida), stdin);
-                            printf("\nUnidade de medida alterada com sucesso! Deseja realizar mais alguma alteracao?");
-                            printf("\n[1] Continuar\n[0] Sair\n");
-                            scanf("%d", &op);
-                            break;
+                            fgets(p.medida, sizeof(p.medida), stdin);
+                            printf("\nUnidade de medida alterada localmente com sucesso!\n");
+                        break;
 
                         case 3:
                             getchar();
                             printf("Nova marca: ");
-                            fgets(marca, sizeof(marca), stdin);
-                            printf("\nMarca alterada com sucesso! Deseja realizar mais alguma alteracao?");
-                            printf("\n[1] Continuar\n[0] Sair\n");
-                            scanf("%d", &op);
-                            break;
+                            fgets(p.marca, sizeof(p.marca), stdin);
+                            printf("\nMarca alterada com sucesso!\n");
+                        break;
 
                         case 4:
                             printf("Nova quantidade em estoque: ");
-                            scanf("%f", &qtd);
-                            printf("\nQuantidade alterada com sucesso! Deseja realizar mais alguma alteracao?");
-                            printf("\n[1] Continuar\n[0] Sair\n");
-                            scanf("%d", &op);
-                            break;
+                            scanf("%d", &p.qtd);
+                            printf("\nQuantidade alterada com sucesso!\n");
+                        break;
 
                         case 5:
-                            printf("Nova categoria: \n");
-                            printf("[1] Bovino\n[2] Lacteo\n[3] Domestico\n");
-                            scanf("%d", &categoriaCod);
-                            printf("\nCategoria alterada com sucesso! Deseja realizar mais alguma alteracao?");
-                            printf("\n[1] Continuar\n[0] Sair\n");
-                            scanf("%d", &op);
-                            break;
+                            printf("Nova categoria do produto: \n");
+                            fgets(p.categoria, sizeof(p.categoria), stdin);
+                            printf("\nCategoria alterada com sucesso!\n");
+                        break;
+
+                        case 6:
+                            printf("Novo valor do produto: ");
+                            scanf("%f", &p.valor);
+                            printf("\nValor alterado com sucesso!\n");
+                        break;
 
                         case 0:
-                            printf("\n[Saindo...]\n");
-                            break;
+                            // Grava as alterações de volta no arquivo binário antes de sair
+                            fseek(arc, b, 0);
+                            fwrite(&p, sizeof(PRODUTO), 1, arc);
+                            printf("\n[Alteracoes salvas no arquivo com sucesso!]\n");
+                        break;
 
                         default:
                             printf("\nOpcao invalida!\n");
                             break;
                     }
-
                 } while (op != 0);
-                break;
+            }
 
-            case 0:
-                break;
+            printf("\n[0] Sair");
+            scanf("%d", &op);
         }
-    }
+        fclose(arc);
 }
 
 void consultarProduto() {
-    int op, opC;
+    int op, prod;
+    PRODUTO p; 
     char busca[TS];
-
-    printf("\n---------CONSULTAR PRODUTO-----------\n");
-    printf("Deseja consultar algum produto?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
-
-    while (op != 0) {
-        printf("\nSelecione uma opcao de busca.\n");
-        printf("[1] Buscar pelo nome\n[2] Buscar pela categoria\n[3] Buscar pela marca\n[4] Buscar pela unidade de medida\n[0] Voltar\n");
+    
+    FILE *arc = fopen("produtos.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+   
+    do {
+        printf("\n---------CONSULTAR PRODUTO-----------\n");
+        printf("Selecione uma opcao de busca.\n");
+        printf("[1] Buscar pelo nome\n[2] Buscar pela categoria\n[0] Voltar\n");
+        printf("Opcao: ");
         scanf("%d", &op);
-
+        
+        while(getchar() != '\n'); 
+        
+        prod = 0; 
         switch (op) {
             case 1:
-                getchar();
                 printf("\nDigite o nome do produto: ");
                 fgets(busca, sizeof(busca), stdin);
 
-				exibirProduto();
+                printf("\n--- RESULTADOS DA BUSCA (NOME) ---");
+                while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+                    if (stricmp(p.nome, busca) == 0) { 
+                        printf("\n--------------------[%d]---------------------", p.id);
+                        printf("\nNome do Produto: %s", p.nome);
+                        printf("\nUnidade de medida: %s", p.medida);
+                        printf("\nMarca do Produto: %s", p.marca);
+                        printf("\nCategoria do Produto: %s", p.categoria); 
+                        printf("\nValor do produto: %.2f", p.valor);
+                        printf("\nQuantidade em estoque: %d", p.qtd);
+                        printf("\n--------------------------------------------\n");
+                        prod = 1;
+                    }
+                }
+                if (!prod) printf("\n[Nenhum produto encontrado com esse nome]\n");
                 break;
 
             case 2:
-                printf("\nSelecione a categoria do produto: \n");
-                printf("[1] Bovino\n[2] Lacteo\n[3] Domestico\n");
-                scanf("%d", &opC);
-
-                exibirProduto();
-                break;
-
-            case 3:
-                getchar();
-                printf("\nDigite o nome da marca do produto: ");
+                printf("\nDigite a categoria do produto: ");
                 fgets(busca, sizeof(busca), stdin);
 
-                exibirProduto();
-                break;
-
-            case 4:
-                getchar();
-                printf("\nDigite a unidade de medida abreviada: ");
-                fgets(busca, sizeof(busca), stdin);
-
-                exibirProduto();
+                printf("\n--- RESULTADOS DA BUSCA (CATEGORIA) ---");
+                while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+                    if (stricmp(p.categoria, busca) == 0) {
+                        printf("\n--------------------[%d]---------------------", p.id);
+                        printf("\nNome do Produto: %s", p.nome);
+                        printf("\nUnidade de medida: %s", p.medida);
+                        printf("\nMarca do Produto: %s", p.marca);
+                        printf("\nCategoria do Produto: %s", p.categoria); 
+                        printf("\nValor do produto: %.2f", p.valor);
+                        printf("\nQuantidade em estoque: %d", p.qtd);
+                        printf("\n--------------------------------------------\n");
+                        prod = 1;
+                    }
+                }
+                if (!prod) printf("\n[Nenhum produto cadastrado nesta categoria]\n");
                 break;
 
             case 0:
+                printf("\n[Voltando ao menu principal...]\n");
+                break;
+
+            default:
+                printf("\nOpcao invalida!\n");
                 break;
         }
-    }
+        
+    } while (op != 0);
+
+    fclose(arc); 
 }
 
 void excluirProduto() {
-    int op, prodCod;
+    FILE *arc, *temp;
+    PRODUTO p;
+    int op, id, b;
 
-    printf("\n---------EXCLUIR PRODUTO-----------\n");
-    printf("Deseja excluir algum produto?");
-    printf("\n[1] Continuar\n[0] Sair\n");
-    scanf("%d", &op);
+    arc = fopen("produtos.bin", "rb");
+    if (arc == NULL) printf("\nErro\n");
+    else {
+        printf("\n---------EXCLUIR PRODUTO-----------\n");
+        
+        printf("\nInforme o ID do produto a ser alterado: \n");
+        scanf("%d", &id);
 
-    while (op != 0) {
-        printf("Procure o produto pelo codigo.\n");
-        printf("Codigo: ");
-        scanf("%d", &prodCod);
+        b = buscar(arc, id); 
+        if (b == -1) 
+            printf("\n[ID nao cadastrado]\n");
+        else {
+            fseek(arc, b, 0);
+            fread(&p, sizeof(PRODUTO), 1, arc);
 
-        printf("\n--------------------------------------------");
-        printf("\nNome do Produto: teste");
-        printf("\nUnidade de medida: UN");
-        printf("\nMarca do Produto: teste");
-        printf("\nQuantidade em estoque: 10.00");
-        printf("\nCategoria do Produto: Bovino");
-        printf("\nCodigo do produto: %d", prodCod);
-        printf("\n--------------------------------------------\n");
+            printf("\n--------------------[%d]---------------------", p.id);
+            printf("\nNome do Produto: %s", p.nome);
+            printf("\nUnidade de medida: %s", p.medida);
+            printf("\nMarca do Produto: %s", p.marca);
+            printf("\nCategoria do Produto: %s", p.categoria); 
+            printf("\nValor do produto: %.2f", p.valor);
+            printf("\nQuantidade em estoque: %d", p.qtd);
+            printf("\n--------------------------------------------\n");
 
-        printf("\nRealmente deseja excluir o produto?\n");
-        printf("[1] Excluir\n[0] Voltar\n");
-        scanf("%d", &op);
+            printf("\nRealmente deseja excluir o produto?\n");
+            printf("[1] Excluir\n[0] Voltar\n");
+            printf("Opcao: ");
+            scanf("%d", &op);
 
-        switch (op) {
-            case 1:
-                printf("\nProduto deletado com sucesso.\n");
-                printf("\n[0] Sair\n");
-                scanf("%d", &op);
-                break;
+            if (op == 1) {
+                temp = fopen("auxiliar.bin", "wb");
+                if (temp == NULL) printf("Erro");
+                else {
+                    rewind(arc);
+                    while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+                        if (p.id!= id) { 
+                            fwrite(&p, sizeof(PRODUTO), 1, temp);
+                        }
+                    }
+                }
+                fclose(temp);
+                fclose(arc);
 
-            case 0:
-                break;
+                remove("produtos.bin");
+                rename("auxiliar.bin", "produtos.bin");
+
+                printf("\n[Produto deletado com sucesso]\n");
+            } 
+            else 
+                fclose(arc); 
+            
         }
+        printf("\n[0] Sair\n");
+        scanf("%d", &op);
     }
 }
+
+// // // //
 
 void gerenciarMarcas() { // ok~
     int op, vazio = 1;
@@ -1080,7 +1145,7 @@ void renovarAssinatura() { // ok~
         b = buscar(arc, a.idCliente);
         if (b == -1) printf("\n[ID nao cadastrado]\n");
         else {
-            fseek(arc, b, SEEK_SET); 
+            fseek(arc, b, 0); 
             fread(&a, sizeof(ASSINATURA), 1, arc);
             if (stricmp(a.status, "Ativo") == 0) 
                 printf("\n[Assinatura ja esta ativa. Nao precisa renovar!]\n");
@@ -1090,7 +1155,7 @@ void renovarAssinatura() { // ok~
                 scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
                 strcpy(a.status, "Ativo");
                 printf("--------------------------------------------\n");
-                fseek(arc, b, SEEK_SET);
+                fseek(arc, b, 0);
                 fwrite(&a, sizeof(ASSINATURA), 1, arc);
                 printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", a.idCliente);
             }
