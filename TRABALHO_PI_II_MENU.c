@@ -16,7 +16,7 @@ typedef struct {
 
 typedef struct {
     
-    char rua[100], bairro[50], cidade[100], estado[2], cep[10];
+    char rua[100], bairro[50], cidade[100], estado[3], cep[10];
     int num;
     
 } ENDERECO;
@@ -1114,7 +1114,7 @@ void criarAssinatura() { // ok~
     FILE *cli, *arc = fopen("assinatura.bin", "ab+");
     if (arc == NULL) printf("\nErro\n");
     else {
-        cli = fopen("cliente.bin", "rb");
+        cli = fopen("cadastro.bin", "rb");
         printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
         printf("Informe o ID do cliente que recebera a assinatura: ");
         scanf("%d", &c.id);
