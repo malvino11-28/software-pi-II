@@ -40,7 +40,7 @@ typedef struct {
 
 // struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
-	int id, quantidade;
+	int id, qtd;
 	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
     float valor;
 } PRODUTO;
@@ -752,7 +752,7 @@ int buscarProduto(FILE *arc, int b) {
     rewind(arc);
     fread(&p, sizeof(PRODUTO), 1, arc);
     while (!feof(arc)&&b!=p.id)
-        fread(&p, sizeof(PRODUTO), 1);
+        fread(&p, sizeof(PRODUTO), 1, arc);
     if (!feof(arc))
         return (ftell(arc)-sizeof(PRODUTO));
     else return -1;
@@ -768,7 +768,7 @@ void cadastrarProduto() {
         scanf("%d", &p.id);
         int b = buscarProduto(arc, p.id);
         
-        if (p.id != -1) printf("\n[ID do produto ja cadastrado]\n");
+        if (b != -1) printf("\n[ID do produto ja cadastrado]\n");
         else {
             getchar();
 
@@ -814,7 +814,7 @@ void exibirProduto() {
             printf("\n--------------------------------------------\n");
             prod = 1;
         }
-        if (prod = 0) printf("\n[Sem produtos cadastrados]");
+        if (prod == 0) printf("\n[Sem produtos cadastrados]");
         fclose(arc);
     }
 }
@@ -998,7 +998,7 @@ void excluirProduto() {
         printf("\nInforme o ID do produto a ser alterado: \n");
         scanf("%d", &id);
 
-        b = buscar(arc, id); 
+        b = buscarProduto(arc, id); 
         if (b == -1) 
             printf("\n[ID nao cadastrado]\n");
         else {
@@ -1052,6 +1052,7 @@ void excluirProduto() {
 void gerenciarMarcas() { // ok~
     int op, vazio = 1;
     PRODUTO p; // struct
+    FILE *arc = fopen("produtos.bin", "rb");
     if (arc == NULL) printf("\nErro\n");
     else {
         printf("\n-------------------MARCAS---------------------\n");
@@ -1622,7 +1623,7 @@ void exibirProdutosQTDBaixo() {
     else {
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
-            if (p.quantidade <= baixo) {
+            if (p.qtd <= baixo) {
                 printf("ID: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
                 prod = 1;
             }
