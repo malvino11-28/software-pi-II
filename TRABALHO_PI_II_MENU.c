@@ -106,10 +106,11 @@ void exibirMenuProdutos() {
     printf("==============================================\n");
     printf("  [1] Cadastrar Produto\n");
     printf("  [2] Alterar Produto\n");
-    printf("  [3] Consultar Produto\n");
-    printf("  [4] Excluir Produto\n");
-    printf("  [5] Gerenciar Marcas\n");
-    printf("  [6] Gerenciar Categorias\n");
+    printf("  [3] Listar Todos os Produtos\n");
+    printf("  [4] Consultar Produto\n");
+    printf("  [5] Excluir Produto\n");
+    printf("  [6] Gerenciar Marcas\n");
+    printf("  [7] Gerenciar Categorias\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -122,6 +123,7 @@ void exibirMenuAssinaturas() {
     printf("  [1] Criar Assinatura para Cliente\n");
     printf("  [2] Renovar Assinatura\n");
     printf("  [3] Consultar Status da Assinatura\n");
+    printf("  [4] Listar Todas as Assinaturas\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -131,11 +133,12 @@ void exibirMenuVendas() {
     printf("\n==============================================\n");
     printf("            CORTE IMPERIAL - VENDAS           \n");
     printf("==============================================\n");
-    printf("  [1] Visualizar Pedidos Recebidos\n");
-    printf("  [2] Atualizar Status do Pedido\n");
-    printf("  [3] Confirmar Retirada\n");
-    printf("  [4] Confirmar Entrega\n");
-    printf("  [5] Finalizar Pedido\n");
+    printf("  [1] Cadastrar Pedido\n");
+    printf("  [2] Visualizar Status do Pedido\n");
+    printf("  [3] Atualizar Status do Pedido\n");
+    printf("  [4] Confirmar Retirada\n");
+    printf("  [5] Confirmar Entrega\n");
+    printf("  [6] Listar Pedidos Finalizados\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -1840,111 +1843,123 @@ int main() {
                 break;
 
             case 2: // MENU PRODUTOS
-                do {
-                    exibirMenuProdutos();
-                    scanf("%d", &subOpcoes);
+    do {
+        exibirMenuProdutos();
+        scanf("%d", &subOpcoes);
 
-                    switch (subOpcoes) {
-                        case 1:
-                            cadastrarProduto();
-                            break;
-
-                        case 2:
-                            alterarProduto();
-                            break;
-
-                        case 3:
-                            consultarProduto();
-                            break;
-
-                        case 4:
-                            excluirProduto();
-                            break;
-
-                        case 5:
-                            gerenciarMarcas();
-                            break;
-
-                        case 6:
-                            gerenciarCategorias();
-                            break;
-
-                        case 0:
-                            break;
-
-                        default:
-                            printf("\nOpcao invalida! Tente novamente.\n");
-                            break;
-                    }
-
-                } while (subOpcoes != 0);
+        switch (subOpcoes) {
+            case 1:
+                cadastrarProduto();
                 break;
+
+            case 2:
+                alterarProduto();
+                break;
+
+            case 3:
+                exibirProduto();
+                break;
+
+            case 4:
+                consultarProduto();
+                break;
+
+            case 5:
+                excluirProduto();
+                break;
+
+            case 6:
+                gerenciarMarcas();
+                break;
+
+            case 7:
+                gerenciarCategorias();
+                break;
+
+            case 0:
+                break;
+
+            default:
+                printf("\nOpcao invalida! Tente novamente.\n");
+                break;
+        }
+
+    } while (subOpcoes != 0);
+    break;
 
             case 3: // MENU ASSINATURAS
-                do {
-                    exibirMenuAssinaturas();
-                    scanf("%d", &subOpcoes);
+    do {
+        exibirMenuAssinaturas();
+        scanf("%d", &subOpcoes);
 
-                    switch (subOpcoes) {
-                        case 1:
-                            criarAssinatura();
-                            break;
-
-                        case 2:
-                            renovarAssinatura();
-                            break;
-
-                        case 3:
-                            consultarStatus();
-                            break;
-
-                        case 0:
-                            break;
-
-                        default:
-                            printf("\nOpcao invalida! Tente novamente.\n");
-                            break;
-                    }
-
-                } while (subOpcoes != 0);
+        switch (subOpcoes) {
+            case 1:
+                criarAssinatura();
                 break;
+
+            case 2:
+                renovarAssinatura();
+                break;
+
+            case 3:
+                consultarStatus();
+                break;
+
+            case 4:
+                listarAssinaturas();
+                break;
+
+            case 0:
+                break;
+
+            default:
+                printf("\nOpcao invalida! Tente novamente.\n");
+                break;
+        }
+
+    } while (subOpcoes != 0);
+    break;
 
             case 4: // MENU VENDAS
-                do {
-                    exibirMenuVendas();
-                    scanf("%d", &subOpcoes);
+    do {
+        exibirMenuVendas();
+        scanf("%d", &subOpcoes);
 
-                    switch (subOpcoes) {
-                        case 1:
-                            exibirStatusPedido();
-                            break;
-
-                        case 2:
-                            atualizarVenda();
-                            break;
-
-                        case 3:
-                            confirmarRetirada();
-                            break;
-
-                        case 4:
-                            confirmarEntrega();
-                            break;
-
-                        case 5:
-                            finalizarPedido();
-                            break;
-
-                        case 0:
-                            break;
-
-                        default:
-                            printf("\nOpcao invalida! Tente novamente.\n");
-                            break;
-                    }
-
-                } while (subOpcoes != 0);
+        switch (subOpcoes) {
+            case 1:
+                cadastrarPedido();
                 break;
+
+            case 2:
+                exibirStatusPedido();
+                break;
+
+            case 3:
+                atualizarVenda();
+                break;
+
+            case 4:
+                confirmarRetirada();
+                break;
+
+            case 5:
+                confirmarEntrega();
+                break;
+
+            case 6:
+                finalizarPedido();
+                break;
+
+            case 0:
+                break;
+
+            default:
+                printf("\nOpcao invalida! Tente novamente.\n");
+                break;
+        }
+
+    } while (subOpcoes != 0);
+    break;
 
             case 5: // MENU RELATORIOS
                 do {
