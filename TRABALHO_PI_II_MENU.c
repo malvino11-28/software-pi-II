@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+#include <ctype.h>
 
 #define TF 100
 #define TFR 15
@@ -34,7 +35,7 @@ typedef struct {
     DATA nasc;
     ENDERECO end_cad;
     CONTATO ctt_cad;
-    char nome[100], cpf[14], rg[12];
+    char nome[100], cpf[15], rg[12];
     
 } CADASTRO;
 
@@ -879,6 +880,7 @@ void alterarProduto() {
                         break;
 
                         case 5:
+                        getchar(); // a mudar
                             printf("Nova categoria do produto: \n");
                             fgets(p.categoria, sizeof(p.categoria), stdin);
                             printf("\nCategoria alterada com sucesso!\n");
@@ -1055,18 +1057,20 @@ void gerenciarMarcas() { // ok~
     FILE *arc = fopen("produtos.bin", "rb");
     if (arc == NULL) printf("\nErro\n");
     else {
-        printf("\n-------------------MARCAS---------------------\n");
-        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
-            vazio = 0;
-            printf("%s", p.marca);
+            printf("\n-------------------MARCAS---------------------\n");
+            while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
+                vazio = 0;
+                printf("%s", p.marca);
+            }
+            if (vazio == 1) {
+            printf("\n[Nenhuma marca cadastrada]\n");
+            }
+            printf("--------------------------------------------\n");
+            printf("\n[0] Sair\n");
+            scanf("%d", &op);
+            fclose(arc);
         }
-        if (vazio == 1) {
-        printf("\n[Nenhuma marca cadastrada]\n");
-        }
-        printf("--------------------------------------------\n");
-        printf("\n[0] Sair\n");
-        scanf("%d", &op);
-        }
+        
 }
 
 void gerenciarCategorias() { //ok~
@@ -1086,25 +1090,34 @@ void gerenciarCategorias() { //ok~
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
+        fclose(arc);
         }
+        
 }
 
 /* FUNCOES ASSINATURAS */
 typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra cima
-    int idCliente;
+    char cpfCliente[15];
     DATA d;
     char plano[TF], status[20];
 } ASSINATURA;
 
-int buscarAssinatura(FILE *arc, int b) {
+int buscarAssinatura(FILE *fp, char cpf[]) {
+    
     ASSINATURA a;
-    rewind(arc);
-    fread(&a, sizeof(ASSINATURA), 1, arc);
-    while(!feof(arc)&&b!=a.idCliente)
-        fread(&a, sizeof(ASSINATURA), 1, arc)
-    if (!feof(arc))
-        return (ftell(arc)-sizeof(arc));
-    else return -1;
+    
+    rewind(fp);
+    fread(&a, sizeof(ASSINATURA), 1, fp);
+
+    while(!feof(fp) && stricmp(cpf, a.cpfCliente) != 0){
+        fread(&a, sizeof(ASSINATURA), 1, fp);
+    }
+
+    if(!feof(fp)){
+        return (ftell(fp) - sizeof(ASSINATURA));
+    } else {
+        return -1;
+    }
 }
 
 void criarAssinatura() { // ok~
@@ -1112,87 +1125,117 @@ void criarAssinatura() { // ok~
     ASSINATURA a;
     CADASTRO c;
     FILE *cli, *arc = fopen("assinatura.bin", "ab+");
+
     if (arc == NULL) printf("\nErro\n");
     else {
-        cli = fopen("cadastro.bin", "rb");
-        printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
-        printf("Informe o ID do cliente que recebera a assinatura: ");
-        scanf("%d", &c.id);
-        b = buscarAssinatura(arc, &c.id);
-        if (b == -1) printf("\n[ID de cleinte nao cadastrado]\n");
-        else {
-            a.idCliente = c.id; // vinculando
-            getchar();
-            printf("Informe o plano da assinatura: ");
-            fgets(a.plano, sizeof(a.plano), stdin);
-            a.plano[strcspn(a.plano, "\n")] = '\0';
-
-            printf("Informe a data de vencimento da assinatura (dia mes ano): ");
-            scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
-
-            getchar();
-            printf("Informe o status da assinatura (Ativo/Teste/Inativo): \n");
-            fgets(a.status, sizeof(a.status), stdin);
-            a.status[strcspn(a.status, "\n")] = '\0';
-
-            fwrite(&a, sizeof(ASSINATURA), 1, arc);
-            printf("\n[Assinatura para o cliente [%d] criada!]\n", c.id);
-
-            printf("\n[0] Sair\n");
-            scanf("%d", &op);
+        cli = fopen("cadastros.bin", "rb");
+        if (cli == NULL) {
+            printf("\nErro\n");
+            fclose(arc);
+            return;
         }
+        printf("\n---------CRIAR ASSINATURA PARA CLIENTE-----------\n");
+
+        printf("Informe o CPF do cliente que recebera a assinatura: ");
+        fflush(stdin);
+        gets(c.cpf);
+
+        b = busca(cli, c.cpf);
+
+        if (b == -1) {
+            printf("\n[CPF de cliente nao cadastrado]\n");
+        } else {
+            b = buscarAssinatura(arc, c.cpf);
+
+            if (b != -1) {
+                printf("\n[Cliente ja possui assinatura cadastrada]\n");
+            } else {
+                strcpy(a.cpfCliente, c.cpf);
+
+                printf("Informe o plano da assinatura: ");
+                fflush(stdin);
+                gets(a.plano);
+
+                printf("Informe a data de vencimento da assinatura (dia mes ano): ");
+                scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
+
+                printf("Informe o status da assinatura (Ativo/Teste/Inativo): ");
+                fflush(stdin);
+                gets(a.status);
+
+                fwrite(&a, sizeof(ASSINATURA), 1, arc);
+
+                printf("\n[Assinatura para o cliente CPF %s criada!]\n", a.cpfCliente);
+
+                printf("\n[0] Sair\n");
+                scanf("%d", &op);
+            }
+        }
+
         fclose(arc);
         fclose(cli);
     }
 }
 
-void renovarAssinatura() { // ok~
+void renovarAssinatura() {
     int op, b;
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb+");
+
     if (arc == NULL) printf("\nErro\n");
     else {
         printf("\n---------RENOVAR ASSINATURA-----------\n");
 
-        printf("Informe o ID do cliente: ");
-        scanf("%d", &a.idCliente);
+        printf("Informe o CPF do cliente: ");
+        fflush(stdin);
+        gets(a.cpfCliente);
 
-        b = buscar(arc, a.idCliente);
-        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        b = buscarAssinatura(arc, a.cpfCliente);
+
+        if (b == -1) printf("\n[CPF nao cadastrado em assinatura]\n");
         else {
-            fseek(arc, b, SEEK_SET); 
+            fseek(arc, b, 0);
             fread(&a, sizeof(ASSINATURA), 1, arc);
-            if (stricmp(a.status, "Ativo") == 0) 
+
+            if (stricmp(a.status, "Ativo") == 0) {
                 printf("\n[Assinatura ja esta ativa. Nao precisa renovar!]\n");
-            else {
+            } else {
                 printf("\n--------------------------------------------\n");
                 printf("Informe a nova data de vencimento da assinatura (dia mes ano): ");
                 scanf("%d %d %d", &a.d.dia, &a.d.mes, &a.d.ano);
                 strcpy(a.status, "Ativo");
                 printf("--------------------------------------------\n");
-                fseek(arc, b, SEEK_SET);
+
+                fseek(arc, b, 0);
                 fwrite(&a, sizeof(ASSINATURA), 1, arc);
-                printf("\nAssinatura do cliente [%d] renovada com sucesso!\n", a.idCliente);
+
+                printf("\nAssinatura do cliente CPF %s renovada com sucesso!\n", a.cpfCliente);
             }
+
             printf("\n[0] Sair\n");
             scanf("%d", &op);
         }
+
         fclose(arc);
     }
 }
-
-void consultarStatus() { // ok~
+void consultarStatus() {
     int op;
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb");
+
     if (arc == NULL) printf("\nErro\n");
     else {
         printf("\n-----------CONSULTAR STATUS DA ASSINATURA-----------\n");
-        while(fread(&a, sizeof(ASSINATURA), 1, arc)==1) 
-            printf("Cliente [%d] | Plano: %s | Status: %s\n", a.idCliente, a.plano, a.status);
+
+        while(fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            printf("Cliente CPF: %s | Plano: %s | Status: %s\n", 
+                   a.cpfCliente, a.plano, a.status);
+        }
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
+
         fclose(arc);
     }
 }
@@ -1215,7 +1258,7 @@ void consultarVencimento() { // ok~
         while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
             // verifica se o mes e o ano da assinatura forem iguais ao que o usuario digitou
             if (a.d.mes == mes && a.d.ano == ano) {
-                printf("Cliente [%d] | Plano: %s | Vence em: %d/%d/%d\n", a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
+                printf("Cliente CPF: %s | Plano: %s | Vence em: %d/%d/%d\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
                 encontrou = 1;
             }
         }
@@ -1283,8 +1326,7 @@ void listarAssinaturas() { // ok~
         
         while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
             assi = 1;
-            printf("ID Cliente: [%d] | Plano: %s | Vencimento: %02d/%02d/%04d | Status: %s\n", 
-                    a.idCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
+            printf("CPF Cliente: %s | Plano: %s | Vencimento: %02d/%02d/%04d | Status: %s\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
         }
         
         if (assi == 0) {
@@ -1304,17 +1346,22 @@ void listarAssinaturas() { // ok~
 typedef struct { // depois levo la pra cima
     int id;
     char descricao[100], status[20], periodo[30]; // ex: carnaval
+    char cpfCliente[15];
     float valorTotal; 
 } PEDIDO;
 
-int buscarPedido(FILE *arc, int cod) { // ok~
+int buscarPedido(FILE *arc, int cod) {
     PEDIDO p;
-    rewind(arc); 
-    while (!feof(arc)&&p.id != cod) 
+    rewind(arc);
+    fread(&p, sizeof(PEDIDO), 1, arc);
+
+    while (!feof(arc) && p.id != cod) 
         fread(&p, sizeof(PEDIDO), 1, arc);
-    if (!feof(arc))
-        return (ftell(arc)-sizeof(PEDIDO));
-    return -1;
+    
+    if (!feof(arc)) 
+        return ftell(arc) - sizeof(PEDIDO);
+    else return -1;
+    
 }
 
 void cadastrarPedido() { // ok~
@@ -1334,9 +1381,12 @@ void cadastrarPedido() { // ok~
             printf("\n[ID de pedido ja cadastrado!]\n");
         } else {
             getchar(); 
+            printf("Digite o CPF do cliente do pedido: ");
+            fflush(stdin);
+            gets(p.cpfCliente);
+
             printf("Descricao os itens: ");
             fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
-            p.descricao[strcspn(p.descricao, "\n")] = '\0';
             
             printf("\nSelecione um dos periodos.\n");
             printf(" [1] Carnaval\n");
@@ -1628,23 +1678,23 @@ void exibirProdutosQTDBaixo() {
     
     printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
     
-    if (arc == NULL) 
-        printf("\nErro\n");
-    else {
+    if (arc == NULL) {
+        printf("\nErro ao abrir o arquivo de produtos.\n");
+    } else {
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
             if (p.qtd <= baixo) {
-                printf("ID: %d | Produto: %s -- QTD em Estoque: %d\n", p.codigo, p.nome, p.quantidade);
+                printf("ID: %d | Produto: %s -- QTD em Estoque: %d\n", p.id, p.nome, p.qtd);
                 prod = 1;
             }
         }
-        if (!prod) {
+        if (!prod) 
             printf("[Sem produto com estoque baixo]\n");
-        }
+
         printf("--------------------------------------------\n");
+
         fclose(arc);
     }
-    
     printf("\n[0] Voltar\n");
     scanf("%d", &op);
 }
@@ -1658,12 +1708,13 @@ void exibirTicket() {
     printf("\n--- TICKET MEDIO POR CLIENTE ---\n");
     printf("\n--------------------------------------------\n");
 
-    arcC = fopen("cliente.bin", "rb");
+    arcC = fopen("cadastros.bin", "rb");
     if (arcC == NULL) 
         printf("\nErro\n");
     else {
         while (fread(&c, sizeof(CADASTRO), 1, arcC) == 1) {
             arcP = fopen("pedidos.bin", "rb");
+
             float totalGasto = 0;
             int qtdCompras = 0;
             
@@ -1672,7 +1723,7 @@ void exibirTicket() {
             else {
                 while (fread(&p, sizeof(PEDIDO), 1, arcP) == 1) {
                     // caso o pedido seja do cliente (comparando id), e esteja finalizado
-                    if (p.idCliente == c.id && strcmp(p.status, "Finalizado") == 0) {
+                    if (stricmp(p.cpfCliente, c.cpf) == 0 && strcmp(p.status, "Finalizado") == 0) {
                         totalGasto += p.valorTotal;
                         qtdCompras++;
                     }
@@ -1682,7 +1733,7 @@ void exibirTicket() {
             
             if (qtdCompras > 0) {
                 float ticketMedio = totalGasto / qtdCompras;
-                printf("Cliente [%d]: %s\n", c.id, c.nome);
+                printf("Cliente CPF [%s]: %s\n", c.cpf, c.nome);
                 printf("  Total gasto: R$ %.2f\n", totalGasto);
                 printf("  Quantidade de compras: %d\n", qtdCompras);
                 printf("  Ticket medio: R$ %.2f\n\n", ticketMedio);
@@ -1690,7 +1741,6 @@ void exibirTicket() {
         }
     }
     fclose(arcC);
-    fclose(arcP);
 
     printf("--------------------------------------------\n");
     printf("\n[0] Voltar\n");
