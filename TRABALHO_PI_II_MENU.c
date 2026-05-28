@@ -28,8 +28,7 @@ typedef struct {
     
 } CONTATO;
 
-//STRUCTS CADASTRO PESSOAS
-
+//STRUCTS CADASTRO PESSOAS (cli) / FORNECEDOR (forn)
 typedef struct {
     
     DATA nasc;
@@ -37,7 +36,13 @@ typedef struct {
     CONTATO ctt_cad;
     char nome[100], cpf[15], rg[12];
     
-} CADASTRO;
+} CADASTRO ;
+
+// STRUCTS CADASTRO FORNECEDOR
+typedef struct {
+
+    
+}
 
 // struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
@@ -578,7 +583,6 @@ void excl_cli() {
 
 //Cadastro Fornecedores
 void cad_forn() {
-    char cnpj[50], razaoSoc[1000], nomeFan[1000], cidade[1000], estado[100], email[100], tel[20];
 
     printf("\n========================================================\n");
     printf("        CORTE IMPERIAL - CADASTRAR FORNECEDOR           \n");
