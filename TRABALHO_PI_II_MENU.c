@@ -1694,8 +1694,8 @@ void cadastrarPedido() { // ok~
                         printf("\n---------------- PRODUTOS CADASTRADOS ----------------\n");
                         rewind(arcP);
                         while (fread(&prod, sizeof(PRODUTO), 1, arcP) == 1) {
-                            printf("Nome: %s", prod.nome);
-                            printf("Valor: R$ %.2f | Estoque: %d\n", prod.valor, prod.qtd);
+                            printf("Produto: %s", prod.nome);
+                            printf("Estoque: R$ %.2f | Marca: %s | Valor: %.2f\n", prod.valor, prod.marca prod.qtd);
                             printf("-------------------------------------------------------\n");
                         }
 
@@ -1704,7 +1704,7 @@ void cadastrarPedido() { // ok~
                         getchar();
 
                         for (i = 0; i < qtdItens; i++) {
-                            printf("Descricao do item %d (Produto: | QTD: | Valor: ): ", i + 1);
+                            printf("Descricao do item %d (Produto: | QTD: | Marca: | Valor: ): ", i + 1);
                             fgets(item, sizeof(item), stdin);
 
                             if (strlen(p.descricao) + strlen(item) < sizeof(p.descricao)) {
