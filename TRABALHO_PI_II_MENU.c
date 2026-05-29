@@ -107,7 +107,6 @@ void menu_forn() {
 }
 
 void exibirMenuProdutos() {
-    system("cls");
     printf("\n==============================================\n");
     printf("           CORTE IMPERIAL - PRODUTOS          \n");
     printf("==============================================\n");
@@ -329,7 +328,7 @@ void consulAll_cli() {
     }
     fclose(fp);
     system("pause");
-    system("cls");
+    // system("cls");
 }
 
 //Alterar Cadastro Cliente
@@ -553,7 +552,7 @@ void consul_cli() {
         }
     }
     fclose(fp);
-    system("cls");
+    // system("cls");
 }
 
 //Excluir Cliente
@@ -953,7 +952,7 @@ void consul_forn() {
         }
     }
     fclose(fp);
-    system("cls");
+    // system("cls");
 }
 
 void consulAll_forn() {
@@ -977,7 +976,7 @@ void consulAll_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNÂº: %d", forn.end_cad.num);
+            printf("\nNÃ‚Âº: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
@@ -990,7 +989,7 @@ void consulAll_forn() {
     }
     fclose(fp);
     system("pause");
-    system("cls");
+    // system("cls");
 }
 
 //Excluir Fornecedor
@@ -1140,6 +1139,7 @@ void exibirProduto() {
         if (prod == 0) printf("\n[Sem produtos cadastrados]");
         fclose(arc);
     }
+    // system("cls");
 }
 
 void alterarProduto() {
@@ -1232,6 +1232,7 @@ void alterarProduto() {
             scanf("%d", &op);
         }
         fclose(arc);
+        system("cls");
 }
 
 void consultarProduto() {
