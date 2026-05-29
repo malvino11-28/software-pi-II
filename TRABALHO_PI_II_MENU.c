@@ -267,7 +267,7 @@ void cad_cli() {
 //             printf("\nRG: %s", cli.rg);
 //             printf("\nData de Nascimento: %d/%d/%d", cli.end_cad.dia, cli.end_cad.mes, cli.end_cad.ano);
 //             printf("\nRua: %s", cli.end_cad.rua);
-//             printf("\nNº: %d", cli.end_cad.num);
+//             printf("\nNÂº: %d", cli.end_cad.num);
 //             printf("\nBairro: %s", cli.end_cad.bairro);
 //             printf("\nCidade: %s", cli.end_cad.cidade);
 //             printf("\nEstado: %s", cli.end_cad.estado);
@@ -319,7 +319,7 @@ void alterar_cli() {
                 printf("\nRG: %s", cli.rg);
                 printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
                 printf("\nRua: %s", cli.end_cad.rua);
-                printf("\nNº: %d", cli.end_cad.num);
+                printf("\nNÂº: %d", cli.end_cad.num);
                 printf("\nBairro: %s", cli.end_cad.bairro);
                 printf("\nCidade: %s", cli.end_cad.cidade);
                 printf("\nEstado: %s", cli.end_cad.estado);
@@ -538,7 +538,7 @@ void excl_cli() {
             printf("\nRG: %s", cli.rg);
             printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
             printf("\nRua: %s", cli.end_cad.rua);
-            printf("\nNº: %d", cli.end_cad.num);
+            printf("\nNÂº: %d", cli.end_cad.num);
             printf("\nBairro: %s", cli.end_cad.bairro);
             printf("\nCidade: %s", cli.end_cad.cidade);
             printf("\nEstado: %s", cli.end_cad.estado);
@@ -897,7 +897,7 @@ void alterarProduto() {
                         break;
 
                         case 0:
-                            // Grava as alterações de volta no arquivo binário antes de sair
+                            // Grava as alteraÃ§Ãµes de volta no arquivo binÃ¡rio antes de sair
                             fseek(arc, b, 0);
                             fwrite(&p, sizeof(PRODUTO), 1, arc);
                             printf("\n[Alteracoes salvas no arquivo com sucesso!]\n");
@@ -1436,7 +1436,7 @@ void atualizarVenda() { // ok~
     int b;
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb+");
-    
+
     if (arc == NULL) printf("\nErro\n");
     else {
         printf("\n--- ATUALIZAR STATUS ---\n");
@@ -1486,14 +1486,14 @@ void exibirStatusPedido() { // ok~
     int b;
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb");
-    
+
     if (arc == NULL) {
         printf("\nErro ao abrir o arquivo\n");
     } else {
         printf("\n--- EXIBIR STATUS ---\n");
         printf("Digite o id de um pedido: ");
         scanf("%d", &cod);
-        
+
         b = buscarPedido(arc, cod);
         if (b == -1) {
             printf("\n[Pedido nao cadastrado]\n");
@@ -1580,14 +1580,14 @@ void confirmarEntrega() { // ok~
             
             printf("\n [1] Confirmar a entrega\n [0] Voltar\n");
             scanf("%d", &op);
-            
+
             if (op == 1) {
                 strcpy(p.status, "Finalizado");
                 fseek(arc, b, 0);
                 fwrite(&p, sizeof(PEDIDO), 1, arc);
                 printf("\nEntrega confirmada com sucesso!\n");
             }
-            
+
             printf("\n[0] Sair\n");
             scanf("%d", &op);
         }
@@ -1691,41 +1691,7 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
 // FUNCOES RELATORIOS GERENCIONAIS
 
 
-//void ordenarTicket() {
-//    PEDIDO p, px;
-//    int qtde = 0, i;
-//    
-//    FILE *arc = fopen("pedidos.bin", "rb+");
-//    if (arc == NULL) 
-//        printf("\nErro\n");
-//    else {
-//        fseek(arc, 0, 2);
-//        qtde = ftell(arc) / sizeof(PEDIDO);
-//        
-//        while (qtde > 1) {
-//            for (i=0;i<qtde-1;i++) {
-//                
-//                fseek(arc, i * sizeof(PEDIDO), 0); 
-//                fread(&p, sizeof(PEDIDO), 1, arc);
-//                
-//                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
-//                fread(&px, sizeof(PEDIDO), 1, arc);
-//                
-//                if (p.id > px.id) { // id crescente
-//                    fseek(arc, i * sizeof(PEDIDO), 0);
-//                    fwrite(&px, sizeof(PEDIDO), 1, arc);
-//
-//                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
-//                    fwrite(&p, sizeof(PEDIDO), 1, arc);
-//                }
-//            }
-//            qtde--;
-//        }
-//        fclose(arc);
-//    }
-//}
-
-void exibirVendasPeriodo() {
+void exibirVendasPeriodo() { // ok?
     int op;
     PEDIDO p;
     FILE *arc;
@@ -1761,7 +1727,7 @@ void exibirVendasPeriodo() {
             printf("\n--------------------------------------------\n");
             printf("Vendas do periodo: %s\n",  periodo);
             printf("--------------------------------------------\n");
-            
+            ordenarPedidos();
             int pedido = 0;
             while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
                 // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
@@ -1781,39 +1747,39 @@ void exibirVendasPeriodo() {
     } while(op != 0);
 }
 
-//void ordenarTicket() {
-//    PEDIDO p, px;
-//    int qtde = 0, i;
-//    
-//    FILE *arc = fopen("pedidos.bin", "rb+");
-//    if (arc == NULL) 
-//        printf("\nErro\n");
-//    else {
-//        fseek(arc, 0, 2);
-//        qtde = ftell(arc) / sizeof(PEDIDO);
-//        
-//        while (qtde > 1) {
-//            for (i=0;i<qtde-1;i++) {
-//                
-//                fseek(arc, i * sizeof(PEDIDO), 0); 
-//                fread(&p, sizeof(PEDIDO), 1, arc);
-//                
-//                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
-//                fread(&px, sizeof(PEDIDO), 1, arc);
-//                
-//                if (p.id > px.id) { // id crescente
-//                    fseek(arc, i * sizeof(PEDIDO), 0);
-//                    fwrite(&px, sizeof(PEDIDO), 1, arc);
-//
-//                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
-//                    fwrite(&p, sizeof(PEDIDO), 1, arc);
-//                }
-//            }
-//            qtde--;
-//        }
-//        fclose(arc);
-//    }
-//}
+void ordenarProdutos() {
+    PRODUTO p, px;
+    int qtde = 0, i;
+    
+    FILE *arc = fopen("produtos.bin", "rb+");
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        fseek(arc, 0, 2);
+        qtde = ftell(arc) / sizeof(PRODUTO);
+        
+        while (qtde > 1) {
+            for (i=0;i<qtde-1;i++) {
+                
+                fseek(arc, i * sizeof(PRODUTO), 0); 
+                fread(&p, sizeof(PRODUTO), 1, arc);
+                
+                fseek(arc, (i + 1) * sizeof(PRODUTO), 0); // lendo elemento na posicao i + 1
+                fread(&px, sizeof(PRODUTO), 1, arc);
+                
+                if (p.id > px.id) { // id crescente
+                    fseek(arc, i * sizeof(PRODUTO), 0);
+                    fwrite(&px, sizeof(PRODUTO), 1, arc);
+
+                    fseek(arc, (i + 1) * sizeof(PRODUTO), 0);
+                    fwrite(&p, sizeof(PRODUTO), 1, arc);
+                }
+            }
+            qtde--;
+        }
+        fclose(arc);
+    }
+}
 
 void exibirProdutosQTDBaixo() {
     int op;
@@ -1845,39 +1811,39 @@ void exibirProdutosQTDBaixo() {
     scanf("%d", &op);
 }
 
-//void ordenarTicket() {
-//    PEDIDO p, px;
-//    int qtde = 0, i;
-//    
-//    FILE *arc = fopen("pedidos.bin", "rb+");
-//    if (arc == NULL) 
-//        printf("\nErro\n");
-//    else {
-//        fseek(arc, 0, 2);
-//        qtde = ftell(arc) / sizeof(PEDIDO);
-//        
-//        while (qtde > 1) {
-//            for (i=0;i<qtde-1;i++) {
-//                
-//                fseek(arc, i * sizeof(PEDIDO), 0); 
-//                fread(&p, sizeof(PEDIDO), 1, arc);
-//                
-//                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
-//                fread(&px, sizeof(PEDIDO), 1, arc);
-//                
-//                if (p.id > px.id) { // id crescente
-//                    fseek(arc, i * sizeof(PEDIDO), 0);
-//                    fwrite(&px, sizeof(PEDIDO), 1, arc);
-//
-//                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
-//                    fwrite(&p, sizeof(PEDIDO), 1, arc);
-//                }
-//            }
-//            qtde--;
-//        }
-//        fclose(arc);
-//    }
-//}
+void ordenarTicket() {
+    PEDIDO p, px;
+    int qtde = 0, i;
+    
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    if (arc == NULL) 
+        printf("\nErro\n");
+    else {
+        fseek(arc, 0, 2);
+        qtde = ftell(arc) / sizeof(PEDIDO);
+        
+        while (qtde > 1) {
+            for (i=0;i<qtde-1;i++) {
+                
+                fseek(arc, i * sizeof(PEDIDO), 0); 
+                fread(&p, sizeof(PEDIDO), 1, arc);
+                
+                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
+                fread(&px, sizeof(PEDIDO), 1, arc);
+                
+                if (p.id > px.id) { // id crescente
+                    fseek(arc, i * sizeof(PEDIDO), 0);
+                    fwrite(&px, sizeof(PEDIDO), 1, arc);
+
+                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
+                    fwrite(&p, sizeof(PEDIDO), 1, arc);
+                }
+            }
+            qtde--;
+        }
+        fclose(arc);
+    }
+}
 
 void exibirTicket() {
     int op;
@@ -1892,7 +1858,7 @@ void exibirTicket() {
     if (arcC == NULL) 
         printf("\nErro\n");
     else {
-    	ordenarPedidos();
+    	ordenarTicket();
         while (fread(&c, sizeof(CADASTRO), 1, arcC) == 1) {
             arcP = fopen("pedidos.bin", "rb");
 
