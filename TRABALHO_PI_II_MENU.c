@@ -267,7 +267,7 @@ void cad_cli() {
 //             printf("\nRG: %s", cli.rg);
 //             printf("\nData de Nascimento: %d/%d/%d", cli.end_cad.dia, cli.end_cad.mes, cli.end_cad.ano);
 //             printf("\nRua: %s", cli.end_cad.rua);
-//             printf("\nNº: %d", cli.end_cad.num);
+//             printf("\nNÂº: %d", cli.end_cad.num);
 //             printf("\nBairro: %s", cli.end_cad.bairro);
 //             printf("\nCidade: %s", cli.end_cad.cidade);
 //             printf("\nEstado: %s", cli.end_cad.estado);
@@ -319,7 +319,7 @@ void alterar_cli() {
                 printf("\nRG: %s", cli.rg);
                 printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
                 printf("\nRua: %s", cli.end_cad.rua);
-                printf("\nNº: %d", cli.end_cad.num);
+                printf("\nNÂº: %d", cli.end_cad.num);
                 printf("\nBairro: %s", cli.end_cad.bairro);
                 printf("\nCidade: %s", cli.end_cad.cidade);
                 printf("\nEstado: %s", cli.end_cad.estado);
@@ -538,7 +538,7 @@ void excl_cli() {
             printf("\nRG: %s", cli.rg);
             printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
             printf("\nRua: %s", cli.end_cad.rua);
-            printf("\nNº: %d", cli.end_cad.num);
+            printf("\nNÂº: %d", cli.end_cad.num);
             printf("\nBairro: %s", cli.end_cad.bairro);
             printf("\nCidade: %s", cli.end_cad.cidade);
             printf("\nEstado: %s", cli.end_cad.estado);
@@ -897,7 +897,7 @@ void alterarProduto() {
                         break;
 
                         case 0:
-                            // Grava as alterações de volta no arquivo binário antes de sair
+                            // Grava as alteraÃ§Ãµes de volta no arquivo binÃ¡rio antes de sair
                             fseek(arc, b, 0);
                             fwrite(&p, sizeof(PRODUTO), 1, arc);
                             printf("\n[Alteracoes salvas no arquivo com sucesso!]\n");
