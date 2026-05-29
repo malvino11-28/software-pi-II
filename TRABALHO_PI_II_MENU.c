@@ -47,6 +47,7 @@ typedef struct {
 } PRODUTO;
 
 void exibirMenuInicial() {
+    system("cls");
     printf("\n==============================================\n");
     printf("               CORTE IMPERIAL                 \n");
     printf("==============================================\n");
@@ -62,6 +63,7 @@ void exibirMenuInicial() {
 
 // MENU PESSOAS
 void exibirMenuPessoas() {
+    system("cls");
     printf("\n==============================================\n");
     printf("           CORTE IMPERIAL - PESSOAS           \n");
     printf("==============================================\n");
@@ -74,6 +76,7 @@ void exibirMenuPessoas() {
 
 //Gerenciamento Clientes
 void menu_cli() {
+    system("cls");
     printf("\n==================================================\n");
     printf("      CORTE IMPERIAL - GERENCIAR CLIENTES         \n");
     printf("==================================================\n");
@@ -88,6 +91,7 @@ void menu_cli() {
 
 //Gerenciamento Fornecedores
 void menu_forn() {
+    system("cls");
     printf("\n========================================================\n");
     printf("        CORTE IMPERIAL - GERENCIAR FORNECEDORES          \n");
     printf("========================================================\n");
@@ -101,6 +105,7 @@ void menu_forn() {
 }
 
 void exibirMenuProdutos() {
+    system("cls");
     printf("\n==============================================\n");
     printf("           CORTE IMPERIAL - PRODUTOS          \n");
     printf("==============================================\n");
@@ -117,6 +122,7 @@ void exibirMenuProdutos() {
 }
 
 void exibirMenuAssinaturas() {
+    system("cls");
     printf("\n==============================================\n");
     printf("          CORTE IMPERIAL - ASSINATURAS        \n");
     printf("==============================================\n");
@@ -130,6 +136,7 @@ void exibirMenuAssinaturas() {
 }
 
 void exibirMenuVendas() {
+    system("cls");
     printf("\n==============================================\n");
     printf("            CORTE IMPERIAL - VENDAS           \n");
     printf("==============================================\n");
@@ -145,7 +152,8 @@ void exibirMenuVendas() {
     printf(" Selecione uma opcao: ");
 }
 
-void exibirMenuRelatorios() { 	
+void exibirMenuRelatorios() { 
+    system("cls");	
     printf("\n==============================================\n");
     printf("          CORTE IMPERIAL - RELATORIOS         \n");
     printf("==============================================\n");
@@ -1067,13 +1075,13 @@ void cadastrarProduto() {
             printf("Marca do produto: ");
             fgets(p.marca, sizeof(p.marca), stdin);
 
-            printf("Categoria do produto: \n");
+            printf("Categoria do produto: ");
             fgets(p.categoria, sizeof(p.categoria), stdin);
 
-            printf("Valor do produto: \n");
+            printf("Valor do produto: ");
             scanf("%f", &p.valor);
 
-            printf("Quantidade de produto: \n");
+            printf("Quantidade de produto: ");
             scanf("%d", &p.qtd);
 
             fwrite(&p, sizeof(PRODUTO), 1, arc);
@@ -1355,7 +1363,6 @@ void gerenciarMarcas() { // ok~
             scanf("%d", &op);
             fclose(arc);
         }
-        
 }
 
 void gerenciarCategorias() { //ok~
@@ -1629,7 +1636,7 @@ void listarAssinaturas() { // ok~
 /* FUNCOES VENDAS */ 
 typedef struct { // depois levo la pra cima
     int id;
-    char descricao[100], status[20], periodo[30]; // ex: carnaval
+    char descricao[TS], status[20], periodo[30]; // ex: carnaval
     char cpfCliente[15];
     float valorTotal; 
 } PEDIDO;
@@ -1649,71 +1656,100 @@ int buscarPedido(FILE *arc, int cod) {
 }
 
 void cadastrarPedido() { // ok~
-    int op;
+    int op, qtdItens, i;
+    char item[200];
     PEDIDO p;
+    PRODUTO prod;
     ASSINATURA c;
     FILE *arcC = fopen("assinatura.bin", "rb");
     FILE *arc = fopen("pedidos.bin", "ab+");
+    FILE *arcP = fopen("produtos.bin", "rb");
+
     if (arcC == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+    if (arcP == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
-        printf("\n--- CADASTRAR PEDIDO ---\n");
-        printf("Digite o id do pedido: ");
-        scanf("%d", &p.id);
-		
-        int b = buscarPedido(arc, p.id);	
-        if (b != -1) {
-            printf("\n[ID de pedido ja cadastrado]\n");
-        } else {
-            getchar();
-            printf("Digite o CPF do cliente do pedido: ");
-            fflush(stdin);
-            gets(p.cpfCliente);
-			int bC = buscarAssinatura(arcC, p.cpfCliente);
-			if (bC == -1) 
-				printf("\n[Cliente nao encontrado]\n");
-			else {
-				fseek(arcC, bC, 0);
-				fread(&c, sizeof(ASSINATURA), 1, arcC);
-				if (stricmp(c.status, "Ativo")!=0 && stricmp(c.status, "Teste")!=0)
-					printf("\n[Cliente sem assinatura valida]\n");
-				else {
-			            printf("Descricao os itens: ");
-			            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
-			            
-			            printf("\nSelecione um dos periodos.\n");
-			            printf(" [1] Carnaval\n");
-			            printf(" [2] Pascoa\n");
-			            printf(" [3] Copa do mundo 2026\n");
-			            printf(" [4] Natal\n");
-			            printf(" [5] Reveillon\n");
-			            printf(" [0] Sem periodo\n");
-			            scanf("%d", &op);
-			
-			            if (op == 1) strcpy(p.periodo, "Carnaval");
-			            if (op == 2) strcpy(p.periodo, "Pascoa");
-			            if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
-			            if (op == 4) strcpy(p.periodo, "Natal");
-			            if (op == 5) strcpy(p.periodo, "Reveillon");
-			            if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
-			
-			
-			            printf("Valor total: R$ ");
-			            scanf("%f", &p.valorTotal);
-			            
-			            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
-			            
-			            fwrite(&p, sizeof(PEDIDO), 1, arc);
-			            printf("\n[Pedido [%d] cadastrado com sucesso]\n", p.id);
-			            
-			            printf("\n[0] Sair\n");
-			            scanf("%d", &op);
-		        	}
-        	}
+        if (arcC != NULL && arc != NULL) {
+            printf("\n--- CADASTRAR PEDIDO ---\n");
+            printf("Digite o id do pedido: ");
+            scanf("%d", &p.id);
+            
+            int b = buscarPedido(arc, p.id);    
+            if (b != -1) {
+                printf("\n[ID de pedido ja cadastrado]\n");
+            } else {
+                getchar();
+                printf("Digite o CPF do cliente do pedido: ");
+                fflush(stdin);
+                gets(p.cpfCliente);
+                int bC = buscarAssinatura(arcC, p.cpfCliente);
+                if (bC == -1) 
+                    printf("\n[Cliente nao encontrado]\n");
+                else {
+                    fseek(arcC, bC, 0);
+                    fread(&c, sizeof(ASSINATURA), 1, arcC);
+                    if (stricmp(c.status, "Ativo")!=0 && stricmp(c.status, "Teste")!=0)
+                        printf("\n[Cliente sem assinatura valida]\n");
+                    else {
+                        printf("\n---------------- PRODUTOS CADASTRADOS ----------------\n");
+                        rewind(arcP);
+                        while (fread(&prod, sizeof(PRODUTO), 1, arcP) == 1) {
+                            printf("Nome: %s", prod.nome);
+                            printf("Valor: R$ %.2f | Estoque: %d\n", prod.valor, prod.qtd);
+                            printf("-------------------------------------------------------\n");
+                        }
+
+                        printf("\nInforme a quantidade de itens do pedido: ");
+                        scanf("%d", &qtdItens);
+                        getchar();
+
+                        for (i = 0; i < qtdItens; i++) {
+                            printf("Descricao do item %d (Produto: | QTD: | Valor: ): ", i + 1);
+                            fgets(item, sizeof(item), stdin);
+
+                            if (strlen(p.descricao) + strlen(item) < sizeof(p.descricao)) {
+                                strcat(p.descricao, item);
+                            } else {
+                                printf("\n[Limite da descricao atingido]\n");
+                                i = qtdItens;
+                            }
+                        }
+                        
+                        printf("\nSelecione um dos periodos.\n");
+                        printf(" [1] Carnaval\n");
+                        printf(" [2] Pascoa\n");
+                        printf(" [3] Copa do mundo 2026\n");
+                        printf(" [4] Natal\n");
+                        printf(" [5] Reveillon\n");
+                        printf(" [0] Sem periodo\n");
+                        scanf("%d", &op);
+            
+                        if (op == 1) strcpy(p.periodo, "Carnaval");
+                        if (op == 2) strcpy(p.periodo, "Pascoa");
+                        if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
+                        if (op == 4) strcpy(p.periodo, "Natal");
+                        if (op == 5) strcpy(p.periodo, "Reveillon");
+                        if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
+            
+                        printf("Valor total: R$ ");
+                        scanf("%f", &p.valorTotal);
+                        
+                        strcpy(p.status, "Recebido");
+                        
+                        fwrite(&p, sizeof(PEDIDO), 1, arc);
+                        printf("\n[Pedido [%d] cadastrado com sucesso]\n", p.id);
+                        
+                        printf("\n[0] Sair\n");
+                        scanf("%d", &op);
+                    }
+                }
+            }
         }
-        fclose(arc);
-        fclose(arcC);
     }
+
+    if (arc != NULL) fclose(arc);
+    if (arcC != NULL) fclose(arcC);
+    if (arcP != NULL) fclose(arcP);
 }
 
 void atualizarVenda() { // ok~
