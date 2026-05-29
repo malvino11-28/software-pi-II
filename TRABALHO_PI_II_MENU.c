@@ -191,6 +191,7 @@ int busca(FILE *fp, char cpf[]) {
 
 // Esta orndenando os clientes por nome
 void ordenar_cli() {
+	
     CADASTRO vet[100];
     CADASTRO aux;
     int total = 0, i, j;
@@ -297,8 +298,6 @@ void consulAll_cli() {
     CADASTRO cli;
     
     FILE *fp;
-
-    ordenar_cli();
 
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
@@ -961,8 +960,6 @@ void consulAll_forn() {
     
     FILE *fp;
 
-    ordenar_forn();
-
     fp = fopen("cadastrosForn.bin", "rb");
     if(fp == NULL){
         
@@ -976,7 +973,7 @@ void consulAll_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNÃ‚Âº: %d", forn.end_cad.num);
+            printf("\nNÂº: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
@@ -1119,11 +1116,46 @@ void cadastrarProduto() {
     }
 }
 
+void ordenarProdutos() {
+    PRODUTO p, px;
+    int qtde = 0, i;
+    
+    FILE *arc = fopen("produtos.bin", "rb+");
+    if (arc == NULL) 
+        printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        fseek(arc, 0, 2);
+        qtde = ftell(arc) / sizeof(PRODUTO);
+        
+        while (qtde > 1) {
+            for (i=0;i<qtde-1;i++) {
+                
+                fseek(arc, i * sizeof(PRODUTO), 0); 
+                fread(&p, sizeof(PRODUTO), 1, arc);
+                
+                fseek(arc, (i + 1) * sizeof(PRODUTO), 0); // lendo elemento na posicao i + 1
+                fread(&px, sizeof(PRODUTO), 1, arc);
+                
+                if (p.id > px.id) { // id crescente
+                    fseek(arc, i * sizeof(PRODUTO), 0);
+                    fwrite(&px, sizeof(PRODUTO), 1, arc);
+
+                    fseek(arc, (i + 1) * sizeof(PRODUTO), 0);
+                    fwrite(&p, sizeof(PRODUTO), 1, arc);
+                }
+            }
+            qtde--;
+        }
+        fclose(arc);
+    }
+}
+
 void exibirProduto() {
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "rb");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
+    	ordenarProdutos();
         int prod = 0;
         while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
             printf("\n--------------------[%d]---------------------", p.id);
@@ -1543,16 +1575,46 @@ void renovarAssinatura() {
 void consultarStatus() {
     int op;
     ASSINATURA a;
+    char statusB[TFR];
     FILE *arc = fopen("assinatura.bin", "rb");
 
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n-----------CONSULTAR STATUS DA ASSINATURA-----------\n");
-
-        while(fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
-            printf("Cliente CPF: %s | Plano: %s | Status: %s\n", 
-                   a.cpfCliente, a.plano, a.status);
-        }
+		
+		printf("[1] Ativo\n[2] Teste\n[3] Inativo");
+		printf("\nSelecione uma opcao: ");
+		scanf("%d", &op);
+		printf("\n");
+		switch (op) {
+			case 1:
+				strcpy(statusB, "Ativo");
+				
+				while(fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+					if (strcasecmp(statusB, a.status) == 0)
+            		printf("Cliente CPF: %s | Plano: %s | Status: %s\n", a.cpfCliente, a.plano, a.status);
+            	}
+			break;
+			
+			case 2:
+				strcpy(statusB, "Teste");
+				
+				while(fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+					if (strcasecmp(statusB, a.status) == 0)
+            		printf("Cliente CPF: %s | Plano: %s | Status: %s\n", a.cpfCliente, a.plano, a.status);
+            	}
+			break;
+			
+			case 3:
+				strcpy(statusB, "Inativo");
+				
+				while(fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+					if (strcasecmp(statusB, a.status) == 0)
+            		printf("Cliente CPF: %s | Plano: %s | Status: %s\n", a.cpfCliente, a.plano, a.status);
+            	}
+			break;
+		}
+       
         printf("--------------------------------------------\n");
         printf("\n[0] Sair\n");
         scanf("%d", &op);
@@ -1725,7 +1787,7 @@ void cadastrarPedido() { // ok~
                         rewind(arcP);
                         while (fread(&prod, sizeof(PRODUTO), 1, arcP) == 1) {
                             printf("Produto: %s", prod.nome);
-                            printf("Estoque: R$ %.2f | Marca: %s | Valor: %.2f\n", prod.valor, prod.marca, prod.qtd);
+                            printf("Estoque: %d | Marca: %s | Valor: R$ %.2f\n", prod.qtd, prod.marca, prod.valor);
                             printf("-------------------------------------------------------\n");
                         }
 
@@ -2097,40 +2159,6 @@ void exibirVendasPeriodo() { // ok?
 	        }
     	}
     } while(op != 0);
-}
-
-void ordenarProdutos() {
-    PRODUTO p, px;
-    int qtde = 0, i;
-    
-    FILE *arc = fopen("produtos.bin", "rb+");
-    if (arc == NULL) 
-        printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-        fseek(arc, 0, 2);
-        qtde = ftell(arc) / sizeof(PRODUTO);
-        
-        while (qtde > 1) {
-            for (i=0;i<qtde-1;i++) {
-                
-                fseek(arc, i * sizeof(PRODUTO), 0); 
-                fread(&p, sizeof(PRODUTO), 1, arc);
-                
-                fseek(arc, (i + 1) * sizeof(PRODUTO), 0); // lendo elemento na posicao i + 1
-                fread(&px, sizeof(PRODUTO), 1, arc);
-                
-                if (p.id > px.id) { // id crescente
-                    fseek(arc, i * sizeof(PRODUTO), 0);
-                    fwrite(&px, sizeof(PRODUTO), 1, arc);
-
-                    fseek(arc, (i + 1) * sizeof(PRODUTO), 0);
-                    fwrite(&p, sizeof(PRODUTO), 1, arc);
-                }
-            }
-            qtde--;
-        }
-        fclose(arc);
-    }
 }
 
 void exibirProdutosQTDBaixo() {
