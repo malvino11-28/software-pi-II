@@ -323,7 +323,7 @@ void consulAll_cli() {
             printf("\nCEP: %s", cli.end_cad.cep);
             printf("\nE-mail: %s", cli.ctt_cad.email);
             printf("\nTelefone: %s", cli.ctt_cad.tel);
-            printf("----------------------------------------------\n");
+            printf("\n----------------------------------------------\n");
             printf("\n");
         }
     }
@@ -596,7 +596,7 @@ void excl_cli() {
             printf("\nCEP: %s", cli.end_cad.cep);
             printf("\nE-mail: %s", cli.ctt_cad.email);
             printf("\nTelefone: %s", cli.ctt_cad.tel);
-            printf("----------------------------------------------\n");
+            printf("\n----------------------------------------------\n");
             printf("\nDeseja excluir esse cliente? (S/N): ");
             if(toupper(getche()) == 'S'){
 
@@ -705,6 +705,8 @@ void cad_forn() {
                 
                 printf("\nDigite a Razao Social: "); fflush(stdin);
                 gets(forn.razaoSoc);
+                printf("\nDigite o Nome Fantasia: "); fflush(stdin);
+                gets(forn.nomeFant);
                 printf("\nDigite a Rua: "); fflush(stdin);
                 gets(forn.end_cad.rua);
                 printf("\nDigite o No: ");
@@ -764,7 +766,7 @@ void alterar_forn() {
         printf("           CORTE IMPERIAL - ALTERAR FORNECEDOR             \n");
         printf("========================================================\n");
 
-        printf("\nDigite o CNPJ do Cliente: "); fflush(stdin);
+        printf("\nDigite o CNPJ do Fornecedor: "); fflush(stdin);
         gets(forn.cnpj);
         while(stricmp(forn.cnpj, "") != 0) {
             
@@ -975,14 +977,14 @@ void consulAll_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nNÂº: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
             printf("\nCEP: %s", forn.end_cad.cep);
             printf("\nE-mail: %s", forn.ctt_cad.email);
             printf("\nTelefone: %s", forn.ctt_cad.tel);
-            printf("----------------------------------------------\n");
+            printf("\n----------------------------------------------\n");
             printf("\n");
         }
     }
@@ -1028,7 +1030,7 @@ void excl_forn() {
             printf("\nCEP: %s", forn.end_cad.cep);
             printf("\nE-mail: %s", forn.ctt_cad.email);
             printf("\nTelefone: %s", forn.ctt_cad.tel);
-            printf("----------------------------------------------\n");
+            printf("\n----------------------------------------------\n");
             printf("\nDeseja excluir esse fornecedor? (S/N): ");
             if(toupper(getche()) == 'S'){
 
@@ -1722,7 +1724,7 @@ void cadastrarPedido() { // ok~
                         rewind(arcP);
                         while (fread(&prod, sizeof(PRODUTO), 1, arcP) == 1) {
                             printf("Produto: %s", prod.nome);
-                            printf("Estoque: R$ %.2f | Marca: %s | Valor: %.2f\n", prod.valor, prod.marca prod.qtd);
+                            printf("Estoque: R$ %.2f | Marca: %s | Valor: %.2f\n", prod.valor, prod.marca, prod.qtd);
                             printf("-------------------------------------------------------\n");
                         }
 
