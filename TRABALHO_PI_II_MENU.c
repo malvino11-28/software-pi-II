@@ -179,13 +179,41 @@ int busca(FILE *fp, char cpf[]) {
     }
 }
 
+// Está orndenando os clientes por nome
+void ordenar_cli() {
+    CADASTRO vet[100];
+    CADASTRO aux;
+    int total = 0, i, j;
 
+    FILE *fp;
+    fp = fopen("cadastros.bin", "rb");
+    if(fp == NULL) return;
+    while(fread(&vet[total], sizeof(CADASTRO), 1, fp) == 1)
+        total++;
+    fclose(fp);
+
+    for(i = 0; i < total - 1; i++) {
+        for(j = 0; j < total - 1 - i; j++) {
+            if(stricmp(vet[j].nome, vet[j+1].nome) > 0) {
+                aux = vet[j];
+                vet[j] = vet[j+1];
+                vet[j+1] = aux;
+            }
+        }
+    }
+
+    fp = fopen("cadastros.bin", "wb");
+    for(i = 0; i < total; i++)
+        fwrite(&vet[i], sizeof(CADASTRO), 1, fp);
+    fclose(fp);
+}
 
 //Cadastro Clientes
 void cad_cli() {
     
     CADASTRO cli;
     int pos;
+    int fechou = 0;
     
     FILE *fp;
     fp = fopen("cadastros.bin", "ab+");
@@ -196,6 +224,7 @@ void cad_cli() {
     } else {
         
         do{
+            fechou = 0;
             printf("\n========================================================\n");
             printf("         CORTE IMPERIAL - CADASTRAR CLIENTES            \n");
             printf("========================================================\n");
@@ -229,7 +258,11 @@ void cad_cli() {
                 printf("\nDigite o Telefone: "); fflush(stdin);
                 gets(cli.ctt_cad.tel);
                 fwrite(&cli, sizeof(CADASTRO), 1, fp);
-            	printf("\n----------------------------------------------\n");
+                fclose(fp);
+                fechou = 1;
+                ordenar_cli();
+                fp = fopen("cadastros.bin", "ab+");
+                printf("\n----------------------------------------------\n");
                 printf("\nCadastro realizado com sucesso!!!\n");
                 
             } else {
@@ -243,7 +276,8 @@ void cad_cli() {
             printf("\nDeseja continuar S/N ");
 
         } while(toupper(getche()) == 'S');
-        fclose(fp);
+        
+        if(!fechou) fclose(fp);
     }
 }
 //perguntar pra prof se podemos fazer uma funcao que receba como parametro a posicao da info no arquivo binario afim de exibir direto as info
@@ -463,6 +497,9 @@ void consul_cli() {
     int pos;
     
     FILE *fp;
+    
+    ordenar_cli();
+    
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
         
@@ -578,7 +615,6 @@ void excl_cli() {
 }
 
 // FUNCOES PESSOAS - FORNECEDORES
-
 int busca_forn(FILE *fp, char cnpj[]) {
     
     CADASTRO forn;
@@ -599,11 +635,41 @@ int busca_forn(FILE *fp, char cnpj[]) {
     }
 }
 
+//Está ordenando por razão social
+void ordenar_forn() {
+    CADASTRO vet[100];
+    CADASTRO aux;
+    int total = 0, i, j;
+
+    FILE *fp;
+    fp = fopen("cadastrosForn.bin", "rb");
+    if(fp == NULL) return;
+    while(fread(&vet[total], sizeof(CADASTRO), 1, fp) == 1)
+        total++;
+    fclose(fp);
+
+    for(i = 0; i < total - 1; i++) {
+        for(j = 0; j < total - 1 - i; j++) {
+            if(stricmp(vet[j].razaoSoc, vet[j+1].razaoSoc) > 0) {
+                aux = vet[j];
+                vet[j] = vet[j+1];
+                vet[j+1] = aux;
+            }
+        }
+    }
+
+    fp = fopen("cadastrosForn.bin", "wb");
+    for(i = 0; i < total; i++)
+        fwrite(&vet[i], sizeof(CADASTRO), 1, fp);
+    fclose(fp);
+}
+
 //Cadastro Fornecedores
 void cad_forn() {
 
     CADASTRO forn;
     int pos;
+    int fechou = 0;
     
     FILE *fp;
     fp = fopen("cadastrosForn.bin", "ab+");
@@ -614,6 +680,7 @@ void cad_forn() {
     } else {
         
         do{
+            fechou = 0;
             printf("\n========================================================\n");
             printf("         CORTE IMPERIAL - CADASTRAR FORNECEDORES            \n");
             printf("========================================================\n");
@@ -643,6 +710,10 @@ void cad_forn() {
                 printf("\nDigite o Telefone: "); fflush(stdin);
                 gets(forn.ctt_cad.tel);
                 fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                fclose(fp);
+                fechou = 1;
+                ordenar_forn();
+                fp = fopen("cadastrosForn.bin", "ab+");
             	printf("\n----------------------------------------------\n");
                 printf("\nCadastro realizado com sucesso!!!\n");
                 
@@ -657,7 +728,8 @@ void cad_forn() {
             printf("\nDeseja continuar S/N ");
 
         } while(toupper(getche()) == 'S');
-        fclose(fp);
+
+        if(!fechou) fclose(fp); 
     }
 }
 
@@ -678,7 +750,7 @@ void alterar_forn() {
     int pos, op;
 
     FILE *fp;
-    fp = fopen("cadastrosForn", "rb+");
+    fp = fopen("cadastrosForn.bin", "rb+");
     if(fp == NULL){
 
         printf("Erro na ABERTURA do arquivo.");
@@ -838,6 +910,9 @@ void consul_forn() {
     int pos;
     
     FILE *fp;
+
+    ordenar_forn(); 
+
     fp = fopen("cadastrosForn.bin", "rb");
     if(fp == NULL){
         
