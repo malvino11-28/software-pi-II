@@ -180,7 +180,7 @@ int busca(FILE *fp, char cpf[]) {
     }
 }
 
-// Está orndenando os clientes por nome
+// Esta orndenando os clientes por nome
 void ordenar_cli() {
     CADASTRO vet[100];
     CADASTRO aux;
@@ -220,7 +220,7 @@ void cad_cli() {
     fp = fopen("cadastros.bin", "ab+");
     if(fp == NULL){
         
-        printf("Erro na ABERTURA do arquivo");
+        printf("\n[Erro ao carregar o arquivo]\n");
         
     } else {
         
@@ -264,13 +264,13 @@ void cad_cli() {
                 ordenar_cli();
                 fp = fopen("cadastros.bin", "ab+");
                 printf("\n----------------------------------------------\n");
-                printf("\nCadastro realizado com sucesso!!!\n");
+                printf("\n[Cadastro realizado com sucesso]\n");
                 
             } else {
 
                 fseek(fp, pos, 0);
                 fread(&cli, sizeof(CADASTRO), 1, fp);
-                printf("\nCPF ja cadastrado no sistema.");
+                printf("\n[CPF ja cadastrado no sistema]");
                 system("pause");
             }
             
@@ -291,7 +291,7 @@ void cad_cli() {
 //     fp = fopen("cadastros.bin", "rb");
 //     if(fp == NULL){
         
-//         printf("Erro na ABERTURA do arquivo.");
+//         printf("\n[Erro ao carregar o arquivo]\n");
         
 //     } else {
         
@@ -303,7 +303,7 @@ void cad_cli() {
 //             printf("\nRG: %s", cli.rg);
 //             printf("\nData de Nascimento: %d/%d/%d", cli.end_cad.dia, cli.end_cad.mes, cli.end_cad.ano);
 //             printf("\nRua: %s", cli.end_cad.rua);
-//             printf("\nNÂº: %d", cli.end_cad.num);
+//             printf("\nNo: %d", cli.end_cad.num);
 //             printf("\nBairro: %s", cli.end_cad.bairro);
 //             printf("\nCidade: %s", cli.end_cad.cidade);
 //             printf("\nEstado: %s", cli.end_cad.estado);
@@ -329,7 +329,7 @@ void alterar_cli() {
     fp = fopen("cadastros.bin", "rb+");
     if(fp == NULL){
 
-        printf("Erro na ABERTURA do arquivo.");
+        printf("\n[Erro ao carregar o arquivo]\n");
 
     } else {
 
@@ -345,7 +345,7 @@ void alterar_cli() {
             pos = busca(fp, cli.cpf);
             if(pos == -1){
 
-                printf("\nCliente Nao Cadastrado.");
+                printf("\n[Cliente nao cadastrado]");
             
             } else {
 
@@ -355,7 +355,7 @@ void alterar_cli() {
                 printf("\nRG: %s", cli.rg);
                 printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
                 printf("\nRua: %s", cli.end_cad.rua);
-                printf("\nNÂº: %d", cli.end_cad.num);
+                printf("\nNo: %d", cli.end_cad.num);
                 printf("\nBairro: %s", cli.end_cad.bairro);
                 printf("\nCidade: %s", cli.end_cad.cidade);
                 printf("\nEstado: %s", cli.end_cad.estado);
@@ -380,7 +380,7 @@ void alterar_cli() {
                         gets(cli.nome);
                         fseek(fp,pos,0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -389,7 +389,7 @@ void alterar_cli() {
                         gets(cli.rg);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -398,7 +398,7 @@ void alterar_cli() {
                         scanf("%d%d%d", &cli.nasc.dia, &cli.nasc.mes, &cli.nasc.ano);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -407,7 +407,7 @@ void alterar_cli() {
                         gets(cli.end_cad.rua);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -416,7 +416,7 @@ void alterar_cli() {
                         scanf("%d", &cli.end_cad.num);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -425,7 +425,7 @@ void alterar_cli() {
                         gets(cli.end_cad.bairro);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -434,7 +434,7 @@ void alterar_cli() {
                         gets(cli.end_cad.cidade);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("Registro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -443,7 +443,7 @@ void alterar_cli() {
                         gets(cli.end_cad.estado);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -452,7 +452,7 @@ void alterar_cli() {
                         gets(cli.end_cad.cep);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -461,7 +461,7 @@ void alterar_cli() {
                         gets(cli.ctt_cad.email);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -471,7 +471,7 @@ void alterar_cli() {
                         gets(cli.ctt_cad.tel);
                         fseek(fp, pos, 0);
                         fwrite(&cli, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -479,7 +479,7 @@ void alterar_cli() {
                         break;
 
                     default:
-                        printf("\nOpcao Invalida!!!");
+                        printf("\n[Opcao invalida]");
                         break;
                 }
             }
@@ -504,7 +504,7 @@ void consul_cli() {
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
         
-        printf("Erro na ABERTURA do arquivo.");
+        printf("\n[Erro ao carregar o arquivo]\n");
         
     } else {
         
@@ -518,7 +518,7 @@ void consul_cli() {
         pos = busca(fp, cli.cpf);
         if(pos == -1){
 
-            printf("\nCliente Nao Encontrado.");
+            printf("\n[Cliente nao encontrado]");
 
         } else {
 
@@ -556,7 +556,7 @@ void excl_cli() {
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL) {
 
-        printf("Erro na ABERTURA do arquivo");
+        printf("\n[Erro ao carregar o arquivo]\n");
 
     } else {
 
@@ -566,7 +566,7 @@ void excl_cli() {
         pos = busca(fp, cpf_busca);
         if(pos == -1){
 
-            printf("Cliente Nao Encontrado.");
+            printf("\n[Cliente nao encontrado]");
             fclose(fp);
 
         } else {
@@ -578,7 +578,7 @@ void excl_cli() {
             printf("\nRG: %s", cli.rg);
             printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
             printf("\nRua: %s", cli.end_cad.rua);
-            printf("\nNÂº: %d", cli.end_cad.num);
+            printf("\nNo: %d", cli.end_cad.num);
             printf("\nBairro: %s", cli.end_cad.bairro);
             printf("\nCidade: %s", cli.end_cad.cidade);
             printf("\nEstado: %s", cli.end_cad.estado);
@@ -601,14 +601,14 @@ void excl_cli() {
                 fclose(fp);
                 remove("cadastros.bin");
                 rename("auxiliar.bin", "cadastros.bin");
-                printf("O cadastro foi excluido com sucesso!!! <ENTER para voltar ao menu");
+                printf("\n[Cadastro excluido com sucesso]\n<ENTER para voltar ao menu");
                 getchar();
                 system("cls");
 
             } else {
 
                 fclose(fp);
-                printf("\nOperacao Cancelada.");
+                printf("\n[Operacao cancelada]");
             }
         }
         
@@ -636,7 +636,7 @@ int busca_forn(FILE *fp, char cnpj[]) {
     }
 }
 
-//Está ordenando por razão social
+//Esta ordenando por razao social
 void ordenar_forn() {
     CADASTRO vet[100];
     CADASTRO aux;
@@ -676,7 +676,7 @@ void cad_forn() {
     fp = fopen("cadastrosForn.bin", "ab+");
     if(fp == NULL){
         
-        printf("Erro na ABERTURA do arquivo");
+        printf("\n[Erro ao carregar o arquivo]\n");
         
     } else {
         
@@ -716,13 +716,13 @@ void cad_forn() {
                 ordenar_forn();
                 fp = fopen("cadastrosForn.bin", "ab+");
             	printf("\n----------------------------------------------\n");
-                printf("\nCadastro realizado com sucesso!!!\n");
+                printf("\n[Cadastro realizado com sucesso]\n");
                 
             } else {
 
                 fseek(fp, pos, 0);
                 fread(&forn, sizeof(CADASTRO), 1, fp);
-                printf("\nCNPJ ja cadastrado no sistema.");
+                printf("\n[CNPJ ja cadastrado no sistema]");
                 system("pause");
             }
             
@@ -754,7 +754,7 @@ void alterar_forn() {
     fp = fopen("cadastrosForn.bin", "rb+");
     if(fp == NULL){
 
-        printf("Erro na ABERTURA do arquivo.");
+        printf("\n[Erro ao carregar o arquivo]\n");
 
     } else {
 
@@ -770,7 +770,7 @@ void alterar_forn() {
             pos = busca_forn(fp, forn.cnpj);
             if(pos == -1){
 
-                printf("\nFornecedor Nao Cadastrado.");
+                printf("\n[Fornecedor nao cadastrado]");
             
             } else {
 
@@ -779,7 +779,7 @@ void alterar_forn() {
                 printf("\nRazao Social: %s", forn.razaoSoc);
                 printf("\nNome Fantasia: %s", forn.nomeFant);
                 printf("\nRua: %s", forn.end_cad.rua);
-                printf("\nNº: %d", forn.end_cad.num);
+                printf("\nNo: %d", forn.end_cad.num);
                 printf("\nBairro: %s", forn.end_cad.bairro);
                 printf("\nCidade: %s", forn.end_cad.cidade);
                 printf("\nEstado: %s", forn.end_cad.estado);
@@ -803,7 +803,7 @@ void alterar_forn() {
                         gets(forn.razaoSoc);
                         fseek(fp,pos,0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -812,7 +812,7 @@ void alterar_forn() {
                         gets(forn.nomeFant);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -821,7 +821,7 @@ void alterar_forn() {
                         gets(forn.end_cad.rua);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -830,7 +830,7 @@ void alterar_forn() {
                         scanf("%d", &forn.end_cad.num);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -839,7 +839,7 @@ void alterar_forn() {
                         gets(forn.end_cad.bairro);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -848,7 +848,7 @@ void alterar_forn() {
                         gets(forn.end_cad.cidade);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("Registro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -857,7 +857,7 @@ void alterar_forn() {
                         gets(forn.end_cad.estado);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -866,7 +866,7 @@ void alterar_forn() {
                         gets(forn.end_cad.cep);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -875,7 +875,7 @@ void alterar_forn() {
                         gets(forn.ctt_cad.email);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -884,7 +884,7 @@ void alterar_forn() {
                         gets(forn.ctt_cad.tel);
                         fseek(fp, pos, 0);
                         fwrite(&forn, sizeof(CADASTRO), 1, fp);
-                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        printf("\n[Registro atualizado com sucesso]\n");
                         system("pause");
                         break;
 
@@ -892,7 +892,7 @@ void alterar_forn() {
                         break;
 
                     default:
-                        printf("\nOpcao Invalida!!!");
+                        printf("\n[Opcao invalida]");
                         break;
                 }
             }
@@ -917,7 +917,7 @@ void consul_forn() {
     fp = fopen("cadastrosForn.bin", "rb");
     if(fp == NULL){
         
-        printf("Erro na ABERTURA do arquivo.");
+        printf("\n[Erro ao carregar o arquivo]\n");
         
     } else {
         
@@ -931,7 +931,7 @@ void consul_forn() {
         pos = busca_forn(fp, forn.cnpj);
         if(pos == -1){
 
-            printf("\nFornecedor Nao Encontrado.");
+            printf("\n[Fornecedor nao encontrado]");
 
         } else {
 
@@ -940,7 +940,7 @@ void consul_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nNo: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
@@ -967,7 +967,7 @@ void excl_forn() {
     fp = fopen("cadastrosForn.bin", "rb");
     if(fp == NULL) {
 
-        printf("Erro na ABERTURA do arquivo");
+        printf("\n[Erro ao carregar o arquivo]\n");
 
     } else {
 
@@ -977,7 +977,7 @@ void excl_forn() {
         pos = busca_forn(fp, cnpj_busca);
         if(pos == -1){
 
-            printf("Fornecedor Nao Encontrado.");
+            printf("\n[Fornecedor nao encontrado]");
 
         } else {
 
@@ -986,7 +986,7 @@ void excl_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nNo: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
@@ -1009,14 +1009,14 @@ void excl_forn() {
                 fclose(fp);
                 remove("cadastrosForn.bin");
                 rename("auxiliarForn.bin", "cadastrosForn.bin");
-                printf("O cadastro foi excluido com sucesso!!! <ENTER para voltar ao menu");
+                printf("\n[Cadastro excluido com sucesso]\n<ENTER para voltar ao menu");
                 getchar();
                 system("cls");
 
             } else {
 
                 fclose(fp);
-                printf("\nOperacao Cancelada.");
+                printf("\n[Operacao cancelada]");
             }
         }
         
@@ -1047,7 +1047,7 @@ int buscarProduto(FILE *arc, int b) {
 void cadastrarProduto() {
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "ab+");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------CADASTRO DE PRODUTO-----------\n");
         printf("\nDigite o ID do produto a ser cadastrado: ");
@@ -1077,7 +1077,7 @@ void cadastrarProduto() {
             scanf("%d", &p.qtd);
 
             fwrite(&p, sizeof(PRODUTO), 1, arc);
-            printf("\n[Produto cadastrado!\nCodigo do produto: %d]\n\n", p.id);
+            printf("\n[Produto cadastrado]\n[Codigo do produto: %d]\n", p.id);
         }
         fclose(arc);
     }
@@ -1086,7 +1086,7 @@ void cadastrarProduto() {
 void exibirProduto() {
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         int prod = 0;
         while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
@@ -1109,7 +1109,7 @@ void alterarProduto() {
     int id, op, b;
     PRODUTO p; 
     FILE *arc = fopen("produtos.bin", "rb+"); 
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------ALTERAR PRODUTO-----------\n");
         printf("\nInforme o ID do produto a ser alterado: \n");
@@ -1141,51 +1141,51 @@ void alterarProduto() {
                             getchar();
                             printf("Novo nome: ");
                             fgets(p.nome, sizeof(p.nome), stdin);
-                            printf("\nNome alterado localmente com sucesso!\n");
+                            printf("\n[Nome alterado localmente com sucesso]\n");
                         break;
 
                         case 2:
                             getchar();
                             printf("Nova unidade de medida: ");
                             fgets(p.medida, sizeof(p.medida), stdin);
-                            printf("\nUnidade de medida alterada localmente com sucesso!\n");
+                            printf("\n[Unidade de medida alterada localmente com sucesso]\n");
                         break;
 
                         case 3:
                             getchar();
                             printf("Nova marca: ");
                             fgets(p.marca, sizeof(p.marca), stdin);
-                            printf("\nMarca alterada com sucesso!\n");
+                            printf("\n[Marca alterada com sucesso]\n");
                         break;
 
                         case 4:
                             printf("Nova quantidade em estoque: ");
                             scanf("%d", &p.qtd);
-                            printf("\nQuantidade alterada com sucesso!\n");
+                            printf("\n[Quantidade alterada com sucesso]\n");
                         break;
 
                         case 5:
                         getchar(); // a mudar
                             printf("Nova categoria do produto: \n");
                             fgets(p.categoria, sizeof(p.categoria), stdin);
-                            printf("\nCategoria alterada com sucesso!\n");
+                            printf("\n[Categoria alterada com sucesso]\n");
                         break;
 
                         case 6:
                             printf("Novo valor do produto: ");
                             scanf("%f", &p.valor);
-                            printf("\nValor alterado com sucesso!\n");
+                            printf("\n[Valor alterado com sucesso]\n");
                         break;
 
                         case 0:
-                            // Grava as alteraÃ§Ãµes de volta no arquivo binÃ¡rio antes de sair
+                            // Grava as alteracoes de volta no arquivo binario antes de sair
                             fseek(arc, b, 0);
                             fwrite(&p, sizeof(PRODUTO), 1, arc);
-                            printf("\n[Alteracoes salvas no arquivo com sucesso!]\n");
+                            printf("\n[Alteracoes salvas no arquivo com sucesso]\n");
                         break;
 
                         default:
-                            printf("\nOpcao invalida!\n");
+                            printf("\n[Opcao invalida]\n");
                             break;
                     }
                 } while (op != 0);
@@ -1203,7 +1203,7 @@ void consultarProduto() {
     char busca[TS];
     
     FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
    
     do {
     	rewind(arc); // voltando para o comeco do arquivo a cada nova busca
@@ -1260,11 +1260,11 @@ void consultarProduto() {
                 break;
 
             case 0:
-                printf("\n[Voltando ao menu principal...]\n");
+                printf("\n[Voltando ao menu principal]\n");
                 break;
 
             default:
-                printf("\nOpcao invalida!\n");
+                printf("\n[Opcao invalida]\n");
                 break;
         }
         
@@ -1279,7 +1279,7 @@ void excluirProduto() {
     int op, id, b;
 
     arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------EXCLUIR PRODUTO-----------\n");
         
@@ -1309,7 +1309,7 @@ void excluirProduto() {
 
             if (op == 1) {
                 temp = fopen("auxiliar.bin", "wb");
-                if (temp == NULL) printf("Erro");
+                if (temp == NULL) printf("\n[Erro ao carregar o arquivo]\n");
                 else {
                     rewind(arc);
                     while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
@@ -1340,7 +1340,7 @@ void gerenciarMarcas() { // ok~
     int op, vazio = 1;
     PRODUTO p; // struct
     FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
             printf("\n-------------------MARCAS---------------------\n");
             while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
@@ -1362,7 +1362,7 @@ void gerenciarCategorias() { //ok~
     int op, vazio = 1;
     PRODUTO p; //struct
     FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n--------------CATEGORIAS----------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
@@ -1410,11 +1410,11 @@ void criarAssinatura() { // ok~
     CADASTRO c;
     FILE *cli, *arc = fopen("assinatura.bin", "ab+");
 
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         cli = fopen("cadastros.bin", "rb");
         if (cli == NULL) {
-            printf("\nErro\n");
+            printf("\n[Erro ao carregar o arquivo]\n");
             fclose(arc);
             return;
         }
@@ -1449,7 +1449,7 @@ void criarAssinatura() { // ok~
 
                 fwrite(&a, sizeof(ASSINATURA), 1, arc);
 
-                printf("\n[Assinatura para o cliente CPF %s criada!]\n", a.cpfCliente);
+                printf("\n[Assinatura para o cliente CPF %s criada]\n", a.cpfCliente);
 
                 printf("\n[0] Sair\n");
                 scanf("%d", &op);
@@ -1466,7 +1466,7 @@ void renovarAssinatura() {
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb+");
 
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------RENOVAR ASSINATURA-----------\n");
 
@@ -1482,7 +1482,7 @@ void renovarAssinatura() {
             fread(&a, sizeof(ASSINATURA), 1, arc);
 
             if (stricmp(a.status, "Ativo") == 0) {
-                printf("\n[Assinatura ja esta ativa. Nao precisa renovar!]\n");
+                printf("\n[Assinatura ja esta ativa nao precisa renovar]\n");
             } else {
                 printf("\n--------------------------------------------\n");
                 printf("Informe a nova data de vencimento da assinatura (dia mes ano): ");
@@ -1493,7 +1493,7 @@ void renovarAssinatura() {
                 fseek(arc, b, 0);
                 fwrite(&a, sizeof(ASSINATURA), 1, arc);
 
-                printf("\nAssinatura do cliente CPF %s renovada com sucesso!\n", a.cpfCliente);
+                printf("\n[Assinatura do cliente CPF %s renovada com sucesso]\n", a.cpfCliente);
             }
 
             printf("\n[0] Sair\n");
@@ -1508,7 +1508,7 @@ void consultarStatus() {
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb");
 
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n-----------CONSULTAR STATUS DA ASSINATURA-----------\n");
 
@@ -1529,7 +1529,7 @@ void consultarVencimento() { // ok~
     int mes, ano;
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
     printf("\n---------LISTAR PROXIMAS DO VENCIMENTO-----------\n");
         // pede apenas o mes e o ano que o usuario quer checar
@@ -1563,7 +1563,7 @@ void ordenarAssinaturas() {
     int qtd = 0, i;
     ASSINATURA a, ax;
     FILE *arc = fopen("assinatura.bin", "rb+");
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         fseek(arc, 0, 2);
         qtd = ftell(arc) / sizeof(ASSINATURA);
@@ -1603,7 +1603,7 @@ void listarAssinaturas() { // ok~
     
     arc = fopen("assinatura.bin", "rb");
     if (arc == NULL) {
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n-----------LISTA DE ASSINATURAS-----------\n");
         int assi = 0;
@@ -1654,8 +1654,8 @@ void cadastrarPedido() { // ok~
     ASSINATURA c;
     FILE *arcC = fopen("assinatura.bin", "rb");
     FILE *arc = fopen("pedidos.bin", "ab+");
-    if (arcC == NULL) printf("\nErro\n");
-    if (arc == NULL) printf("\nErro\n");
+    if (arcC == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n--- CADASTRAR PEDIDO ---\n");
         printf("Digite o id do pedido: ");
@@ -1663,7 +1663,7 @@ void cadastrarPedido() { // ok~
 		
         int b = buscarPedido(arc, p.id);	
         if (b != -1) {
-            printf("\n[ID de pedido ja cadastrado!]\n");
+            printf("\n[ID de pedido ja cadastrado]\n");
         } else {
             getchar();
             printf("Digite o CPF do cliente do pedido: ");
@@ -1671,12 +1671,12 @@ void cadastrarPedido() { // ok~
             gets(p.cpfCliente);
 			int bC = buscarAssinatura(arcC, p.cpfCliente);
 			if (bC == -1) 
-				printf("\n[Cliente nao encontrado!]\n");
+				printf("\n[Cliente nao encontrado]\n");
 			else {
 				fseek(arcC, bC, 0);
 				fread(&c, sizeof(ASSINATURA), 1, arcC);
 				if (stricmp(c.status, "Ativo")!=0 && stricmp(c.status, "Teste")!=0)
-					printf("\n[Cliente sem assinatura valida!]\n");
+					printf("\n[Cliente sem assinatura valida]\n");
 				else {
 			            printf("Descricao os itens: ");
 			            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
@@ -1704,7 +1704,7 @@ void cadastrarPedido() { // ok~
 			            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
 			            
 			            fwrite(&p, sizeof(PEDIDO), 1, arc);
-			            printf("\n[Pedido [%d] cadastrado com sucesso!]\n", p.id);
+			            printf("\n[Pedido [%d] cadastrado com sucesso]\n", p.id);
 			            
 			            printf("\n[0] Sair\n");
 			            scanf("%d", &op);
@@ -1722,7 +1722,7 @@ void atualizarVenda() { // ok~
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb+");
 
-    if (arc == NULL) printf("\nErro\n");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n--- ATUALIZAR STATUS ---\n");
         printf("Digite o id de um pedido: ");
@@ -1773,7 +1773,7 @@ void exibirStatusPedido() { // ok~
     FILE *arc = fopen("pedidos.bin", "rb");
 
     if (arc == NULL) {
-        printf("\nErro ao abrir o arquivo\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n--- EXIBIR STATUS ---\n");
         printf("Digite o id de um pedido: ");
@@ -1803,7 +1803,7 @@ void confirmarRetirada() { // ok~
     FILE *arc = fopen("pedidos.bin", "rb+");
     
     if (arc == NULL) {
-        printf("\nErro ao abrir o arquivo\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n--- CONFIRMAR RETIRADA ---\n");
         printf("Digite o id de um pedido: ");
@@ -1845,7 +1845,7 @@ void confirmarEntrega() { // ok~
     FILE *arc = fopen("pedidos.bin", "rb+");
     
     if (arc == NULL) {
-        printf("\nErro ao abrir o arquivo\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n--- CONFIRMAR ENTREGA ---\n");
         printf("Digite o id de um pedido: ");
@@ -1870,7 +1870,7 @@ void confirmarEntrega() { // ok~
                 strcpy(p.status, "Finalizado");
                 fseek(arc, b, 0);
                 fwrite(&p, sizeof(PEDIDO), 1, arc);
-                printf("\nEntrega confirmada com sucesso!\n");
+                printf("\n[Entrega confirmada com sucesso]\n");
             }
 
             printf("\n[0] Sair\n");
@@ -1886,7 +1886,7 @@ void ordenarPedidos() {
     
     FILE *arc = fopen("pedidos.bin", "rb+");
     if (arc == NULL) 
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     else {
         fseek(arc, 0, 2);
         qtde = ftell(arc) / sizeof(PEDIDO);
@@ -1920,7 +1920,7 @@ void listarPedidos() {
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb");
     if (arc == NULL) 
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     else {
 
 
@@ -1954,7 +1954,7 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
     FILE *arc = fopen("pedidos.bin", "rb");
     
     if (arc == NULL) {
-        printf("\nErro ao abrir o arquivo\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n----------- TODOS OS PEDIDOS FINALIZADOS -----------\n");
         int encontrou = 0;
@@ -2008,7 +2008,7 @@ void exibirVendasPeriodo() { // ok?
 		if (op >= 1 && op <= 5) {
 	        arc = fopen("pedidos.bin", "rb");
 	        if (arc == NULL) 
-	            printf("\nErro\n");
+	            printf("\n[Erro ao carregar o arquivo]\n");
 	        else {
 	            printf("\n--------------------------------------------\n");
 	            printf("Vendas do periodo: %s\n",  periodo);
@@ -2039,7 +2039,7 @@ void ordenarProdutos() {
     
     FILE *arc = fopen("produtos.bin", "rb+");
     if (arc == NULL) 
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     else {
         fseek(arc, 0, 2);
         qtde = ftell(arc) / sizeof(PRODUTO);
@@ -2077,7 +2077,7 @@ void exibirProdutosQTDBaixo() {
     printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
     
     if (arc == NULL) {
-        printf("\nErro ao abrir o arquivo de produtos.\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     } else {
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
@@ -2103,7 +2103,7 @@ void ordenarTicket() {
     
     FILE *arc = fopen("pedidos.bin", "rb+");
     if (arc == NULL) 
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     else {
         fseek(arc, 0, 2);
         qtde = ftell(arc) / sizeof(PEDIDO);
@@ -2142,7 +2142,7 @@ void exibirTicket() {
 
     arcC = fopen("cadastros.bin", "rb");
     if (arcC == NULL) 
-        printf("\nErro\n");
+        printf("\n[Erro ao carregar o arquivo]\n");
     else {
     	ordenarTicket();
         while (fread(&c, sizeof(CADASTRO), 1, arcC) == 1) {
@@ -2152,7 +2152,7 @@ void exibirTicket() {
             int qtdCompras = 0;
             
             if (arcP == NULL) 
-                printf("\nErro\n");
+                printf("\n[Erro ao carregar o arquivo]\n");
             else {
                 while (fread(&p, sizeof(PEDIDO), 1, arcP) == 1) {
                     // caso o pedido seja do cliente (comparando id), e esteja finalizado
@@ -2222,7 +2222,7 @@ int main() {
                                         break;
 
                                     default:
-                                        printf("Opcao invalida!!!\n");
+                                        printf("\n[Opcao invalida]\n");
                                 }
 
                             } while (op_cli != 0);
@@ -2254,7 +2254,7 @@ int main() {
                                         break;
 
                                     default:
-                                        printf("Opcao invalida!!!\n");
+                                        printf("\n[Opcao invalida]\n");
                                 }
 
                             } while (op_forn != 0);
@@ -2264,7 +2264,7 @@ int main() {
                             break;
 
                         default:
-                            printf("\nOpcao invalida! Tente novamente.\n");
+                            printf("\n[Opcao invalida tente novamente]\n");
                             break;
                     }
 
@@ -2309,7 +2309,7 @@ int main() {
                 break;
 
             default:
-                printf("\nOpcao invalida! Tente novamente.\n");
+                printf("\n[Opcao invalida tente novamente]\n");
                 break;
         }
 
@@ -2342,7 +2342,7 @@ int main() {
                 break;
 
             default:
-                printf("\nOpcao invalida! Tente novamente.\n");
+                printf("\n[Opcao invalida tente novamente]\n");
                 break;
         }
 
@@ -2387,7 +2387,7 @@ int main() {
                 break;
 
             default:
-                printf("\nOpcao invalida! Tente novamente.\n");
+                printf("\n[Opcao invalida tente novamente]\n");
                 break;
         }
 
@@ -2420,7 +2420,7 @@ int main() {
                             break;
 
                         default:
-                            printf("\nOpcao invalida!\n");
+                            printf("\n[Opcao invalida]\n");
                             break;
                     }
 
@@ -2428,11 +2428,11 @@ int main() {
                 break;
 
             case 0:
-                printf("\n\n[Saindo do sistema...]\n\n");
+                printf("\n\n[Saindo do sistema]\n\n");
                 break;
 
             default:
-                printf("\nOpcao invalida! Tente novamente.\n");
+                printf("\n[Opcao invalida tente novamente]\n");
                 break;
         }
 
