@@ -1178,14 +1178,14 @@ void alterarProduto() {
                             getchar();
                             printf("Novo nome: ");
                             fgets(p.nome, sizeof(p.nome), stdin);
-                            printf("\n[Nome alterado localmente com sucesso]\n");
+                            printf("\n[Nome alterado com sucesso]\n");
                         break;
 
                         case 2:
                             getchar();
                             printf("Nova unidade de medida: ");
                             fgets(p.medida, sizeof(p.medida), stdin);
-                            printf("\n[Unidade de medida alterada localmente com sucesso]\n");
+                            printf("\n[Unidade de medida alterada com sucesso]\n");
                         break;
 
                         case 3:
