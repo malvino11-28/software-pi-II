@@ -35,14 +35,9 @@ typedef struct {
     ENDERECO end_cad;
     CONTATO ctt_cad;
     char nome[100], cpf[15], rg[12];
+    char razaoSoc[200], nomeFant[200], cnpj[18];
     
-} CADASTRO ;
-
-// STRUCTS CADASTRO FORNECEDOR
-typedef struct {
-
-    
-}
+} CADASTRO;
 
 // struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
@@ -183,6 +178,8 @@ int busca(FILE *fp, char cpf[]) {
         return -1;
     }
 }
+
+
 
 //Cadastro Clientes
 void cad_cli() {
@@ -532,6 +529,7 @@ void excl_cli() {
         if(pos == -1){
 
             printf("Cliente Nao Encontrado.");
+            fclose(fp);
 
         } else {
 
@@ -581,170 +579,374 @@ void excl_cli() {
 
 // FUNCOES PESSOAS - FORNECEDORES
 
+int busca_forn(FILE *fp, char cnpj[]) {
+    
+    CADASTRO forn;
+    
+    rewind(fp);
+    fread(&forn, sizeof(CADASTRO), 1, fp);
+    while(!feof(fp) && stricmp(cnpj, forn.cnpj) != 0){
+        
+        fread(&forn, sizeof(CADASTRO), 1, fp);
+    }
+    if(!feof(fp)){
+        
+        return (ftell(fp) - sizeof(CADASTRO));
+        
+    } else {
+        
+        return -1;
+    }
+}
+
 //Cadastro Fornecedores
 void cad_forn() {
 
-    printf("\n========================================================\n");
-    printf("        CORTE IMPERIAL - CADASTRAR FORNECEDOR           \n");
-    printf("========================================================\n");
+    CADASTRO forn;
+    int pos;
+    
+    FILE *fp;
+    fp = fopen("cadastrosForn.bin", "ab+");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo");
+        
+    } else {
+        
+        do{
+            printf("\n========================================================\n");
+            printf("         CORTE IMPERIAL - CADASTRAR FORNECEDORES            \n");
+            printf("========================================================\n");
+        
+            printf("\nDigite o CNPJ: "); fflush(stdin);
+            gets(forn.cnpj);
+            
+            pos = busca_forn(fp, forn.cnpj);
+            if(pos == -1) {
+                
+                printf("\nDigite a Razao Social: "); fflush(stdin);
+                gets(forn.razaoSoc);
+                printf("\nDigite a Rua: "); fflush(stdin);
+                gets(forn.end_cad.rua);
+                printf("\nDigite o No: ");
+                scanf("%d", &forn.end_cad.num);
+                printf("\nDigite o Bairro: "); fflush(stdin);
+                gets(forn.end_cad.bairro);
+                printf("\nDigite a Cidade: "); fflush(stdin);
+                gets(forn.end_cad.cidade);
+                printf("\nDigite o Estado (SP): "); fflush(stdin);
+                gets(forn.end_cad.estado);
+                printf("\nDigite o CEP: "); fflush(stdin);
+                gets(forn.end_cad.cep);
+                printf("\nDigite o E-mail: "); fflush(stdin);
+                gets(forn.ctt_cad.email);
+                printf("\nDigite o Telefone: "); fflush(stdin);
+                gets(forn.ctt_cad.tel);
+                fwrite(&forn, sizeof(CADASTRO), 1, fp);
+            	printf("\n----------------------------------------------\n");
+                printf("\nCadastro realizado com sucesso!!!\n");
+                
+            } else {
 
-    printf("\nDigite o CNPJ: "); fflush(stdin);
-    gets(cnpj);
-    printf("\nDigite a Razao Social: "); fflush(stdin);
-    gets(razaoSoc);
-    printf("\nDigite o Nome Fantasia: "); fflush(stdin);
-    gets(nomeFan);
-    printf("\nDigite a Cidade: "); fflush(stdin);
-    gets(cidade);
-    printf("\nDigite o Estado: "); fflush(stdin);
-    gets(estado);
-    printf("\nDigite o E-mail: "); fflush(stdin);
-    gets(email);
-    printf("\nDigite o Telefone: "); fflush(stdin);
-    gets(tel);
+                fseek(fp, pos, 0);
+                fread(&forn, sizeof(CADASTRO), 1, fp);
+                printf("\nCNPJ ja cadastrado no sistema.");
+                system("pause");
+            }
+            
+            printf("\nDeseja continuar S/N ");
 
-    printf("\nCadastro realizado com sucesso!!!\n");
+        } while(toupper(getche()) == 'S');
+        fclose(fp);
+    }
 }
 
-//Para buscar o CNPJ que sera alterado / Colocar dentro da funcao alterar_forc*
-void exibir_forn() {
-    printf("\nRazao Social: -------------SAIDA--------------\n");
-    printf("Nome Fantasia: ------------SAIDA--------------\n");
-    printf("Cidade: -------------------SAIDA--------------\n");
-    printf("Estado: -------------------SAIDA--------------\n");
-    printf("E-mail: -------------------SAIDA--------------\n");
-    printf("Telefone: -----------------SAIDA--------------\n");
-}
+// //Para buscar o CNPJ que sera alterado / Colocar dentro da funcao alterar_forc*
+// void exibir_forn() {
+//     printf("\nRazao Social: -------------SAIDA--------------\n");
+//     printf("Nome Fantasia: ------------SAIDA--------------\n");
+//     printf("Cidade: -------------------SAIDA--------------\n");
+//     printf("Estado: -------------------SAIDA--------------\n");
+//     printf("E-mail: -------------------SAIDA--------------\n");
+//     printf("Telefone: -----------------SAIDA--------------\n");
+// }
 
 //Alterar Cadastro Fornecedor
 void alterar_forn() {
-    int opcao, alterou = 0;
-    char teste[1000];
-    char cnpj_busca[100];
 
-    printf("\n========================================================\n");
-    printf("         CORTE IMPERIAL - ALTERAR FORNECEDOR            \n");
-    printf("========================================================\n");
+    CADASTRO forn;
+    int pos, op;
 
-    printf("Digite o CNPJ do Fornecedor: \n");
-    fflush(stdin);
-    gets(cnpj_busca);
+    FILE *fp;
+    fp = fopen("cadastrosForn", "rb+");
+    if(fp == NULL){
 
-    exibir_forn(); //*
+        printf("Erro na ABERTURA do arquivo.");
 
-    do {
-        printf("\nQual informacao voce deseja alterar?\n");
-        printf("  [1] Razao Social\n");
-        printf("  [2] Nome Fantasia\n");
-        printf("  [3] Cidade\n");
-        printf("  [4] Estado\n");
-        printf("  [5] E-mail\n");
-        printf("  [6] Telefone\n");
-        printf("  [0] Voltar\n");
-        printf("----------------------------------------------\n");
-		printf(" Selecione uma opcao: ");
-        scanf("%d", &opcao);
+    } else {
 
-        switch (opcao) {
-            case 1:
-                printf("\n Digite a nova Razao Social: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+        system("cls");
+        printf("\n========================================================\n");
+        printf("           CORTE IMPERIAL - ALTERAR FORNECEDOR             \n");
+        printf("========================================================\n");
 
-            case 2:
-                printf("\n Digite o novo Nome Fantasia: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+        printf("\nDigite o CNPJ do Cliente: "); fflush(stdin);
+        gets(forn.cnpj);
+        while(stricmp(forn.cnpj, "") != 0) {
+            
+            pos = busca_forn(fp, forn.cnpj);
+            if(pos == -1){
 
-            case 3:
-                printf("\n Digite a nova Cidade: \n");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                printf("\nFornecedor Nao Cadastrado.");
+            
+            } else {
 
-            case 4:
-                printf("\n Digite o novo Estado: \n");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                fseek(fp, pos, 0);
+                fread(&forn, sizeof(CADASTRO), 1, fp);
+                printf("\nRazao Social: %s", forn.razaoSoc);
+                printf("\nNome Fantasia: %s", forn.nomeFant);
+                printf("\nRua: %s", forn.end_cad.rua);
+                printf("\nNº: %d", forn.end_cad.num);
+                printf("\nBairro: %s", forn.end_cad.bairro);
+                printf("\nCidade: %s", forn.end_cad.cidade);
+                printf("\nEstado: %s", forn.end_cad.estado);
+                printf("\nCEP: %s", forn.end_cad.cep);
+                printf("\nE-mail: %s", forn.ctt_cad.email);
+                printf("\nTelefone: %s", forn.ctt_cad.tel);
+                printf("\n----------------------------------------------\n");
 
-            case 5:
-                printf("\n Digite o novo E-mail: \n");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                printf("\nQual informacao voce deseja alterar?\n\n");
+                printf("  [1] Razao Social     [2] Nome Fantasia     [3] Rua\n");
+                printf("  [4] Numero           [5] Bairro            [6] Cidade\n");
+                printf("  [7] Estado           [8] CEP               [9] E-mail\n");
+                printf("  [10] Telefone        [0] Voltar\n");
+                printf("\n----------------------------------------------\n");
+                printf("Selecione uma opcao: ");
+                scanf("%d", &op);
 
-            case 6:
-                printf("\n Digite o novo Telefone: ");
-                fflush(stdin);
-                gets(teste);
-                alterou = 1;
-                break;
+                switch (op) {
+                    case 1:
+                        printf("\nDigite a nova Razao Social: "); fflush(stdin);
+                        gets(forn.razaoSoc);
+                        fseek(fp,pos,0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
 
-            case 0:
-                break;
+                    case 2:
+                        printf("\nDigite o novo Nome Fantasia: "); fflush(stdin);
+                        gets(forn.nomeFant);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
 
-            default:
-                printf("\nOpcao Invalida!!!\n");
+                    case 3:
+                        printf("\nDigite a nova Rua: "); fflush(stdin);
+                        gets(forn.end_cad.rua);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 4:
+                        printf("\nDigite o novo No: ");
+                        scanf("%d", &forn.end_cad.num);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 5:
+                        printf("\nDigite o novo Bairro: "); fflush(stdin);
+                        gets(forn.end_cad.bairro);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 6:
+                        printf("\nDigite a nova Cidade: "); fflush(stdin);
+                        gets(forn.end_cad.cidade);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("Registro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 7:
+                        printf("\nDigite o novo Estado: "); fflush(stdin);
+                        gets(forn.end_cad.estado);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n\n");
+                        system("pause");
+                        break;
+
+                    case 8:
+                        printf("\nDigite o novo CEP: "); fflush(stdin);
+                        gets(forn.end_cad.cep);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 9:
+                        printf("\nDigite o novo E-mail: "); fflush(stdin);
+                        gets(forn.ctt_cad.email);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 10:
+                        printf("\nDigite o novo Telefone: "); fflush(stdin);
+                        gets(forn.ctt_cad.tel);
+                        fseek(fp, pos, 0);
+                        fwrite(&forn, sizeof(CADASTRO), 1, fp);
+                        printf("\nRegistro Atualizado com Sucesso!\n");
+                        system("pause");
+                        break;
+
+                    case 0:
+                        break;
+
+                    default:
+                        printf("\nOpcao Invalida!!!");
+                        break;
+                }
+            }
+            system("cls");
+            printf("\nDigite o CNPJ do Fornecedor: "); fflush(stdin);
+            gets(forn.cnpj);
         }
-
-    } while (opcao != 0);
-
-    if (alterou != 0) {
-        printf("\nAlteracao realizada com sucesso!!!\n");
+        fclose(fp);
     }
 }
 
 //Consultar Fornecedor
 void consul_forn() {
-    char cnpj_busca[100];
 
-    printf("\n========================================================\n");
-    printf("        CORTE IMPERIAL - CONSULTAR FORNECEDOR           \n");
-    printf("========================================================\n");
+    CADASTRO forn;
+    int pos;
+    
+    FILE *fp;
+    fp = fopen("cadastrosForn.bin", "rb");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo.");
+        
+    } else {
+        
+        printf("\n========================================================\n");
+        printf("          CORTE IMPERIAL - CONSULTAR FORNECEDOR            \n");
+        printf("========================================================\n");
 
-    printf("\nDigite o CNPJ do Fornecedor: ");
-    fflush(stdin);
-    gets(cnpj_busca);
+        printf("\nDigite o CNPJ do Fornecedor: "); fflush(stdin);
+        gets(forn.cnpj);
 
-    exibir_forn();
+        pos = busca_forn(fp, forn.cnpj);
+        if(pos == -1){
+
+            printf("\nFornecedor Nao Encontrado.");
+
+        } else {
+
+            fseek(fp, pos, 0);
+            fread(&forn, sizeof(CADASTRO), 1, fp);
+            printf("\nRazao Social: %s", forn.razaoSoc);
+            printf("\nNome Fantasia: %s", forn.nomeFant);
+            printf("\nRua: %s", forn.end_cad.rua);
+            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nBairro: %s", forn.end_cad.bairro);
+            printf("\nCidade: %s", forn.end_cad.cidade);
+            printf("\nEstado: %s", forn.end_cad.estado);
+            printf("\nCEP: %s", forn.end_cad.cep);
+            printf("\nE-mail: %s", forn.ctt_cad.email);
+            printf("\nTelefone: %s", forn.ctt_cad.tel);
+            printf("\n----------------------------------------------\n");
+            printf("\n");
+            system("pause");
+        }
+    }
+    fclose(fp);
+    system("cls");
 }
 
 //Excluir Fornecedor
 void excl_forn() {
-    int esc;
+
+    CADASTRO forn;
+    int pos;
     char cnpj_busca[100];
 
-    printf("\nDigite o CNPJ do Fornecedor: ");
-    fflush(stdin);
-    gets(cnpj_busca);
+    FILE *fp, *aux;
+    fp = fopen("cadastrosForn.bin", "rb");
+    if(fp == NULL) {
 
-    printf("\n----- CNPJ ENCONTRADO!!! ------\n");
-    exibir_forn();
+        printf("Erro na ABERTURA do arquivo");
 
-    do {
-        printf("\nVoce tem certeza de que deseja excluir esse Fornecedor?\n");
-        printf("Esta acao nao pode ser desfeita.\n\n");
-        printf(" [1] Confirmar\n");
-        printf(" [0] Cancelar\n");
-        scanf("%d", &esc);
+    } else {
 
-        if (esc == 1)
-            printf("\nFornecedor Excluido com Sucesso!!!\n");
-        else if (esc == 0)
-            printf("\nOperacao Cancelada!\n");
-        else
-            printf("\nOpcao invalida!!!\n");
+        system("cls");
+        printf("\nDigite o CNPJ do fornecedor que deseja excluir: "); fflush(stdin);
+        gets(cnpj_busca);
+        pos = busca_forn(fp, cnpj_busca);
+        if(pos == -1){
 
-    } while (esc != 1 && esc != 0);
+            printf("Fornecedor Nao Encontrado.");
+
+        } else {
+
+            fseek(fp, pos, 0);
+            fread(&forn, sizeof(CADASTRO), 1, fp);
+            printf("\nRazao Social: %s", forn.razaoSoc);
+            printf("\nNome Fantasia: %s", forn.nomeFant);
+            printf("\nRua: %s", forn.end_cad.rua);
+            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nBairro: %s", forn.end_cad.bairro);
+            printf("\nCidade: %s", forn.end_cad.cidade);
+            printf("\nEstado: %s", forn.end_cad.estado);
+            printf("\nCEP: %s", forn.end_cad.cep);
+            printf("\nE-mail: %s", forn.ctt_cad.email);
+            printf("\nTelefone: %s", forn.ctt_cad.tel);
+            printf("----------------------------------------------\n");
+            printf("\nDeseja excluir esse fornecedor? (S/N): ");
+            if(toupper(getche()) == 'S'){
+
+                aux = fopen("auxiliarForn.bin", "wb");
+                rewind(fp);
+                while(fread(&forn, sizeof(CADASTRO), 1, fp) == 1) {
+                    
+                    if(strcmp(forn.cnpj, cnpj_busca) != 0){
+                        fwrite(&forn, sizeof(CADASTRO), 1, aux);
+                    }
+                }
+                fclose(aux);
+                fclose(fp);
+                remove("cadastrosForn.bin");
+                rename("auxiliarForn.bin", "cadastrosForn.bin");
+                printf("O cadastro foi excluido com sucesso!!! <ENTER para voltar ao menu");
+                getchar();
+                system("cls");
+
+            } else {
+
+                fclose(fp);
+                printf("\nOperacao Cancelada.");
+            }
+        }
+        
+    }
 }
+
 
 /* FUNCOES PRODUTOS */
 
