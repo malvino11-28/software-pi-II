@@ -925,6 +925,7 @@ void consultarProduto() {
     if (arc == NULL) printf("\nErro\n");
    
     do {
+    	rewind(arc); // voltando para o comeco do arquivo a cada nova busca
         printf("\n---------CONSULTAR PRODUTO-----------\n");
         printf("Selecione uma opcao de busca.\n");
         printf("[1] Buscar pelo nome\n[2] Buscar pela categoria\n[0] Voltar\n");
@@ -1372,7 +1373,7 @@ void cadastrarPedido() { // ok~
     ASSINATURA c;
     FILE *arcC = fopen("assinatura.bin", "rb");
     FILE *arc = fopen("pedidos.bin", "ab+");
-    
+    if (arcC == NULL) printf("\nErro\n");
     if (arc == NULL) printf("\nErro\n");
     else {
         printf("\n--- CADASTRAR PEDIDO ---\n");
@@ -1391,43 +1392,46 @@ void cadastrarPedido() { // ok~
 			if (bC == -1) 
 				printf("\n[Cliente nao encontrado!]\n");
 			else {
-			if (bC != -1 && stricmp(c.status, "Ativo")!=0)
-				printf("\n[Cliente sem assinatura valida!]\n");
-			else {
-		            printf("Descricao os itens: ");
-		            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
-		            
-		            printf("\nSelecione um dos periodos.\n");
-		            printf(" [1] Carnaval\n");
-		            printf(" [2] Pascoa\n");
-		            printf(" [3] Copa do mundo 2026\n");
-		            printf(" [4] Natal\n");
-		            printf(" [5] Reveillon\n");
-		            printf(" [0] Sem periodo\n");
-		            scanf("%d", &op);
-		
-		            if (op == 1) strcpy(p.periodo, "Carnaval");
-		            if (op == 2) strcpy(p.periodo, "Pascoa");
-		            if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
-		            if (op == 4) strcpy(p.periodo, "Natal");
-		            if (op == 5) strcpy(p.periodo, "Reveillon");
-		            if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
-		
-		
-		            printf("Valor total: R$ ");
-		            scanf("%f", &p.valorTotal);
-		            
-		            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
-		            
-		            fwrite(&p, sizeof(PEDIDO), 1, arc);
-		            printf("\n[Pedido [%d] cadastrado com sucesso!]\n", p.id);
-		            
-		            printf("\n[0] Sair\n");
-		            scanf("%d", &op);
-	        	}
+				fseek(arcC, bC, 0);
+				fread(&c, sizeof(ASSINATURA), 1, arcC);
+				if (stricmp(c.status, "Ativo")!=0 && stricmp(c.status, "Teste")!=0)
+					printf("\n[Cliente sem assinatura valida!]\n");
+				else {
+			            printf("Descricao os itens: ");
+			            fgets(p.descricao, sizeof(p.descricao), stdin); // esta assim por enquanto, mas acho que vou mudar o jeito de colocar os itens
+			            
+			            printf("\nSelecione um dos periodos.\n");
+			            printf(" [1] Carnaval\n");
+			            printf(" [2] Pascoa\n");
+			            printf(" [3] Copa do mundo 2026\n");
+			            printf(" [4] Natal\n");
+			            printf(" [5] Reveillon\n");
+			            printf(" [0] Sem periodo\n");
+			            scanf("%d", &op);
+			
+			            if (op == 1) strcpy(p.periodo, "Carnaval");
+			            if (op == 2) strcpy(p.periodo, "Pascoa");
+			            if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
+			            if (op == 4) strcpy(p.periodo, "Natal");
+			            if (op == 5) strcpy(p.periodo, "Reveillon");
+			            if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
+			
+			
+			            printf("Valor total: R$ ");
+			            scanf("%f", &p.valorTotal);
+			            
+			            strcpy(p.status, "Recebido");// pedido comecando com "Recebido"
+			            
+			            fwrite(&p, sizeof(PEDIDO), 1, arc);
+			            printf("\n[Pedido [%d] cadastrado com sucesso!]\n", p.id);
+			            
+			            printf("\n[0] Sair\n");
+			            scanf("%d", &op);
+		        	}
         	}
         }
         fclose(arc);
+        fclose(arcC);
     }
 }
 
@@ -1630,13 +1634,14 @@ void ordenarPedidos() {
 }
 
 void listarPedidos() {
+	ordenarPedidos(); // ordenando por ID
     int op;
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb");
     if (arc == NULL) 
         printf("\nErro\n");
     else {
-        ordenarPedidos(); // ordenando por ID
+
 
         
             printf("\n-----------LISTA DE PEDIDOS-----------\n");
@@ -1719,31 +1724,31 @@ void exibirVendasPeriodo() { // ok?
                 printf("\n[Opcao invalida]\n");
             break;
         }
-
-        arc = fopen("pedidos.bin", "rb");
-        if (arc == NULL) 
-            printf("\nErro\n");
-        else {
-            printf("\n--------------------------------------------\n");
-            printf("Vendas do periodo: %s\n",  periodo);
-            printf("--------------------------------------------\n");
-            ordenarPedidos();
-            int pedido = 0;
-            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
-                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
-                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
-                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
-                        pedido = 1;
-                    }
-            }
-            
-            if (!pedido) {
-                printf("[Nenhuma venda finalizada neste periodo]\n");
-            }
-            printf("--------------------------------------------\n");
-            fclose(arc);
-        }
-        
+		if (op >= 1 && op <= 5) {
+	        arc = fopen("pedidos.bin", "rb");
+	        if (arc == NULL) 
+	            printf("\nErro\n");
+	        else {
+	            printf("\n--------------------------------------------\n");
+	            printf("Vendas do periodo: %s\n",  periodo);
+	            printf("--------------------------------------------\n");
+	            ordenarPedidos();
+	            int pedido = 0;
+	            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+	                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
+	                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
+	                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
+	                        pedido = 1;
+	                    }
+	            }
+	            
+	            if (!pedido) {
+	                printf("[Nenhuma venda finalizada neste periodo]\n");
+	            }
+	            printf("--------------------------------------------\n");
+	            fclose(arc);
+	        }
+    	}
     } while(op != 0);
 }
 
