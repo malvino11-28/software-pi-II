@@ -79,8 +79,9 @@ void menu_cli() {
     printf("==================================================\n");
     printf("  [1] Cadastrar Cliente\n");
     printf("  [2] Alterar Cliente\n");
-    printf("  [3] Consultar Cliente\n");
-    printf("  [4] Excluir Cliente\n");
+    printf("  [3] Buscar Cliente\n");
+    printf("  [4] Consultar Todos os Clientes\n");
+    printf("  [5] Excluir Cliente\n");
     printf("  [0] Voltar\n");
     printf("--------------------------------------------------\n");
     printf("  Selecione uma opcao: ");
@@ -93,8 +94,9 @@ void menu_forn() {
     printf("========================================================\n");
     printf("  [1] Cadastrar Fornecedor\n");
     printf("  [2] Alterar Fornecedor\n");
-    printf("  [3] Consultar Fornecedor\n");
-    printf("  [4] Excluir Fornecedor\n");
+    printf("  [3] Buscar Fornecedor\n");
+    printf("  [4] Consultar Todos os Fornecedores\n");
+    printf("  [5] Excluir Fornecedor\n");
     printf("  [0] Voltar\n");
     printf("--------------------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -280,43 +282,46 @@ void cad_cli() {
         if(!fechou) fclose(fp);
     }
 }
-//perguntar pra prof se podemos fazer uma funcao que receba como parametro a posicao da info no arquivo binario afim de exibir direto as info
-//Para buscar o cliente que sera alterado / Colocar dentro da funcao alterar_forc*
-// void exibir_cli() {
-    
-//     CADASTRO cli;
-    
-//     FILE *fp;
-//     fp = fopen("cadastros.bin", "rb");
-//     if(fp == NULL){
-        
-//         printf("Erro na ABERTURA do arquivo.");
-        
-//     } else {
-        
-//         system("cls");
-//         while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
 
-//             printf("\nNome Completo: %s", cli.nome);
-//             printf("\nCPF: %s", cli.cpf);
-//             printf("\nRG: %s", cli.rg);
-//             printf("\nData de Nascimento: %d/%d/%d", cli.end_cad.dia, cli.end_cad.mes, cli.end_cad.ano);
-//             printf("\nRua: %s", cli.end_cad.rua);
-//             printf("\nNº: %d", cli.end_cad.num);
-//             printf("\nBairro: %s", cli.end_cad.bairro);
-//             printf("\nCidade: %s", cli.end_cad.cidade);
-//             printf("\nEstado: %s", cli.end_cad.estado);
-//             printf("\nCEP: %s", cli.end_cad.cep);
-//             printf("\nE-mail: %s", cli.ctt_cad.email);
-//             printf("\nTelefone: %s", cli.ctt_cad.tel);
-//             printf("----------------------------------------------\n");
-//             printf("\n");
-//         }
-//     }
-//     fclose(fp);
-//     system("pause");
-//     system("cls");
-// }
+//Exibe todos os cadastros
+void consulAll_cli() {
+    
+    CADASTRO cli;
+    
+    FILE *fp;
+
+    ordenar_cli();
+
+    fp = fopen("cadastros.bin", "rb");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo.");
+        
+    } else {
+        
+        system("cls");
+        while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
+
+            printf("\nNome Completo: %s", cli.nome);
+            printf("\nCPF: %s", cli.cpf);
+            printf("\nRG: %s", cli.rg);
+            printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
+            printf("\nRua: %s", cli.end_cad.rua);
+            printf("\nNo: %d", cli.end_cad.num);
+            printf("\nBairro: %s", cli.end_cad.bairro);
+            printf("\nCidade: %s", cli.end_cad.cidade);
+            printf("\nEstado: %s", cli.end_cad.estado);
+            printf("\nCEP: %s", cli.end_cad.cep);
+            printf("\nE-mail: %s", cli.ctt_cad.email);
+            printf("\nTelefone: %s", cli.ctt_cad.tel);
+            printf("----------------------------------------------\n");
+            printf("\n");
+        }
+    }
+    fclose(fp);
+    system("pause");
+    system("cls");
+}
 
 //Alterar Cadastro Cliente
 void alterar_cli() {
@@ -497,8 +502,6 @@ void consul_cli() {
     int pos;
     
     FILE *fp;
-    
-    ordenar_cli();
     
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
@@ -733,16 +736,6 @@ void cad_forn() {
     }
 }
 
-// //Para buscar o CNPJ que sera alterado / Colocar dentro da funcao alterar_forc*
-// void exibir_forn() {
-//     printf("\nRazao Social: -------------SAIDA--------------\n");
-//     printf("Nome Fantasia: ------------SAIDA--------------\n");
-//     printf("Cidade: -------------------SAIDA--------------\n");
-//     printf("Estado: -------------------SAIDA--------------\n");
-//     printf("E-mail: -------------------SAIDA--------------\n");
-//     printf("Telefone: -----------------SAIDA--------------\n");
-// }
-
 //Alterar Cadastro Fornecedor
 void alterar_forn() {
 
@@ -910,9 +903,6 @@ void consul_forn() {
     int pos;
     
     FILE *fp;
-
-    ordenar_forn(); 
-
     fp = fopen("cadastrosForn.bin", "rb");
     if(fp == NULL){
         
@@ -952,6 +942,43 @@ void consul_forn() {
         }
     }
     fclose(fp);
+    system("cls");
+}
+
+void consulAll_forn() {
+
+    CADASTRO forn;
+    
+    FILE *fp;
+
+    ordenar_forn();
+
+    fp = fopen("cadastrosForn.bin", "rb");
+    if(fp == NULL){
+        
+        printf("Erro na ABERTURA do arquivo.");
+        
+    } else {
+        
+        system("cls");
+        while(fread(&forn, sizeof(CADASTRO), 1, fp) == 1) {
+
+            printf("\nRazao Social: %s", forn.razaoSoc);
+            printf("\nNome Fantasia: %s", forn.nomeFant);
+            printf("\nRua: %s", forn.end_cad.rua);
+            printf("\nNº: %d", forn.end_cad.num);
+            printf("\nBairro: %s", forn.end_cad.bairro);
+            printf("\nCidade: %s", forn.end_cad.cidade);
+            printf("\nEstado: %s", forn.end_cad.estado);
+            printf("\nCEP: %s", forn.end_cad.cep);
+            printf("\nE-mail: %s", forn.ctt_cad.email);
+            printf("\nTelefone: %s", forn.ctt_cad.tel);
+            printf("----------------------------------------------\n");
+            printf("\n");
+        }
+    }
+    fclose(fp);
+    system("pause");
     system("cls");
 }
 
@@ -2067,6 +2094,10 @@ int main() {
                                         break;
 
                                     case 4:
+                                        consulAll_cli();
+                                        break;
+
+                                    case 5:
                                         excl_cli();
                                         break;
 
@@ -2099,6 +2130,10 @@ int main() {
                                         break;
 
                                     case 4:
+                                        consulAll_forn();
+                                        break;
+
+                                    case 5:
                                         excl_forn();
                                         break;
 
