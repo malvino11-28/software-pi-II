@@ -579,7 +579,6 @@ void excl_cli() {
             fclose(fp);
 
         } else {
-
             fseek(fp, pos, 0);
             fread(&cli, sizeof(CADASTRO), 1, fp);
             printf("\nNome Completo: %s", cli.nome);
@@ -973,7 +972,7 @@ void consulAll_forn() {
             printf("\nRazao Social: %s", forn.razaoSoc);
             printf("\nNome Fantasia: %s", forn.nomeFant);
             printf("\nRua: %s", forn.end_cad.rua);
-            printf("\nNÂº: %d", forn.end_cad.num);
+            printf("\nNo: %d", forn.end_cad.num);
             printf("\nBairro: %s", forn.end_cad.bairro);
             printf("\nCidade: %s", forn.end_cad.cidade);
             printf("\nEstado: %s", forn.end_cad.estado);
@@ -2058,8 +2057,8 @@ void listarPedidos() {
             
             while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
                 pedido = 1;
-                printf("ID: [%d] | Itens: %s | Total: R$ %.2f | Status: %s\n", 
-                        p.id, p.descricao, p.valorTotal, p.status);
+                printf("ID: [%d] - Periodo: %s\n\nNome | QTD | Marca | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
+                        p.id, p.periodo, p.descricao, p.valorTotal, p.status);
             }
             
             if (!pedido) {
@@ -2146,7 +2145,8 @@ void exibirVendasPeriodo() { // ok?
 	            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
 	                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
 	                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
-	                        printf("Pedido Cod: %d | Itens: %s | Total: R$ %.2f\n", p.id, p.descricao, p.valorTotal);
+	                       printf("ID: [%d]\n\nNome | QTD | Marca | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
+                        p.id, p.descricao, p.valorTotal, p.status);
 	                        pedido = 1;
 	                    }
 	            }
