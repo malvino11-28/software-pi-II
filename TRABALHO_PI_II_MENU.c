@@ -46,6 +46,12 @@ typedef struct {
     float valor;
 } PRODUTO;
 
+typedef struct {
+    char cpfCliente[15];
+    DATA d;
+    char plano[TF], status[20];
+} ASSINATURA;
+
 void exibirMenuInicial() {
     system("cls");
     printf("\n==============================================\n");
@@ -555,74 +561,130 @@ void consul_cli() {
 }
 
 //Excluir Cliente
+int buscarAssinatura(FILE *fp, char cpf[]) { // busca de assinatura aq pois sera usada no excl_cli
+    
+    ASSINATURA a;
+    
+    rewind(fp);
+    fread(&a, sizeof(ASSINATURA), 1, fp);
+
+    while(!feof(fp) && stricmp(cpf, a.cpfCliente) != 0){
+        fread(&a, sizeof(ASSINATURA), 1, fp);
+    }
+
+    if(!feof(fp)){
+        return (ftell(fp) - sizeof(ASSINATURA));
+    } else {
+        return -1;
+    }
+}
+
+
+//Excluir Cliente
 void excl_cli() {
 
     CADASTRO cli;
-    int pos;
+    ASSINATURA a;
+    int pos, posAss;
+    int excluir = 1;
     char cpf_busca[100];
 
-    FILE *fp, *aux;
+    FILE *fp, *aux, *ass;
     fp = fopen("cadastros.bin", "rb");
+
     if(fp == NULL) {
-
         printf("\n[Erro ao carregar o arquivo]\n");
-
     } else {
-
         system("cls");
-        printf("\nDigite o CPF do cliente que deseja excluir: "); fflush(stdin);
+        printf("\nDigite o CPF do cliente que deseja excluir: "); 
+        fflush(stdin);
         gets(cpf_busca);
-        pos = busca(fp, cpf_busca);
-        if(pos == -1){
 
+        pos = busca(fp, cpf_busca);
+
+        if(pos == -1){
             printf("\n[Cliente nao encontrado]");
             fclose(fp);
-
         } else {
-            fseek(fp, pos, 0);
-            fread(&cli, sizeof(CADASTRO), 1, fp);
-            printf("\nNome Completo: %s", cli.nome);
-            printf("\nCPF: %s", cli.cpf);
-            printf("\nRG: %s", cli.rg);
-            printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
-            printf("\nRua: %s", cli.end_cad.rua);
-            printf("\nNo: %d", cli.end_cad.num);
-            printf("\nBairro: %s", cli.end_cad.bairro);
-            printf("\nCidade: %s", cli.end_cad.cidade);
-            printf("\nEstado: %s", cli.end_cad.estado);
-            printf("\nCEP: %s", cli.end_cad.cep);
-            printf("\nE-mail: %s", cli.ctt_cad.email);
-            printf("\nTelefone: %s", cli.ctt_cad.tel);
-            printf("\n----------------------------------------------\n");
-            printf("\nDeseja excluir esse cliente? (S/N): ");
-            if(toupper(getche()) == 'S'){
 
-                aux = fopen("auxiliar.bin", "wb");
-                rewind(fp);
-                while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
-                    
-                    if(strcmp(cli.cpf, cpf_busca) != 0){
-                        fwrite(&cli, sizeof(CADASTRO), 1, aux);
+            ass = fopen("assinatura.bin", "rb");
+
+            if(ass != NULL) {
+
+                posAss = buscarAssinatura(ass, cpf_busca);
+
+                if(posAss != -1) {
+
+                    fseek(ass, posAss, 0);
+                    fread(&a, sizeof(ASSINATURA), 1, ass);
+
+                    if(stricmp(a.status, "Inativo") != 0) {
+                        printf("\n[Este cliente possui assinatura %s e nao pode ser excluido]\n", a.status);
+                        excluir = 0;
                     }
                 }
-                fclose(aux);
-                fclose(fp);
-                remove("cadastros.bin");
-                rename("auxiliar.bin", "cadastros.bin");
-                printf("\n[Cadastro excluido com sucesso]\n<ENTER para voltar ao menu");
-                getchar();
-                system("cls");
+
+                fclose(ass);
+            }
+
+            if(excluir == 1) {
+
+                fseek(fp, pos, 0);
+                fread(&cli, sizeof(CADASTRO), 1, fp);
+
+                printf("\nNome Completo: %s", cli.nome);
+                printf("\nCPF: %s", cli.cpf);
+                printf("\nRG: %s", cli.rg);
+                printf("\nData de Nascimento: %d/%d/%d", cli.nasc.dia, cli.nasc.mes, cli.nasc.ano);
+                printf("\nRua: %s", cli.end_cad.rua);
+                printf("\nNo: %d", cli.end_cad.num);
+                printf("\nBairro: %s", cli.end_cad.bairro);
+                printf("\nCidade: %s", cli.end_cad.cidade);
+                printf("\nEstado: %s", cli.end_cad.estado);
+                printf("\nCEP: %s", cli.end_cad.cep);
+                printf("\nE-mail: %s", cli.ctt_cad.email);
+                printf("\nTelefone: %s", cli.ctt_cad.tel);
+                printf("\n----------------------------------------------\n");
+
+                printf("\nDeseja excluir esse cliente? (S/N): ");
+
+                if(toupper(getche()) == 'S'){
+                    aux = fopen("auxiliar.bin", "wb");
+                    if(aux == NULL) {
+                        printf("\n[Erro ao carregar o arquivo]\n");
+                    } else {
+                        rewind(fp);
+                        while(fread(&cli, sizeof(CADASTRO), 1, fp) == 1) {
+                            if(strcmp(cli.cpf, cpf_busca) != 0){
+                                fwrite(&cli, sizeof(CADASTRO), 1, aux);
+                            }
+                        }
+                        fclose(aux);
+                        fclose(fp);
+
+                        remove("cadastros.bin");
+                        rename("auxiliar.bin", "cadastros.bin");
+
+                        printf("\n[Cadastro excluido com sucesso]\n");
+                        printf("<ENTER para voltar ao menu");
+                        getchar();
+                        system("cls");
+                    }
+
+                } else {
+
+                    fclose(fp);
+                    printf("\n[Operacao cancelada]");
+                }
 
             } else {
 
                 fclose(fp);
-                printf("\n[Operacao cancelada]");
+                system("pause");
             }
         }
-        
     }
 }
-
 // FUNCOES PESSOAS - FORNECEDORES
 int busca_forn(FILE *fp, char cnpj[]) {
     
@@ -1448,29 +1510,6 @@ void gerenciarCategorias() { //ok~
 }
 
 /* FUNCOES ASSINATURAS */
-typedef struct {// estarei deixando aqui por enquanto, depois vou mover la pra cima
-    char cpfCliente[15];
-    DATA d;
-    char plano[TF], status[20];
-} ASSINATURA;
-
-int buscarAssinatura(FILE *fp, char cpf[]) {
-    
-    ASSINATURA a;
-    
-    rewind(fp);
-    fread(&a, sizeof(ASSINATURA), 1, fp);
-
-    while(!feof(fp) && stricmp(cpf, a.cpfCliente) != 0){
-        fread(&a, sizeof(ASSINATURA), 1, fp);
-    }
-
-    if(!feof(fp)){
-        return (ftell(fp) - sizeof(ASSINATURA));
-    } else {
-        return -1;
-    }
-}
 
 void criarAssinatura() { // ok~
     int op, b;
