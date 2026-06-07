@@ -41,8 +41,8 @@ typedef struct {
 
 // struct Produto -  id, nome, medida, marca, categoria
 typedef struct {
-	int id, qtd;
-	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
+	int id, qtd, idMarca, idCategoria;
+	char nome[TF], medida[TFR]; 
     float valor;
 } PRODUTO;
 
@@ -51,6 +51,16 @@ typedef struct {
     DATA d;
     char plano[TF], status[20];
 } ASSINATURA;
+
+typedef struct {
+	int id;
+	char nome[TF];
+} MARCA;
+
+typedef struct {
+	int id;
+	char nome[TF];
+} CATEGORIA;
 
 void exibirMenuInicial() {
     system("cls");
@@ -128,6 +138,430 @@ void exibirMenuProdutos() {
     printf(" Selecione uma opcao: ");
 }
 
+void exibirMenuMarcas() {
+	system("cls");
+    printf("\n==============================================\n");
+    printf("          CORTE IMPERIAL - MARCAS              \n");
+    printf("==============================================\n");
+    printf("  [1] Cadastrar Marca\n");
+    printf("  [2] Alterar Marca\n");
+    printf("  [3] Listar Todas as Marcas\n");
+    printf("  [4] Consultar Marca\n");
+    printf("  [5] Excluir Marca\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+int buscarMarca(FILE *arc, int id) {
+	rewind(arc);
+	MARCA m;
+	fread(&m, sizeof(MARCA), 1, arc);
+	
+	while(!feof(arc)&&id != m.id)
+		fread(&m, sizeof(MARCA), 1, arc);
+		
+	if(!feof(arc))
+		return (ftell(arc)-sizeof(MARCA));
+	else
+		return -1;
+}
+
+void cadastrarMarca() {
+	MARCA m;
+	FILE *arc = fopen("marcas.bin", "ab+");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - CADASTRAR MARCA                \n");
+        printf("========================================================\n");
+        printf("Digite o ID da marca a ser cadastrada: ");
+        scanf("%d", &m.id);
+        int b = buscarMarca(arc, m.id);
+        if (b != -1)
+        	printf("[ID ja cadastrado]");
+        else {
+        	while(getchar() != '\n');
+        	printf("Digite o nome da marca: ");
+        	fgets(m.nome, sizeof(m.nome), stdin);
+        	fwrite(&m, sizeof(MARCA), 1, arc);
+			printf("\n[Marca cadastrada com sucesso]\n");
+		}
+		fclose(arc);
+	}
+}
+
+void alterarMarca() {
+	MARCA m;
+	FILE *arc = fopen("marcas.bin", "rb+");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - ALTERAR MARCA            \n");
+        printf("========================================================\n");
+        printf("Digite o ID da marca que sera alterada: ");
+        scanf("%d", &m.id);
+        int b = buscarMarca(arc, m.id);
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+        	fread(&m, sizeof(MARCA), 1, arc);
+        	printf("\nNome da marca: %s", m.nome);
+        	printf("\n----------------------------------------------\n");
+        	while(getchar() != '\n');
+        	printf("Digite o novo nome da marca: ");
+        	fgets(m.nome, sizeof(m.nome), stdin);
+        	fseek(arc, b, 0);
+        	fwrite(&m, sizeof(MARCA), 1, arc);
+        	printf("\n[Marca alterada com sucesso]\n");
+		}
+		fclose(arc);
+	}
+}
+
+void listarMarca() {
+	MARCA m;
+	int marca = 1;
+	FILE *arc = fopen("marcas.bin", "rb");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - LISTAR MARCAS            \n");
+        printf("========================================================\n");
+        
+        while(fread(&m, sizeof(MARCA), 1, arc) == 1) {
+        	marca = 0;
+	    	printf("ID: %d\n", m.id);
+	        printf("Marca: %s", m.nome);
+			printf("\n----------------------------------------------\n");
+		}
+		
+		if (marca == 1) printf("\n[Nenhuma marca cadastrada]\n");
+		fclose(arc);
+	}
+}
+
+void consultarMarca() {
+	MARCA m;
+	FILE *arc = fopen("marcas.bin", "rb");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - CONSULTAR MARCA            \n");
+        printf("========================================================\n");
+        printf("\nDigite o ID da marca: ");
+        scanf("%d", &m.id);
+        int b = buscarMarca(arc, m.id);
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+			fread(&m, sizeof(MARCA), 1, arc);
+
+        	printf("Marca: %s", m.nome);
+			printf("\n----------------------------------------------\n");
+		}
+		fclose(arc);
+	}
+}
+
+void excluirMarca() {
+	FILE *arc, *temp, *prod;
+	MARCA m;
+	PRODUTO p;
+	int op, id, b, marca = 1;
+	
+	arc = fopen("marcas.bin", "rb");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - EXCLUIR MARCA            \n");
+        printf("========================================================\n");
+        
+        printf("\nInforme o ID da marca a ser excluida: ");
+        scanf("%d", &id);
+        
+        b = buscarMarca(arc, id);
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+        	fread(&m, sizeof(MARCA), 1, arc);
+        	
+        	prod = fopen("produtos.bin", "rb");
+			
+			if (prod != NULL) {
+			    while(fread(&p, sizeof(PRODUTO), 1, prod) == 1) {
+			        if (p.idMarca == m.id) marca = 0;
+			    }
+			    fclose(prod);
+			}
+			
+			if (marca == 1) {
+	        	printf("Marca: %s", m.nome);
+				printf("\n----------------------------------------------\n");
+				
+				printf("\nRealmente deseja excluir a marca?\n");
+	            printf("[1] Excluir\n[0] Voltar\n");
+	            printf("Opcao: ");
+	            scanf("%d", &op);
+	
+	            if (op == 1) {
+	                temp = fopen("auxiliar.bin", "wb");
+	                if (temp == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	                else {
+	                    rewind(arc);
+	                    while (fread(&m, sizeof(MARCA), 1, arc) == 1) {
+	                        if (m.id != id) { 
+	                            fwrite(&m, sizeof(MARCA), 1, temp);
+	                        }
+	                    }
+	                    
+	                }
+	                fclose(temp);
+	                fclose(arc);
+	
+	                remove("marcas.bin");
+	                rename("auxiliar.bin", "marcas.bin");
+	
+	                printf("\n[Marca deletada com sucesso]\n");
+	            } 
+        	}
+        	else printf("\n[Erro ao excluir, marca vinculada a um produto]\n");
+        }
+        printf("\n[0] Sair\n");
+        scanf("%d", &op);
+		}
+}
+
+
+void exibirMenuCategoria() {
+	system("cls");
+    printf("\n==============================================\n");
+    printf("          CORTE IMPERIAL - CATEGORIAS              \n");
+    printf("==============================================\n");
+    printf("  [1] Cadastrar Categoria\n");
+    printf("  [2] Alterar Categoria\n");
+    printf("  [3] Listar Todas as Categorias\n");
+    printf("  [4] Consultar Categorias\n");
+    printf("  [5] Excluir Categoria\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+int buscarCategoria(FILE *arc, int id) {
+	rewind(arc);
+	CATEGORIA c;
+	fread(&c, sizeof(CATEGORIA), 1, arc);
+	
+	while(!feof(arc) && id != c.id)
+		fread(&c, sizeof(CATEGORIA), 1, arc);
+		
+	if(!feof(arc))
+		return (ftell(arc) - sizeof(CATEGORIA));
+	else
+		return -1;
+}
+
+void cadastrarCategoria() {
+	CATEGORIA c;
+	FILE *arc = fopen("categorias.bin", "ab+");
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - CADASTRAR CATEGORIA            \n");
+        printf("========================================================\n");
+        printf("Digite o ID da categoria a ser cadastrada: ");
+        scanf("%d", &c.id);
+
+        int b = buscarCategoria(arc, c.id);
+
+        if (b != -1)
+        	printf("[ID ja cadastrado]");
+        else {
+        	while(getchar() != '\n');
+
+        	printf("Digite o nome da categoria: ");
+        	fgets(c.nome, sizeof(c.nome), stdin);
+
+        	fwrite(&c, sizeof(CATEGORIA), 1, arc);
+			printf("\n[Categoria cadastrada com sucesso]\n");
+		}
+
+		fclose(arc);
+	}
+}
+
+void alterarCategoria() {
+	CATEGORIA c;
+	FILE *arc = fopen("categorias.bin", "rb+");
+
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - ALTERAR CATEGORIA              \n");
+        printf("========================================================\n");
+        printf("Digite o ID da categoria que sera alterada: ");
+        scanf("%d", &c.id);
+
+        int b = buscarCategoria(arc, c.id);
+
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+        	fread(&c, sizeof(CATEGORIA), 1, arc);
+
+        	printf("\nNome da categoria: %s", c.nome);
+        	printf("\n----------------------------------------------\n");
+
+        	while(getchar() != '\n');
+
+        	printf("Digite o novo nome da categoria: ");
+        	fgets(c.nome, sizeof(c.nome), stdin);
+
+        	fseek(arc, b, 0);
+        	fwrite(&c, sizeof(CATEGORIA), 1, arc);
+
+        	printf("\n[Categoria alterada com sucesso]\n");
+		}
+
+		fclose(arc);
+	}
+}
+
+void listarCategoria() {
+	CATEGORIA c;
+	int categoria = 1;
+	FILE *arc = fopen("categorias.bin", "rb");
+
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - LISTAR CATEGORIAS              \n");
+        printf("========================================================\n");
+        
+        while(fread(&c, sizeof(CATEGORIA), 1, arc) == 1) {
+        	categoria = 0;
+
+	    	printf("ID: %d\n", c.id);
+	        printf("Categoria: %s", c.nome);
+			printf("\n----------------------------------------------\n");
+		}
+		
+		if (categoria == 1) printf("\n[Nenhuma categoria cadastrada]\n");
+
+		fclose(arc);
+	}
+}
+
+void consultarCategoria() {
+	CATEGORIA c;
+	FILE *arc = fopen("categorias.bin", "rb");
+
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - CONSULTAR CATEGORIA            \n");
+        printf("========================================================\n");
+
+        printf("\nDigite o ID da categoria: ");
+        scanf("%d", &c.id);
+
+        int b = buscarCategoria(arc, c.id);
+
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+			fread(&c, sizeof(CATEGORIA), 1, arc);
+
+        	printf("Categoria: %s", c.nome);
+			printf("\n----------------------------------------------\n");
+		}
+
+		fclose(arc);
+	}
+}
+
+void excluirCategoria() {
+	FILE *arc, *temp, *prod;
+	CATEGORIA c;
+	PRODUTO p;
+	int op, id, b, categoria = 1;
+	
+	arc = fopen("categorias.bin", "rb");
+
+	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	else {
+		printf("\n========================================================\n");
+        printf("         CORTE IMPERIAL - EXCLUIR CATEGORIA              \n");
+        printf("========================================================\n");
+        
+        printf("\nInforme o ID da categoria a ser excluida: ");
+        scanf("%d", &id);
+        
+        b = buscarCategoria(arc, id);
+
+        if (b == -1) printf("\n[ID nao cadastrado]\n");
+        else {
+        	fseek(arc, b, 0);
+        	fread(&c, sizeof(CATEGORIA), 1, arc);
+        	
+        	prod = fopen("produtos.bin", "rb");
+			
+			if (prod != NULL) {
+			    while(fread(&p, sizeof(PRODUTO), 1, prod) == 1) {
+			        if (p.idCategoria == c.id) categoria = 0;
+			    }
+
+			    fclose(prod);
+			}
+			
+			if (categoria == 1) {
+	        	printf("Categoria: %s", c.nome);
+				printf("\n----------------------------------------------\n");
+				
+				printf("\nRealmente deseja excluir a categoria?\n");
+	            printf("[1] Excluir\n[0] Voltar\n");
+	            printf("Opcao: ");
+	            scanf("%d", &op);
+	
+	            if (op == 1) {
+	                temp = fopen("auxiliarCategoria.bin", "wb");
+
+	                if (temp == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	                else {
+	                    rewind(arc);
+
+	                    while (fread(&c, sizeof(CATEGORIA), 1, arc) == 1) {
+	                        if (c.id != id) { 
+	                            fwrite(&c, sizeof(CATEGORIA), 1, temp);
+	                        }
+	                    }
+	                }
+
+	                fclose(temp);
+	                fclose(arc);
+	
+	                remove("categorias.bin");
+	                rename("auxiliarCategoria.bin", "categorias.bin");
+	
+	                printf("\n[Categoria deletada com sucesso]\n");
+
+	                printf("\n[0] Sair\n");
+			        scanf("%d", &op);
+
+			        return;
+	            } 
+        	}
+        	else printf("\n[Erro ao excluir, categoria vinculada a um produto]\n");
+        }
+
+        fclose(arc);
+
+        printf("\n[0] Sair\n");
+        scanf("%d", &op);
+	}
+}
+
 void exibirMenuAssinaturas() {
     system("cls");
     printf("\n==============================================\n");
@@ -167,7 +601,7 @@ void exibirMenuRelatorios() {
     printf("  [1] Vendas por Periodo\n");
     printf("  [2] Produtos com Estoque Baixo\n");
     printf("  [3] Ticket Medio por Cliente\n");
-    printf("  [4] Listar Proximas do Vencimento\n");
+    printf("  [4] Listar Assinaturas Proximas do Vencimento\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
@@ -304,6 +738,8 @@ void consulAll_cli() {
     CADASTRO cli;
     
     FILE *fp;
+
+    ordenar_cli();
 
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
@@ -1138,16 +1574,50 @@ int buscarProduto(FILE *arc, int b) {
     else return -1;
 }
 
+void mostrarNomeMarca(int idMarca) {
+    MARCA m;
+    FILE *arc = fopen("marcas.bin", "rb");
+    if (arc == NULL) printf("\n[Marca nao encontrada]\n");
+    else {
+        int b = buscarMarca(arc, idMarca);
+        if (b == -1) printf("\n[Marca nao encontrada]\n");
+        else {
+            fseek(arc, b, 0);
+            fread(&m, sizeof(MARCA), 1, arc);
+            printf("%s", m.nome);
+        }
+        fclose(arc);
+    }
+}
+
+void mostrarNomeCategoria(int idCategoria) {
+    CATEGORIA c;
+    FILE *arc = fopen("categorias.bin", "rb");
+    if (arc == NULL) printf("\n[Categoria nao encontrada]\n");
+    else {
+        int b = buscarCategoria(arc, idCategoria);
+        if (b == -1) printf("\n[Categoria nao encontrada]\n");
+        else {
+            fseek(arc, b, 0);
+            fread(&c, sizeof(CATEGORIA), 1, arc);
+            printf("%s", c.nome);
+        }
+        fclose(arc);
+    }
+}
+
 void cadastrarProduto() {
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "ab+");
+    FILE *marc, *cat;
+    int bMarca, bCategoria;
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------CADASTRO DE PRODUTO-----------\n");
         printf("\nDigite o ID do produto a ser cadastrado: ");
         scanf("%d", &p.id);
         int b = buscarProduto(arc, p.id);
-        
+
         if (b != -1) printf("\n[ID do produto ja cadastrado]\n");
         else {
             getchar();
@@ -1158,20 +1628,46 @@ void cadastrarProduto() {
             printf("Unidade de medida (ex: UN, KG, MC, LT): ");
             fgets(p.medida, sizeof(p.medida), stdin);
 
-            printf("Marca do produto: ");
-            fgets(p.marca, sizeof(p.marca), stdin);
+            printf("\n--- MARCAS CADASTRADAS ---\n");
+            listarMarca();
 
-            printf("Categoria do produto: ");
-            fgets(p.categoria, sizeof(p.categoria), stdin);
+            printf("\nDigite o ID da marca do produto: ");
+            scanf("%d", &p.idMarca);
 
-            printf("Valor do produto: ");
-            scanf("%f", &p.valor);
+            marc = fopen("marcas.bin", "rb");
+            if (marc == NULL) printf("\n[Cadastre uma marca antes de cadastrar produto]\n");
+            else {
+                bMarca = buscarMarca(marc, p.idMarca);
+                fclose(marc);
 
-            printf("Quantidade de produto: ");
-            scanf("%d", &p.qtd);
+                if (bMarca == -1) printf("\n[Marca nao cadastrada]\n");
+                else {
+                    printf("\n--- CATEGORIAS CADASTRADAS ---\n");
+                    listarCategoria();
 
-            fwrite(&p, sizeof(PRODUTO), 1, arc);
-            printf("\n[Produto cadastrado]\n[Codigo do produto: %d]\n", p.id);
+                    printf("\nDigite o ID da categoria do produto: ");
+                    scanf("%d", &p.idCategoria);
+
+                    cat = fopen("categorias.bin", "rb");
+                    if (cat == NULL) printf("\n[Cadastre uma categoria antes de cadastrar produto]\n");
+                    else {
+                        bCategoria = buscarCategoria(cat, p.idCategoria);
+                        fclose(cat);
+
+                        if (bCategoria == -1) printf("\n[Categoria nao cadastrada]\n");
+                        else {
+                            printf("Valor do produto: ");
+                            scanf("%f", &p.valor);
+
+                            printf("Quantidade de produto: ");
+                            scanf("%d", &p.qtd);
+
+                            fwrite(&p, sizeof(PRODUTO), 1, arc);
+                            printf("\n[Produto cadastrado]\n[Codigo do produto: %d]\n", p.id);
+                        }
+                    }
+                }
+            }
         }
         fclose(arc);
     }
@@ -1180,23 +1676,23 @@ void cadastrarProduto() {
 void ordenarProdutos() {
     PRODUTO p, px;
     int qtde = 0, i;
-    
+
     FILE *arc = fopen("produtos.bin", "rb+");
     if (arc == NULL) 
         printf("\n[Erro ao carregar o arquivo]\n");
     else {
         fseek(arc, 0, 2);
         qtde = ftell(arc) / sizeof(PRODUTO);
-        
+
         while (qtde > 1) {
             for (i=0;i<qtde-1;i++) {
-                
+
                 fseek(arc, i * sizeof(PRODUTO), 0); 
                 fread(&p, sizeof(PRODUTO), 1, arc);
-                
+
                 fseek(arc, (i + 1) * sizeof(PRODUTO), 0); // lendo elemento na posicao i + 1
                 fread(&px, sizeof(PRODUTO), 1, arc);
-                
+
                 if (p.id > px.id) { // id crescente
                     fseek(arc, i * sizeof(PRODUTO), 0);
                     fwrite(&px, sizeof(PRODUTO), 1, arc);
@@ -1213,17 +1709,19 @@ void ordenarProdutos() {
 
 void exibirProduto() {
     PRODUTO p;
+    ordenarProdutos();
     FILE *arc = fopen("produtos.bin", "rb");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
-    	ordenarProdutos();
         int prod = 0;
         while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
             printf("\n--------------------[%d]---------------------", p.id);
             printf("\nNome do Produto: %s", p.nome);
             printf("\nUnidade de medida: %s", p.medida);
-            printf("\nMarca do Produto: %s", p.marca);
-            printf("\nCategoria do Produto: %s", p.categoria);
+            printf("\nMarca do Produto: ");
+            mostrarNomeMarca(p.idMarca);
+            printf("\nCategoria do Produto: ");
+            mostrarNomeCategoria(p.idCategoria);
             printf("\nValor do produto: %.2f", p.valor);
             printf("\nQuantidade em estoque: %d", p.qtd);
             printf("\n--------------------------------------------\n");
@@ -1244,7 +1742,7 @@ void alterarProduto() {
         printf("\n---------ALTERAR PRODUTO-----------\n");
         printf("\nInforme o ID do produto a ser alterado: \n");
         scanf("%d", &id);
-  
+
         b = buscarProduto(arc, id); 
         if (b == -1) printf("\n[ID nao cadastrado]\n");
         else {
@@ -1253,12 +1751,14 @@ void alterarProduto() {
                 printf("\n--------------------[%d]---------------------", p.id);
                 printf("\nNome do Produto: %s", p.nome);
                 printf("\nUnidade de medida: %s", p.medida);
-                printf("\nMarca do Produto: %s", p.marca);
-                printf("\nCategoria do Produto: %s", p.categoria); 
+                printf("\nMarca do Produto: ");
+                mostrarNomeMarca(p.idMarca);
+                printf("\nCategoria do Produto: ");
+                mostrarNomeCategoria(p.idCategoria); 
                 printf("\nValor do produto: %.2f", p.valor);
                 printf("\nQuantidade em estoque: %d", p.qtd);
                 printf("\n--------------------------------------------\n");
-                    
+
             do {
                 printf("\nDeseja alterar alguma informacao?\n");
                 printf("[1] Alterar nome\n[2] Alterar unidade de medida\n");
@@ -1282,10 +1782,27 @@ void alterarProduto() {
                         break;
 
                         case 3:
-                            getchar();
-                            printf("Nova marca: ");
-                            fgets(p.marca, sizeof(p.marca), stdin);
-                            printf("\n[Marca alterada com sucesso]\n");
+                        {
+                            int novoIdMarca;
+                            FILE *marc;
+
+                            printf("\n--- MARCAS CADASTRADAS ---\n");
+                            listarMarca();
+
+                            printf("\nDigite o ID da nova marca: ");
+                            scanf("%d", &novoIdMarca);
+
+                            marc = fopen("marcas.bin", "rb");
+                            if (marc == NULL) printf("\n[Nenhuma marca cadastrada]\n");
+                            else {
+                                if (buscarMarca(marc, novoIdMarca) == -1) printf("\n[Marca nao cadastrada]\n");
+                                else {
+                                    p.idMarca = novoIdMarca;
+                                    printf("\n[Marca alterada com sucesso]\n");
+                                }
+                                fclose(marc);
+                            }
+                        }
                         break;
 
                         case 4:
@@ -1295,10 +1812,27 @@ void alterarProduto() {
                         break;
 
                         case 5:
-                        getchar(); // a mudar
-                            printf("Nova categoria do produto: \n");
-                            fgets(p.categoria, sizeof(p.categoria), stdin);
-                            printf("\n[Categoria alterada com sucesso]\n");
+                        {
+                            int novoIdCategoria;
+                            FILE *cat;
+
+                            printf("\n--- CATEGORIAS CADASTRADAS ---\n");
+                            listarCategoria();
+
+                            printf("\nDigite o ID da nova categoria: ");
+                            scanf("%d", &novoIdCategoria);
+
+                            cat = fopen("categorias.bin", "rb");
+                            if (cat == NULL) printf("\n[Nenhuma categoria cadastrada]\n");
+                            else {
+                                if (buscarCategoria(cat, novoIdCategoria) == -1) printf("\n[Categoria nao cadastrada]\n");
+                                else {
+                                    p.idCategoria = novoIdCategoria;
+                                    printf("\n[Categoria alterada com sucesso]\n");
+                                }
+                                fclose(cat);
+                            }
+                        }
                         break;
 
                         case 6:
@@ -1329,23 +1863,23 @@ void alterarProduto() {
 }
 
 void consultarProduto() {
-    int op, prod;
+    int op, prod, idCategoriaBusca;
     PRODUTO p; 
     char busca[TS];
-    
+
     FILE *arc = fopen("produtos.bin", "rb");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-   
+
     do {
     	rewind(arc); // voltando para o comeco do arquivo a cada nova busca
         printf("\n---------CONSULTAR PRODUTO-----------\n");
         printf("Selecione uma opcao de busca.\n");
-        printf("[1] Buscar pelo nome\n[2] Buscar pela categoria\n[0] Voltar\n");
+        printf("[1] Buscar pelo nome\n[2] Buscar pelo ID da categoria\n[0] Voltar\n");
         printf("Opcao: ");
         scanf("%d", &op);
-        
+
         while(getchar() != '\n'); 
-        
+
         prod = 0; 
         switch (op) {
             case 1:
@@ -1358,8 +1892,10 @@ void consultarProduto() {
                         printf("\n--------------------[%d]---------------------", p.id);
                         printf("\nNome do Produto: %s", p.nome);
                         printf("\nUnidade de medida: %s", p.medida);
-                        printf("\nMarca do Produto: %s", p.marca);
-                        printf("\nCategoria do Produto: %s", p.categoria); 
+                        printf("\nMarca do Produto: ");
+                        mostrarNomeMarca(p.idMarca);
+                        printf("\nCategoria do Produto: ");
+                        mostrarNomeCategoria(p.idCategoria); 
                         printf("\nValor do produto: %.2f", p.valor);
                         printf("\nQuantidade em estoque: %d", p.qtd);
                         printf("\n--------------------------------------------\n");
@@ -1370,17 +1906,22 @@ void consultarProduto() {
                 break;
 
             case 2:
-                printf("\nDigite a categoria do produto: ");
-                fgets(busca, sizeof(busca), stdin);
+                printf("\n--- CATEGORIAS CADASTRADAS ---\n");
+                listarCategoria();
+
+                printf("\nDigite o ID da categoria do produto: ");
+                scanf("%d", &idCategoriaBusca);
 
                 printf("\n--- RESULTADOS DA BUSCA (CATEGORIA) ---");
                 while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
-                    if (stricmp(p.categoria, busca) == 0) {
+                    if (p.idCategoria == idCategoriaBusca) {
                         printf("\n--------------------[%d]---------------------", p.id);
                         printf("\nNome do Produto: %s", p.nome);
                         printf("\nUnidade de medida: %s", p.medida);
-                        printf("\nMarca do Produto: %s", p.marca);
-                        printf("\nCategoria do Produto: %s", p.categoria); 
+                        printf("\nMarca do Produto: ");
+                        mostrarNomeMarca(p.idMarca);
+                        printf("\nCategoria do Produto: ");
+                        mostrarNomeCategoria(p.idCategoria); 
                         printf("\nValor do produto: %.2f", p.valor);
                         printf("\nQuantidade em estoque: %d", p.qtd);
                         printf("\n--------------------------------------------\n");
@@ -1398,7 +1939,7 @@ void consultarProduto() {
                 printf("\n[Opcao invalida]\n");
                 break;
         }
-        
+
     } while (op != 0);
 
     fclose(arc); 
@@ -1413,7 +1954,7 @@ void excluirProduto() {
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
         printf("\n---------EXCLUIR PRODUTO-----------\n");
-        
+
         printf("\nInforme o ID do produto a ser alterado: \n");
         scanf("%d", &id);
 
@@ -1427,8 +1968,10 @@ void excluirProduto() {
             printf("\n--------------------[%d]---------------------", p.id);
             printf("\nNome do Produto: %s", p.nome);
             printf("\nUnidade de medida: %s", p.medida);
-            printf("\nMarca do Produto: %s", p.marca);
-            printf("\nCategoria do Produto: %s", p.categoria); 
+            printf("\nMarca do Produto: ");
+            mostrarNomeMarca(p.idMarca);
+            printf("\nCategoria do Produto: ");
+            mostrarNomeCategoria(p.idCategoria); 
             printf("\nValor do produto: %.2f", p.valor);
             printf("\nQuantidade em estoque: %d", p.qtd);
             printf("\n--------------------------------------------\n");
@@ -1468,45 +2011,17 @@ void excluirProduto() {
 // // // //
 
 void gerenciarMarcas() { // ok~
-    int op, vazio = 1;
-    PRODUTO p; // struct
-    FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-            printf("\n-------------------MARCAS---------------------\n");
-            while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
-                vazio = 0;
-                printf("%s", p.marca);
-            }
-            if (vazio == 1) {
-            printf("\n[Nenhuma marca cadastrada]\n");
-            }
-            printf("--------------------------------------------\n");
-            printf("\n[0] Sair\n");
-            scanf("%d", &op);
-            fclose(arc);
-        }
+    int op;
+    listarMarca();
+    printf("\n[0] Sair\n");
+    scanf("%d", &op);
 }
 
 void gerenciarCategorias() { //ok~
-    int op, vazio = 1;
-    PRODUTO p; //struct
-    FILE *arc = fopen("produtos.bin", "rb");
-    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-        printf("\n--------------CATEGORIAS----------------\n");
-        while (fread(&p, sizeof(PRODUTO), 1, arc)==1) {
-            vazio = 0;
-            printf("%s", p.categoria);
-        }
-        if (vazio == 1) {
-        printf("\n[Nenhuma categoria cadastrada]\n");
-        }
-        printf("--------------------------------------------\n");
-        printf("\n[0] Sair\n");
-        scanf("%d", &op);
-        fclose(arc);
-        }
+    int op;
+    listarCategoria();
+    printf("\n[0] Sair\n");
+    scanf("%d", &op);
 }
 
 /* FUNCOES ASSINATURAS */
@@ -1661,41 +2176,6 @@ void consultarStatus() {
     }
 }
 
-void consultarVencimento() { // ok~
-    int op;
-    int mes, ano;
-    ASSINATURA a;
-    FILE *arc = fopen("assinatura.bin", "rb");
-    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-    printf("\n---------LISTAR PROXIMAS DO VENCIMENTO-----------\n");
-        // pede apenas o mes e o ano que o usuario quer checar
-        printf("\nDigite o mes e o ano que deseja consultar (Ex: 12 2026): ");
-        scanf("%d %d", &mes, &ano);
-        
-
-        printf("\n--- ASSINATURAS QUE VENCEM EM %d/%d ---\n", mes, ano);
-        int encontrou = 0;
-        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
-            // verifica se o mes e o ano da assinatura forem iguais ao que o usuario digitou
-            if (a.d.mes == mes && a.d.ano == ano) {
-                printf("Cliente CPF: %s | Plano: %s | Vence em: %d/%d/%d\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
-                encontrou = 1;
-            }
-        }
-
-        if (!encontrou) {
-            printf("\n[Nenhuma assinatura proxima do vencimento]\n");
-        }
-
-        printf("---------------------------------------------------\n");
-        fclose(arc);
-        
-        printf("\n[0] Voltar ao menu principal\n");
-        scanf("%d", &op);
-        }
-}
-
 void ordenarAssinaturas() {
     int qtd = 0, i;
     ASSINATURA a, ax;
@@ -1766,8 +2246,9 @@ void listarAssinaturas() { // ok~
 /* FUNCOES VENDAS */ 
 typedef struct { // depois levo la pra cima
     int id;
-    char descricao[TS], status[20], periodo[30]; // ex: carnaval
+    char descricao[TS], status[20];
     char cpfCliente[15];
+    DATA dataPedido;
     float valorTotal; 
 } PEDIDO;
 
@@ -1786,14 +2267,15 @@ int buscarPedido(FILE *arc, int cod) {
 }
 
 void cadastrarPedido() { // ok~
-    int op, qtdItens, i;
+    int op, qtdItens, i, idProduto, qtdPedido, posProduto;
+    float subtotal;
     char item[200];
-    PEDIDO p;
+    PEDIDO p = {0};
     PRODUTO prod;
     ASSINATURA c;
     FILE *arcC = fopen("assinatura.bin", "rb");
     FILE *arc = fopen("pedidos.bin", "ab+");
-    FILE *arcP = fopen("produtos.bin", "rb");
+    FILE *arcP = fopen("produtos.bin", "rb+");
 
     if (arcC == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
@@ -1812,36 +2294,76 @@ void cadastrarPedido() { // ok~
                 printf("Digite o CPF do cliente do pedido: ");
                 fflush(stdin);
                 gets(p.cpfCliente);
+
                 int bC = buscarAssinatura(arcC, p.cpfCliente);
+
                 if (bC == -1) 
                     printf("\n[Cliente nao encontrado]\n");
                 else {
                     fseek(arcC, bC, 0);
                     fread(&c, sizeof(ASSINATURA), 1, arcC);
-                    if (stricmp(c.status, "Ativo")!=0 && stricmp(c.status, "Teste")!=0)
+
+                    if (stricmp(c.status, "Ativo") != 0 && stricmp(c.status, "Teste") != 0)
                         printf("\n[Cliente sem assinatura valida]\n");
                     else {
                         printf("\n---------------- PRODUTOS CADASTRADOS ----------------\n");
                         rewind(arcP);
+
                         while (fread(&prod, sizeof(PRODUTO), 1, arcP) == 1) {
+                            printf("Codigo: %d\n", prod.id);
                             printf("Produto: %s", prod.nome);
-                            printf("Estoque: %d | Marca: %s | Valor: R$ %.2f\n", prod.qtd, prod.marca, prod.valor);
+                            printf("Estoque: %d | Marca: ", prod.qtd);
+                            mostrarNomeMarca(prod.idMarca);
+                            printf(" | Valor: R$ %.2f\n", prod.valor);
                             printf("-------------------------------------------------------\n");
                         }
 
                         printf("\nInforme a quantidade de itens do pedido: ");
                         scanf("%d", &qtdItens);
-                        getchar();
+
+                        p.valorTotal = 0;
 
                         for (i = 0; i < qtdItens; i++) {
-                            printf("Descricao do item %d (Produto: | QTD: | Marca: | Valor: ): ", i + 1);
-                            fgets(item, sizeof(item), stdin);
+                            printf("\nDigite o codigo do produto %d: ", i + 1);
+                            scanf("%d", &idProduto);
 
-                            if (strlen(p.descricao) + strlen(item) < sizeof(p.descricao)) {
-                                strcat(p.descricao, item);
+                            posProduto = buscarProduto(arcP, idProduto);
+
+                            if (posProduto == -1) {
+                                printf("\n[Produto nao encontrado]\n");
+                                i--;
                             } else {
-                                printf("\n[Limite da descricao atingido]\n");
-                                i = qtdItens;
+                                fseek(arcP, posProduto, 0);
+                                fread(&prod, sizeof(PRODUTO), 1, arcP);
+
+                                printf("\nProduto: %s", prod.nome);
+                                printf("Valor unitario: R$ %.2f\n", prod.valor);
+                                printf("Estoque disponivel: %d\n", prod.qtd);
+
+                                printf("Informe a quantidade desejada: ");
+                                scanf("%d", &qtdPedido);
+
+                                if (qtdPedido > prod.qtd) {
+                                    printf("\n[Quantidade indisponivel em estoque]\n");
+                                    i--;
+                                } else {
+                                    subtotal = prod.valor * qtdPedido;
+                                    p.valorTotal += subtotal;
+
+                                    prod.qtd -= qtdPedido;
+
+                                    fseek(arcP, posProduto, 0);
+                                    fwrite(&prod, sizeof(PRODUTO), 1, arcP);
+
+                                    sprintf(item, "Produto: %sQTD: %d | Valor unitario: R$ %.2f | Subtotal: R$ %.2f\n", prod.nome, qtdPedido, prod.valor, subtotal);
+
+                                    if (strlen(p.descricao) + strlen(item) < sizeof(p.descricao)) {
+                                        strcat(p.descricao, item);
+                                    } else {
+                                        printf("\n[Limite da descricao atingido]\n");
+                                        i = qtdItens;
+                                    }
+                                }
                             }
                         }
                         
@@ -1861,8 +2383,7 @@ void cadastrarPedido() { // ok~
                         if (op == 5) strcpy(p.periodo, "Reveillon");
                         if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
             
-                        printf("Valor total: R$ ");
-                        scanf("%f", &p.valorTotal);
+                        printf("\nValor total calculado: R$ %.2f\n", p.valorTotal);
                         
                         strcpy(p.status, "Recebido");
                         
@@ -2204,14 +2725,16 @@ void exibirProdutosQTDBaixo() {
     int op;
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "rb");
-    int baixo = 5; // a partir de 5 sera estoque baixo
+    int baixo;
     int prod = 0;
-    
-    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
-    
+
     if (arc == NULL) {
         printf("\n[Erro ao carregar o arquivo]\n");
     } else {
+        printf("\n--- PRODUTOS COM ESTOQUE BAIXO ---\n");
+        printf("Informe o limite de estoque baixo: ");
+        scanf("%d", &baixo);
+
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
             if (p.qtd <= baixo) {
@@ -2220,7 +2743,7 @@ void exibirProdutosQTDBaixo() {
             }
         }
         if (!prod) 
-            printf("[Sem produto com estoque baixo]\n");
+            printf("[Sem produto com estoque abaixo ou igual a %d]\n", baixo);
 
         printf("--------------------------------------------\n");
 
@@ -2313,9 +2836,47 @@ void exibirTicket() {
     scanf("%d", &op);
 }
 
+void consultarVencimento() { // ok~
+    int op;
+    int dias;
+    DATA atual;
+    ASSINATURA a;
+    FILE *arc = fopen("assinatura.bin", "rb");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        printf("\n---------LISTAR ASSINATURAS PROXIMAS DO VENCIMENTO-----------\n");
+        printf("\nInforme a data atual (dia mes ano): ");
+        scanf("%d %d %d", &atual.dia, &atual.mes, &atual.ano);
+
+        printf("Listar assinaturas que vencem nos proximos quantos dias? ");
+        scanf("%d", &dias);
+
+        int encontrou = 0;
+        while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
+            if (((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia) >= 0 &&
+                ((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia) <= dias) {
+                printf("Cliente CPF: %s | Plano: %s | Vence em: %d/%d/%d | Faltam %d dias\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, ((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia));
+                encontrou = 1;
+            }
+        }
+
+        if (!encontrou) {
+            printf("\n[Nenhuma assinatura proxima do vencimento]\n");
+        }
+
+        printf("---------------------------------------------------\n");
+        fclose(arc);
+
+        printf("\n[0] Voltar ao menu principal\n");
+        scanf("%d", &op);
+    }
+}
+
+
 int main() {
     int opcoes, subOpcoes;
     int op_pess, op_cli, op_forn;
+    int op_marca, op_categoria;
 
     do {
         system("cls");
@@ -2439,11 +3000,77 @@ int main() {
                 break;
 
             case 6:
-                gerenciarMarcas();
+                do {
+                    exibirMenuMarcas();
+                    scanf("%d", &op_marca);
+
+                    switch (op_marca) {
+                        case 1:
+                            cadastrarMarca();
+                            break;
+
+                        case 2:
+                            alterarMarca();
+                            break;
+
+                        case 3:
+                            listarMarca();
+                            break;
+
+                        case 4:
+                            consultarMarca();
+                            break;
+
+                        case 5:
+                            excluirMarca();
+                            break;
+
+                        case 0:
+                            break;
+
+                        default:
+                            printf("\n[Opcao invalida tente novamente]\n");
+                            break;
+                    }
+
+                } while (op_marca != 0);
                 break;
 
             case 7:
-                gerenciarCategorias();
+                do {
+                    exibirMenuCategoria();
+                    scanf("%d", &op_categoria);
+
+                    switch (op_categoria) {
+                        case 1:
+                            cadastrarCategoria();
+                            break;
+
+                        case 2:
+                            alterarCategoria();
+                            break;
+
+                        case 3:
+                            listarCategoria();
+                            break;
+
+                        case 4:
+                            consultarCategoria();
+                            break;
+
+                        case 5:
+                            excluirCategoria();
+                            break;
+
+                        case 0:
+                            break;
+
+                        default:
+                            printf("\n[Opcao invalida tente novamente]\n");
+                            break;
+                    }
+
+                } while (op_categoria != 0);
                 break;
 
             case 0:
