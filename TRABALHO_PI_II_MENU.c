@@ -225,15 +225,11 @@ void listarMarca() {
 	FILE *arc = fopen("marcas.bin", "rb");
 	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
 	else {
-		printf("\n========================================================\n");
-        printf("         CORTE IMPERIAL - LISTAR MARCAS            \n");
-        printf("========================================================\n");
-        
         while(fread(&m, sizeof(MARCA), 1, arc) == 1) {
         	marca = 0;
 	    	printf("ID: %d\n", m.id);
 	        printf("Marca: %s", m.nome);
-			printf("\n----------------------------------------------\n");
+			printf("---------------------------\n");
 		}
 		
 		if (marca == 1) printf("\n[Nenhuma marca cadastrada]\n");
@@ -435,16 +431,12 @@ void listarCategoria() {
 
 	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
 	else {
-		printf("\n========================================================\n");
-        printf("         CORTE IMPERIAL - LISTAR CATEGORIAS              \n");
-        printf("========================================================\n");
-        
         while(fread(&c, sizeof(CATEGORIA), 1, arc) == 1) {
         	categoria = 0;
 
 	    	printf("ID: %d\n", c.id);
 	        printf("Categoria: %s", c.nome);
-			printf("\n----------------------------------------------\n");
+			printf("---------------------------\n");
 		}
 		
 		if (categoria == 1) printf("\n[Nenhuma categoria cadastrada]\n");
@@ -586,7 +578,7 @@ void exibirMenuVendas() {
     printf("  [3] Atualizar Status do Pedido\n");
     printf("  [4] Confirmar Retirada\n");
     printf("  [5] Confirmar Entrega\n");
-    printf("  [6] Listar todos os produtos\n");
+    printf("  [6] Listar todos os Pedidos\n");
     printf("  [7] Listar Pedidos Finalizados\n");
     printf("  [0] Voltar\n");
     printf("----------------------------------------------\n");
@@ -738,8 +730,6 @@ void consulAll_cli() {
     CADASTRO cli;
     
     FILE *fp;
-
-    ordenar_cli();
 
     fp = fopen("cadastros.bin", "rb");
     if(fp == NULL){
@@ -2267,10 +2257,9 @@ int buscarPedido(FILE *arc, int cod) {
 }
 
 void cadastrarPedido() { // ok~
-    int op, qtdItens, i, idProduto, qtdPedido, posProduto;
+    int op, qtdItens, i, idProduto, qtdPedido, posProduto, itemCadastrado;
     float subtotal;
-    char item[200];
-    PEDIDO p = {0};
+    PEDIDO p;
     PRODUTO prod;
     ASSINATURA c;
     FILE *arcC = fopen("assinatura.bin", "rb");
@@ -2285,7 +2274,7 @@ void cadastrarPedido() { // ok~
             printf("\n--- CADASTRAR PEDIDO ---\n");
             printf("Digite o id do pedido: ");
             scanf("%d", &p.id);
-            
+
             int b = buscarPedido(arc, p.id);    
             if (b != -1) {
                 printf("\n[ID de pedido ja cadastrado]\n");
@@ -2306,6 +2295,9 @@ void cadastrarPedido() { // ok~
                     if (stricmp(c.status, "Ativo") != 0 && stricmp(c.status, "Teste") != 0)
                         printf("\n[Cliente sem assinatura valida]\n");
                     else {
+                        printf("\nDigite a data do pedido (dd mm aaaa): ");
+                        scanf("%d%d%d", &p.dataPedido.dia, &p.dataPedido.mes, &p.dataPedido.ano);
+
                         printf("\n---------------- PRODUTOS CADASTRADOS ----------------\n");
                         rewind(arcP);
 
@@ -2322,6 +2314,7 @@ void cadastrarPedido() { // ok~
                         scanf("%d", &qtdItens);
 
                         p.valorTotal = 0;
+                        itemCadastrado = 0;
 
                         for (i = 0; i < qtdItens; i++) {
                             printf("\nDigite o codigo do produto %d: ", i + 1);
@@ -2355,41 +2348,26 @@ void cadastrarPedido() { // ok~
                                     fseek(arcP, posProduto, 0);
                                     fwrite(&prod, sizeof(PRODUTO), 1, arcP);
 
-                                    sprintf(item, "Produto: %sQTD: %d | Valor unitario: R$ %.2f | Subtotal: R$ %.2f\n", prod.nome, qtdPedido, prod.valor, subtotal);
-
-                                    if (strlen(p.descricao) + strlen(item) < sizeof(p.descricao)) {
-                                        strcat(p.descricao, item);
+                                    if (itemCadastrado == 0) {
+                                        strcpy(p.descricao, prod.nome);
+                                        itemCadastrado = 1;
                                     } else {
-                                        printf("\n[Limite da descricao atingido]\n");
-                                        i = qtdItens;
+                                        strcat(p.descricao, " | ");
+                                        strcat(p.descricao, prod.nome);
                                     }
+
+                                    printf("\nSubtotal: R$ %.2f\n", subtotal);
                                 }
                             }
                         }
-                        
-                        printf("\nSelecione um dos periodos.\n");
-                        printf(" [1] Carnaval\n");
-                        printf(" [2] Pascoa\n");
-                        printf(" [3] Copa do mundo 2026\n");
-                        printf(" [4] Natal\n");
-                        printf(" [5] Reveillon\n");
-                        printf(" [0] Sem periodo\n");
-                        scanf("%d", &op);
-            
-                        if (op == 1) strcpy(p.periodo, "Carnaval");
-                        if (op == 2) strcpy(p.periodo, "Pascoa");
-                        if (op == 3) strcpy(p.periodo, "Copa do mundo 2026");
-                        if (op == 4) strcpy(p.periodo, "Natal");
-                        if (op == 5) strcpy(p.periodo, "Reveillon");
-                        if (op >= 6 || op <= 0) strcpy(p.periodo, "Sem periodo");
-            
+
                         printf("\nValor total calculado: R$ %.2f\n", p.valorTotal);
-                        
+
                         strcpy(p.status, "Recebido");
-                        
+
                         fwrite(&p, sizeof(PEDIDO), 1, arc);
                         printf("\n[Pedido [%d] cadastrado com sucesso]\n", p.id);
-                        
+
                         printf("\n[0] Sair\n");
                         scanf("%d", &op);
                     }
@@ -2611,27 +2589,27 @@ void listarPedidos() {
     else {
 
 
-        
+
             printf("\n-----------LISTA DE PEDIDOS-----------\n");
             int pedido = 0;
-            
+
             while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
                 pedido = 1;
-                printf("ID: [%d] - Periodo: %s\n\nNome | QTD | Marca | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
-                        p.id, p.periodo, p.descricao, p.valorTotal, p.status);
+                printf("ID: [%d] - Data: %d/%d/%d\n\nNome | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
+                        p.id, p.dataPedido.dia, p.dataPedido.mes, p.dataPedido.ano, p.descricao, p.valorTotal, p.status);
             }
-            
+
             if (!pedido) {
                 printf("[Nenhum pedido encontrado no sistema]\n");
             }
-            
+
             printf("--------------------------------------------------\n");
             fclose(arc);
-            
+
             printf("\n[0] Voltar\n");
             scanf("%d", &op);
         }
-    
+
 }
 
 
@@ -2668,73 +2646,56 @@ void exibirVendasPeriodo() { // ok?
     int op;
     PEDIDO p;
     FILE *arc;
-    char periodo[30];
-    
-    do {
-        printf("\n--- VENDAS POR PERIODO ---\n");
-        printf(" [1] Carnaval\n");
-        printf(" [2] Pascoa\n");
-        printf(" [3] Copa do mundo 2026\n");
-        printf(" [4] Natal\n");
-        printf(" [5] Reveillon\n");
-        printf(" [0] Voltar\n");
-        printf("Selecione um dos periodos: ");
-        scanf("%d", &op);
+    DATA inicio, fim;
 
-        switch (op) {
-            case 1: strcpy(periodo, "Carnaval"); break;
-            case 2: strcpy(periodo, "Pascoa"); break;
-            case 3: strcpy(periodo, "Copa do mundo 2026"); break;
-            case 4: strcpy(periodo, "Natal"); break;
-            case 5: strcpy(periodo, "Reveillon"); break;
-            case 0: break;
-            default:
-                printf("\n[Opcao invalida]\n");
-            break;
+    printf("\n--- VENDAS POR PERIODO ---\n");
+    printf("Digite a data inicial (dd mm aaaa): ");
+    scanf("%d%d%d", &inicio.dia, &inicio.mes, &inicio.ano);
+    printf("Digite a data final (dd mm aaaa): ");
+    scanf("%d%d%d", &fim.dia, &fim.mes, &fim.ano);
+
+    arc = fopen("pedidos.bin", "rb");
+    if (arc == NULL) 
+        printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        printf("\n--------------------------------------------\n");
+        printf("Vendas de %d/%d/%d ate %d/%d/%d\n", inicio.dia, inicio.mes, inicio.ano, fim.dia, fim.mes, fim.ano);
+        printf("--------------------------------------------\n");
+        ordenarPedidos();
+        int pedido = 0;
+        while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
+            // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
+            if (strcmp(p.status, "Finalizado") == 0 && (p.dataPedido.ano * 10000 + p.dataPedido.mes * 100 + p.dataPedido.dia) >= (inicio.ano * 10000 + inicio.mes * 100 + inicio.dia) && (p.dataPedido.ano * 10000 + p.dataPedido.mes * 100 + p.dataPedido.dia) <= (fim.ano * 10000 + fim.mes * 100 + fim.dia)) {
+                   printf("ID: [%d]\nData: %d/%d/%d\n\nNome | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
+                    p.id, p.dataPedido.dia, p.dataPedido.mes, p.dataPedido.ano, p.descricao, p.valorTotal, p.status);
+                    pedido = 1;
+                }
         }
-		if (op >= 1 && op <= 5) {
-	        arc = fopen("pedidos.bin", "rb");
-	        if (arc == NULL) 
-	            printf("\n[Erro ao carregar o arquivo]\n");
-	        else {
-	            printf("\n--------------------------------------------\n");
-	            printf("Vendas do periodo: %s\n",  periodo);
-	            printf("--------------------------------------------\n");
-	            ordenarPedidos();
-	            int pedido = 0;
-	            while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
-	                // compara o periodo com o periodo do pedido no arquivo, e verifica se ja foi finalizado/vendido
-	                if (strcmp(p.status, "Finalizado") == 0 && strcmp(p.periodo, periodo) == 0) {
-	                       printf("ID: [%d]\n\nNome | QTD | Marca | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
-                        p.id, p.descricao, p.valorTotal, p.status);
-	                        pedido = 1;
-	                    }
-	            }
-	            
-	            if (!pedido) {
-	                printf("[Nenhuma venda finalizada neste periodo]\n");
-	            }
-	            printf("--------------------------------------------\n");
-	            fclose(arc);
-	        }
-    	}
-    } while(op != 0);
+
+        if (!pedido) {
+            printf("[Nenhuma venda finalizada neste periodo]\n");
+        }
+        printf("--------------------------------------------\n");
+
+        fclose(arc);
+    }
+
+    printf("\n[0] Voltar\n");
+    scanf("%d", &op);
 }
 
 void exibirProdutosQTDBaixo() {
     int op;
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "rb");
-    int baixo;
+    int baixo = 5; // a partir de 5 sera estoque baixo
     int prod = 0;
-
+    
+    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
+    
     if (arc == NULL) {
         printf("\n[Erro ao carregar o arquivo]\n");
     } else {
-        printf("\n--- PRODUTOS COM ESTOQUE BAIXO ---\n");
-        printf("Informe o limite de estoque baixo: ");
-        scanf("%d", &baixo);
-
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
             if (p.qtd <= baixo) {
@@ -2743,7 +2704,7 @@ void exibirProdutosQTDBaixo() {
             }
         }
         if (!prod) 
-            printf("[Sem produto com estoque abaixo ou igual a %d]\n", baixo);
+            printf("[Sem produto com estoque baixo]\n");
 
         printf("--------------------------------------------\n");
 
@@ -2838,24 +2799,23 @@ void exibirTicket() {
 
 void consultarVencimento() { // ok~
     int op;
-    int dias;
-    DATA atual;
+    int mes, ano;
     ASSINATURA a;
     FILE *arc = fopen("assinatura.bin", "rb");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
-        printf("\n---------LISTAR ASSINATURAS PROXIMAS DO VENCIMENTO-----------\n");
-        printf("\nInforme a data atual (dia mes ano): ");
-        scanf("%d %d %d", &atual.dia, &atual.mes, &atual.ano);
+    printf("\n---------LISTAR ASSINATURAS PROXIMAS DO VENCIMENTO-----------\n");
+        // pede apenas o mes e o ano que o usuario quer checar
+        printf("\nDigite o mes e o ano que deseja consultar (Ex: 12 2026): ");
+        scanf("%d %d", &mes, &ano);
+        
 
-        printf("Listar assinaturas que vencem nos proximos quantos dias? ");
-        scanf("%d", &dias);
-
+        printf("\n--- ASSINATURAS QUE VENCEM EM %d/%d ---\n", mes, ano);
         int encontrou = 0;
         while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
-            if (((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia) >= 0 &&
-                ((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia) <= dias) {
-                printf("Cliente CPF: %s | Plano: %s | Vence em: %d/%d/%d | Faltam %d dias\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, ((a.d.ano * 365) + (a.d.mes * 30) + a.d.dia) - ((atual.ano * 365) + (atual.mes * 30) + atual.dia));
+            // verifica se o mes e o ano da assinatura forem iguais ao que o usuario digitou
+            if (a.d.mes == mes && a.d.ano == ano) {
+                printf("Cliente CPF: %s | Plano: %s | Vence em: %d/%d/%d\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano);
                 encontrou = 1;
             }
         }
@@ -2866,10 +2826,10 @@ void consultarVencimento() { // ok~
 
         printf("---------------------------------------------------\n");
         fclose(arc);
-
+        
         printf("\n[0] Voltar ao menu principal\n");
         scanf("%d", &op);
-    }
+        }
 }
 
 
