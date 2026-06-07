@@ -2688,10 +2688,13 @@ void exibirProdutosQTDBaixo() {
     int op;
     PRODUTO p;
     FILE *arc = fopen("produtos.bin", "rb");
-    int baixo = 5; // a partir de 5 sera estoque baixo
+    
+    printf("\nDigite uma quantidade de estoque: ");
+    int baixo;
+	scanf("%d", &baixo); //
     int prod = 0;
     
-    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d unidades) ---\n", baixo);
+    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d) ---\n", baixo);
     
     if (arc == NULL) {
         printf("\n[Erro ao carregar o arquivo]\n");
