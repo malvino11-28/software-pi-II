@@ -39,29 +39,45 @@ typedef struct {
     
 } CADASTRO;
 
-// struct Produto -  id, nome, medida, marca, categoria
+// STRUCT PRODUTO
 typedef struct {
 	int id, qtd, idMarca, idCategoria;
 	char nome[TF], medida[TFR]; 
     float valor;
 } PRODUTO;
 
+// STRUCT ASSINATURA
 typedef struct {
     char cpfCliente[15];
     DATA d;
     char plano[TF], status[20];
 } ASSINATURA;
 
+// STRUCT MARCA
 typedef struct {
 	int id;
 	char nome[TF];
 } MARCA;
 
+// STRUCT CATEGORIA
 typedef struct {
 	int id;
 	char nome[TF];
 } CATEGORIA;
 
+// STRUCT PEDIDO
+typedef struct { 
+    int id;
+    char descricao[TS], status[20];
+    char cpfCliente[15];
+    DATA dataPedido;
+    float valorTotal; 
+} PEDIDO;
+
+
+/* FUNCOES DE MENU */
+
+// MENU INICIAL
 void exibirMenuInicial() {
     system("cls");
     printf("\n==============================================\n");
@@ -90,7 +106,7 @@ void exibirMenuPessoas() {
     printf(" Selecione uma opcao: ");
 }
 
-//Gerenciamento Clientes
+// MENU CLIENTES
 void menu_cli() {
     system("cls");
     printf("\n==================================================\n");
@@ -106,7 +122,7 @@ void menu_cli() {
     printf("  Selecione uma opcao: ");
 }
 
-//Gerenciamento Fornecedores
+// MENU FORNECEDORES
 void menu_forn() {
     system("cls");
     printf("\n========================================================\n");
@@ -122,6 +138,7 @@ void menu_forn() {
     printf(" Selecione uma opcao: ");
 }
 
+// MENU PRODUTOS
 void exibirMenuProdutos() {
     printf("\n==============================================\n");
     printf("           CORTE IMPERIAL - PRODUTOS          \n");
@@ -138,10 +155,10 @@ void exibirMenuProdutos() {
     printf(" Selecione uma opcao: ");
 }
 
+// MENU MARCAS
 void exibirMenuMarcas() {
-	system("cls");
     printf("\n==============================================\n");
-    printf("          CORTE IMPERIAL - MARCAS              \n");
+    printf("       CORTE IMPERIAL - GERENCIAR MARCAS              \n");
     printf("==============================================\n");
     printf("  [1] Cadastrar Marca\n");
     printf("  [2] Alterar Marca\n");
@@ -152,6 +169,70 @@ void exibirMenuMarcas() {
     printf("----------------------------------------------\n");
     printf(" Selecione uma opcao: ");
 }
+
+
+void exibirMenuCategoria() {
+    printf("\n==============================================\n");
+    printf("      CORTE IMPERIAL - GERENCIAR CATEGORIAS              \n");
+    printf("==============================================\n");
+    printf("  [1] Cadastrar Categoria\n");
+    printf("  [2] Alterar Categoria\n");
+    printf("  [3] Listar Todas as Categorias\n");
+    printf("  [4] Consultar Categorias\n");
+    printf("  [5] Excluir Categoria\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+void exibirMenuAssinaturas() {
+    system("cls");
+    printf("\n==============================================\n");
+    printf("          CORTE IMPERIAL - ASSINATURAS        \n");
+    printf("==============================================\n");
+    printf("  [1] Criar Assinatura para Cliente\n");
+    printf("  [2] Renovar Assinatura\n");
+    printf("  [3] Consultar Status da Assinatura\n");
+    printf("  [4] Listar Todas as Assinaturas\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+void exibirMenuVendas() {
+    system("cls");
+    printf("\n==============================================\n");
+    printf("            CORTE IMPERIAL - VENDAS           \n");
+    printf("==============================================\n");
+    printf("  [1] Cadastrar Pedido\n");
+    printf("  [2] Visualizar Status do Pedido\n");
+    printf("  [3] Atualizar Status do Pedido\n");
+    printf("  [4] Confirmar Retirada\n");
+    printf("  [5] Confirmar Entrega\n");
+    printf("  [6] Listar todos os Pedidos\n");
+    printf("  [7] Listar Pedidos Finalizados\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+void exibirMenuRelatorios() { 
+    system("cls");	
+    printf("\n==============================================\n");
+    printf("          CORTE IMPERIAL - RELATORIOS         \n");
+    printf("==============================================\n");
+    printf("  [1] Vendas por Periodo\n");
+    printf("  [2] Produtos com Estoque Baixo\n");
+    printf("  [3] Ticket Medio por Cliente\n");
+    printf("  [4] Listar Assinaturas Proximas do Vencimento\n");
+    printf("  [0] Voltar\n");
+    printf("----------------------------------------------\n");
+    printf(" Selecione uma opcao: ");
+}
+
+/* FUNCOES MENU-- */
+
+/* FUNCOES BUSCA */
 
 int buscarMarca(FILE *arc, int id) {
 	rewind(arc);
@@ -166,6 +247,108 @@ int buscarMarca(FILE *arc, int id) {
 	else
 		return -1;
 }
+
+int buscarPedido(FILE *arc, int cod) {
+    PEDIDO p;
+    rewind(arc);
+    fread(&p, sizeof(PEDIDO), 1, arc);
+
+    while (!feof(arc) && p.id != cod) 
+        fread(&p, sizeof(PEDIDO), 1, arc);
+    
+    if (!feof(arc)) 
+        return ftell(arc) - sizeof(PEDIDO);
+    else return -1;
+    
+}
+
+int buscarCategoria(FILE *arc, int id) {
+	rewind(arc);
+	CATEGORIA c;
+	fread(&c, sizeof(CATEGORIA), 1, arc);
+	
+	while(!feof(arc) && id != c.id)
+		fread(&c, sizeof(CATEGORIA), 1, arc);
+		
+	if(!feof(arc))
+		return (ftell(arc) - sizeof(CATEGORIA));
+	else
+		return -1;
+}
+
+int buscaCliente(FILE *fp, char cpf[]) {
+    
+    CADASTRO cli;
+    
+    rewind(fp);
+    fread(&cli, sizeof(CADASTRO), 1, fp);
+    while(!feof(fp) && stricmp(cpf, cli.cpf) != 0){
+        
+        fread(&cli, sizeof(CADASTRO), 1, fp);
+    }
+    if(!feof(fp)){
+        
+        return (ftell(fp) - sizeof(CADASTRO));
+        
+    } else {
+        
+        return -1;
+    }
+}
+
+int buscarAssinatura(FILE *fp, char cpf[]) { // busca de assinatura aq pois sera usada no excl_cli
+    
+    ASSINATURA a;
+    
+    rewind(fp);
+    fread(&a, sizeof(ASSINATURA), 1, fp);
+
+    while(!feof(fp) && stricmp(cpf, a.cpfCliente) != 0){
+        fread(&a, sizeof(ASSINATURA), 1, fp);
+    }
+
+    if(!feof(fp)){
+        return (ftell(fp) - sizeof(ASSINATURA));
+    } else {
+        return -1;
+    }
+}
+
+int busca_forn(FILE *fp, char cnpj[]) {
+    
+    CADASTRO forn;
+    
+    rewind(fp);
+    fread(&forn, sizeof(CADASTRO), 1, fp);
+    while(!feof(fp) && stricmp(cnpj, forn.cnpj) != 0){
+        
+        fread(&forn, sizeof(CADASTRO), 1, fp);
+    }
+    if(!feof(fp)){
+        
+        return (ftell(fp) - sizeof(CADASTRO));
+        
+    } else {
+        
+        return -1;
+    }
+}
+
+int buscarProduto(FILE *arc, int b) {
+    PRODUTO p;
+    rewind(arc);
+    fread(&p, sizeof(PRODUTO), 1, arc);
+    while (!feof(arc)&&b!=p.id)
+        fread(&p, sizeof(PRODUTO), 1, arc);
+    if (!feof(arc))
+        return (ftell(arc)-sizeof(PRODUTO));
+    else return -1;
+}
+
+
+/* FUNCOES BUSCAS-- */
+
+/* FUCOES MARCA */
 
 void cadastrarMarca() {
 	MARCA m;
@@ -219,20 +402,26 @@ void alterarMarca() {
 	}
 }
 
-void listarMarca() {
+int listarMarca() {
 	MARCA m;
 	int marca = 1;
 	FILE *arc = fopen("marcas.bin", "rb");
-	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	if (arc == NULL) {
+        printf("\n[Erro ao carregar o arquivo]\n");
+        return marca;
+    }
 	else {
         while(fread(&m, sizeof(MARCA), 1, arc) == 1) {
         	marca = 0;
+            printf("\n---------------------------\n");
 	    	printf("ID: %d\n", m.id);
 	        printf("Marca: %s", m.nome);
 			printf("---------------------------\n");
 		}
 		
 		if (marca == 1) printf("\n[Nenhuma marca cadastrada]\n");
+        
+        return marca;
 		fclose(arc);
 	}
 }
@@ -328,35 +517,9 @@ void excluirMarca() {
 		}
 }
 
+/* FUNCOES MARCA-- */
 
-void exibirMenuCategoria() {
-	system("cls");
-    printf("\n==============================================\n");
-    printf("          CORTE IMPERIAL - CATEGORIAS              \n");
-    printf("==============================================\n");
-    printf("  [1] Cadastrar Categoria\n");
-    printf("  [2] Alterar Categoria\n");
-    printf("  [3] Listar Todas as Categorias\n");
-    printf("  [4] Consultar Categorias\n");
-    printf("  [5] Excluir Categoria\n");
-    printf("  [0] Voltar\n");
-    printf("----------------------------------------------\n");
-    printf(" Selecione uma opcao: ");
-}
-
-int buscarCategoria(FILE *arc, int id) {
-	rewind(arc);
-	CATEGORIA c;
-	fread(&c, sizeof(CATEGORIA), 1, arc);
-	
-	while(!feof(arc) && id != c.id)
-		fread(&c, sizeof(CATEGORIA), 1, arc);
-		
-	if(!feof(arc))
-		return (ftell(arc) - sizeof(CATEGORIA));
-	else
-		return -1;
-}
+/* FUNCOES CATEGORIA */
 
 void cadastrarCategoria() {
 	CATEGORIA c;
@@ -424,23 +587,27 @@ void alterarCategoria() {
 	}
 }
 
-void listarCategoria() {
+int listarCategoria() {
 	CATEGORIA c;
 	int categoria = 1;
 	FILE *arc = fopen("categorias.bin", "rb");
 
-	if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	if (arc == NULL) {
+        printf("\n[Erro ao carregar o arquivo]\n");
+        return categoria;
+    }
 	else {
         while(fread(&c, sizeof(CATEGORIA), 1, arc) == 1) {
         	categoria = 0;
-
+            printf("\n---------------------------\n");
 	    	printf("ID: %d\n", c.id);
 	        printf("Categoria: %s", c.nome);
 			printf("---------------------------\n");
 		}
 		
 		if (categoria == 1) printf("\n[Nenhuma categoria cadastrada]\n");
-
+        
+        return categoria;
 		fclose(arc);
 	}
 }
@@ -554,72 +721,9 @@ void excluirCategoria() {
 	}
 }
 
-void exibirMenuAssinaturas() {
-    system("cls");
-    printf("\n==============================================\n");
-    printf("          CORTE IMPERIAL - ASSINATURAS        \n");
-    printf("==============================================\n");
-    printf("  [1] Criar Assinatura para Cliente\n");
-    printf("  [2] Renovar Assinatura\n");
-    printf("  [3] Consultar Status da Assinatura\n");
-    printf("  [4] Listar Todas as Assinaturas\n");
-    printf("  [0] Voltar\n");
-    printf("----------------------------------------------\n");
-    printf(" Selecione uma opcao: ");
-}
+/* FUNCOES CATEGORIA-- */
 
-void exibirMenuVendas() {
-    system("cls");
-    printf("\n==============================================\n");
-    printf("            CORTE IMPERIAL - VENDAS           \n");
-    printf("==============================================\n");
-    printf("  [1] Cadastrar Pedido\n");
-    printf("  [2] Visualizar Status do Pedido\n");
-    printf("  [3] Atualizar Status do Pedido\n");
-    printf("  [4] Confirmar Retirada\n");
-    printf("  [5] Confirmar Entrega\n");
-    printf("  [6] Listar todos os Pedidos\n");
-    printf("  [7] Listar Pedidos Finalizados\n");
-    printf("  [0] Voltar\n");
-    printf("----------------------------------------------\n");
-    printf(" Selecione uma opcao: ");
-}
-
-void exibirMenuRelatorios() { 
-    system("cls");	
-    printf("\n==============================================\n");
-    printf("          CORTE IMPERIAL - RELATORIOS         \n");
-    printf("==============================================\n");
-    printf("  [1] Vendas por Periodo\n");
-    printf("  [2] Produtos com Estoque Baixo\n");
-    printf("  [3] Ticket Medio por Cliente\n");
-    printf("  [4] Listar Assinaturas Proximas do Vencimento\n");
-    printf("  [0] Voltar\n");
-    printf("----------------------------------------------\n");
-    printf(" Selecione uma opcao: ");
-}
-
-// FUNCOES PESSOAS - CLIENTES
-
-int busca(FILE *fp, char cpf[]) {
-    
-    CADASTRO cli;
-    
-    rewind(fp);
-    fread(&cli, sizeof(CADASTRO), 1, fp);
-    while(!feof(fp) && stricmp(cpf, cli.cpf) != 0){
-        
-        fread(&cli, sizeof(CADASTRO), 1, fp);
-    }
-    if(!feof(fp)){
-        
-        return (ftell(fp) - sizeof(CADASTRO));
-        
-    } else {
-        
-        return -1;
-    }
-}
+/* FUNCOES DE CLIENTES */
 
 // Esta orndenando os clientes por nome
 void ordenar_cli() {
@@ -677,7 +781,7 @@ void cad_cli() {
             printf("\nDigite o CPF: "); fflush(stdin);
             gets(cli.cpf);
             
-            pos = busca(fp, cli.cpf);
+            pos = buscaCliente(fp, cli.cpf);
             if(pos == -1) {
                 
                 printf("\nDigite o RG: "); fflush(stdin);
@@ -785,7 +889,7 @@ void alterar_cli() {
         gets(cli.cpf);
         while(stricmp(cli.cpf, "") != 0) {
             
-            pos = busca(fp, cli.cpf);
+            pos = buscaCliente(fp, cli.cpf);
             if(pos == -1){
 
                 printf("\n[Cliente nao cadastrado]");
@@ -956,7 +1060,7 @@ void consul_cli() {
         printf("\nDigite o CPF do Cliente: "); fflush(stdin);
         gets(cli.cpf);
 
-        pos = busca(fp, cli.cpf);
+        pos = buscaCliente(fp, cli.cpf);
         if(pos == -1){
 
             printf("\n[Cliente nao encontrado]");
@@ -987,26 +1091,6 @@ void consul_cli() {
 }
 
 //Excluir Cliente
-int buscarAssinatura(FILE *fp, char cpf[]) { // busca de assinatura aq pois sera usada no excl_cli
-    
-    ASSINATURA a;
-    
-    rewind(fp);
-    fread(&a, sizeof(ASSINATURA), 1, fp);
-
-    while(!feof(fp) && stricmp(cpf, a.cpfCliente) != 0){
-        fread(&a, sizeof(ASSINATURA), 1, fp);
-    }
-
-    if(!feof(fp)){
-        return (ftell(fp) - sizeof(ASSINATURA));
-    } else {
-        return -1;
-    }
-}
-
-
-//Excluir Cliente
 void excl_cli() {
 
     CADASTRO cli;
@@ -1026,7 +1110,7 @@ void excl_cli() {
         fflush(stdin);
         gets(cpf_busca);
 
-        pos = busca(fp, cpf_busca);
+        pos = buscaCliente(fp, cpf_busca);
 
         if(pos == -1){
             printf("\n[Cliente nao encontrado]");
@@ -1111,26 +1195,10 @@ void excl_cli() {
         }
     }
 }
-// FUNCOES PESSOAS - FORNECEDORES
-int busca_forn(FILE *fp, char cnpj[]) {
-    
-    CADASTRO forn;
-    
-    rewind(fp);
-    fread(&forn, sizeof(CADASTRO), 1, fp);
-    while(!feof(fp) && stricmp(cnpj, forn.cnpj) != 0){
-        
-        fread(&forn, sizeof(CADASTRO), 1, fp);
-    }
-    if(!feof(fp)){
-        
-        return (ftell(fp) - sizeof(CADASTRO));
-        
-    } else {
-        
-        return -1;
-    }
-}
+
+/* FUNCOES CLIENTES-- */
+
+/* FUNCOES FORNECEDORES*/
 
 //Esta ordenando por razao social
 void ordenar_forn() {
@@ -1543,28 +1611,11 @@ void excl_forn() {
     }
 }
 
+/* FUNCOES FORNECEDORES-- */
 
 /* FUNCOES PRODUTOS */
 
-/* FUNCOES PRODUTOS */
-// typedef struct {
-// 	int id, qtd;
-// 	char nome[TF], medida[TFR], marca[TF], categoria[TF]; 
-//  float valor;
-// } PRODUTO;
-
-int buscarProduto(FILE *arc, int b) {
-    PRODUTO p;
-    rewind(arc);
-    fread(&p, sizeof(PRODUTO), 1, arc);
-    while (!feof(arc)&&b!=p.id)
-        fread(&p, sizeof(PRODUTO), 1, arc);
-    if (!feof(arc))
-        return (ftell(arc)-sizeof(PRODUTO));
-    else return -1;
-}
-
-void mostrarNomeMarca(int idMarca) {
+void mostrarNomeMarca(int idMarca) { // funcao auxiliar para exibir a marca
     MARCA m;
     FILE *arc = fopen("marcas.bin", "rb");
     if (arc == NULL) printf("\n[Marca nao encontrada]\n");
@@ -1580,7 +1631,7 @@ void mostrarNomeMarca(int idMarca) {
     }
 }
 
-void mostrarNomeCategoria(int idCategoria) {
+void mostrarNomeCategoria(int idCategoria) { // funcao auxiliar para exibir a categoria
     CATEGORIA c;
     FILE *arc = fopen("categorias.bin", "rb");
     if (arc == NULL) printf("\n[Categoria nao encontrada]\n");
@@ -1596,72 +1647,6 @@ void mostrarNomeCategoria(int idCategoria) {
     }
 }
 
-void cadastrarProduto() {
-    PRODUTO p;
-    FILE *arc = fopen("produtos.bin", "ab+");
-    FILE *marc, *cat;
-    int bMarca, bCategoria;
-    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-        printf("\n---------CADASTRO DE PRODUTO-----------\n");
-        printf("\nDigite o ID do produto a ser cadastrado: ");
-        scanf("%d", &p.id);
-        int b = buscarProduto(arc, p.id);
-
-        if (b != -1) printf("\n[ID do produto ja cadastrado]\n");
-        else {
-            getchar();
-
-            printf("Nome do produto: ");
-            fgets(p.nome, sizeof(p.nome), stdin);
-
-            printf("Unidade de medida (ex: UN, KG, MC, LT): ");
-            fgets(p.medida, sizeof(p.medida), stdin);
-
-            printf("\n--- MARCAS CADASTRADAS ---\n");
-            listarMarca();
-
-            printf("\nDigite o ID da marca do produto: ");
-            scanf("%d", &p.idMarca);
-
-            marc = fopen("marcas.bin", "rb");
-            if (marc == NULL) printf("\n[Cadastre uma marca antes de cadastrar produto]\n");
-            else {
-                bMarca = buscarMarca(marc, p.idMarca);
-                fclose(marc);
-
-                if (bMarca == -1) printf("\n[Marca nao cadastrada]\n");
-                else {
-                    printf("\n--- CATEGORIAS CADASTRADAS ---\n");
-                    listarCategoria();
-
-                    printf("\nDigite o ID da categoria do produto: ");
-                    scanf("%d", &p.idCategoria);
-
-                    cat = fopen("categorias.bin", "rb");
-                    if (cat == NULL) printf("\n[Cadastre uma categoria antes de cadastrar produto]\n");
-                    else {
-                        bCategoria = buscarCategoria(cat, p.idCategoria);
-                        fclose(cat);
-
-                        if (bCategoria == -1) printf("\n[Categoria nao cadastrada]\n");
-                        else {
-                            printf("Valor do produto: ");
-                            scanf("%f", &p.valor);
-
-                            printf("Quantidade de produto: ");
-                            scanf("%d", &p.qtd);
-
-                            fwrite(&p, sizeof(PRODUTO), 1, arc);
-                            printf("\n[Produto cadastrado]\n[Codigo do produto: %d]\n", p.id);
-                        }
-                    }
-                }
-            }
-        }
-        fclose(arc);
-    }
-}
 
 void ordenarProdutos() {
     PRODUTO p, px;
@@ -1692,6 +1677,80 @@ void ordenarProdutos() {
                 }
             }
             qtde--;
+        }
+        fclose(arc);
+    }
+}
+
+void cadastrarProduto() {
+    PRODUTO p;
+    FILE *arc = fopen("produtos.bin", "ab+");
+    FILE *marc, *cat;
+    int bMarca, bCategoria;
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        printf("\n---------CADASTRO DE PRODUTO-----------\n");
+        printf("\nDigite o ID do produto a ser cadastrado: ");
+        scanf("%d", &p.id);
+        int b = buscarProduto(arc, p.id);
+
+        if (b != -1) printf("\n[ID do produto ja cadastrado]\n");
+        else {
+            getchar();
+
+            printf("Nome do produto: ");
+            fgets(p.nome, sizeof(p.nome), stdin);
+
+            printf("Unidade de medida (ex: UN, KG, MC, LT): ");
+            fgets(p.medida, sizeof(p.medida), stdin);
+
+            printf("\n--- MARCAS CADASTRADAS ---\n");
+            
+            int marca = listarMarca();
+
+			if (marca == 0) {
+	            printf("\nDigite o ID da marca do produto: ");
+	            scanf("%d", &p.idMarca);
+				
+	            marc = fopen("marcas.bin", "rb");
+	            if (marc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+	        
+	            else {
+	                bMarca = buscarMarca(marc, p.idMarca);
+	                fclose(marc);
+	
+	                if (bMarca == -1) printf("\n[Marca nao cadastrada]\n");
+	                else {
+	                    printf("\n--- CATEGORIAS CADASTRADAS ---\n");
+	                    
+	                    int categoria = listarCategoria();
+						
+						if (categoria == 0) {
+		                    printf("\nDigite o ID da categoria do produto: ");
+		                    scanf("%d", &p.idCategoria);
+		
+		                    cat = fopen("categorias.bin", "rb");
+		                    if (cat == NULL) printf("\n[Cadastre uma categoria antes de cadastrar produto]\n");
+		                    else {
+		                        bCategoria = buscarCategoria(cat, p.idCategoria);
+		                        fclose(cat);
+		
+		                        if (bCategoria == -1) printf("\n[Categoria nao cadastrada]\n");
+		                        else {
+		                            printf("Valor do produto: ");
+		                            scanf("%f", &p.valor);
+		
+		                            printf("Quantidade de produto: ");
+		                            scanf("%d", &p.qtd);
+		
+		                            fwrite(&p, sizeof(PRODUTO), 1, arc);
+		                            printf("\n[Produto cadastrado]\n[Codigo do produto: %d]\n", p.id);
+		                        }
+		                    }
+	                	}
+	                }
+	            }
+        	}
         }
         fclose(arc);
     }
@@ -1853,8 +1912,8 @@ void alterarProduto() {
 }
 
 void consultarProduto() {
-    int op, prod, idCategoriaBusca;
-    PRODUTO p; 
+    int op, prod, idCategoriaBusca, idMarcaBusca;
+    PRODUTO p;
     char busca[TS];
 
     FILE *arc = fopen("produtos.bin", "rb");
@@ -1864,7 +1923,7 @@ void consultarProduto() {
     	rewind(arc); // voltando para o comeco do arquivo a cada nova busca
         printf("\n---------CONSULTAR PRODUTO-----------\n");
         printf("Selecione uma opcao de busca.\n");
-        printf("[1] Buscar pelo nome\n[2] Buscar pelo ID da categoria\n[0] Voltar\n");
+        printf("[1] Buscar pelo nome\n[2] Buscar pelo ID da categoria\n[3] Buscar pelo ID da marca\n[0] Voltar\n");
         printf("Opcao: ");
         scanf("%d", &op);
 
@@ -1919,15 +1978,41 @@ void consultarProduto() {
                     }
                 }
                 if (!prod) printf("\n[Nenhum produto cadastrado nesta categoria]\n");
-                break;
+            break;
+
+            case 3:
+                printf("\n--- MARCAS CADASTRADAS ---\n");
+                listarMarca();
+
+                printf("\nDigite o ID da marca do produto: ");
+                scanf("%d", &idMarcaBusca);
+
+                printf("\n--- RESULTADOS DA BUSCA (MARCA) ---");
+                while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
+                    if (p.idMarca == idMarcaBusca) {
+                        printf("\n--------------------[%d]---------------------", p.id);
+                        printf("\nNome do Produto: %s", p.nome);
+                        printf("\nUnidade de medida: %s", p.medida);
+                        printf("\nMarca do Produto: ");
+                        mostrarNomeMarca(p.idMarca);
+                        printf("\nCategoria do Produto: ");
+                        mostrarNomeCategoria(p.idCategoria); 
+                        printf("\nValor do produto: %.2f", p.valor);
+                        printf("\nQuantidade em estoque: %d", p.qtd);
+                        printf("\n--------------------------------------------\n");
+                        prod = 1;
+                    }
+                }
+                if (!prod) printf("\n[Nenhum produto cadastrado com esta marca]\n");
+            break;
 
             case 0:
                 printf("\n[Voltando ao menu principal]\n");
-                break;
+            break;
 
             default:
                 printf("\n[Opcao invalida]\n");
-                break;
+            break;
         }
 
     } while (op != 0);
@@ -1998,23 +2083,43 @@ void excluirProduto() {
     }
 }
 
-// // // //
-
-void gerenciarMarcas() { // ok~
-    int op;
-    listarMarca();
-    printf("\n[0] Sair\n");
-    scanf("%d", &op);
-}
-
-void gerenciarCategorias() { //ok~
-    int op;
-    listarCategoria();
-    printf("\n[0] Sair\n");
-    scanf("%d", &op);
-}
+/* FUNCOES PRODUTO-- */
 
 /* FUNCOES ASSINATURAS */
+
+void ordenarAssinaturas() {
+    int qtd = 0, i;
+    ASSINATURA a, ax;
+    FILE *arc = fopen("assinatura.bin", "rb+");
+    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        fseek(arc, 0, 2);
+        qtd = ftell(arc) / sizeof(ASSINATURA);
+
+        while (qtd > 1){ // bubble sort
+            for (i=0;i<qtd-1;i++) {
+                fseek(arc, i * sizeof(ASSINATURA), 0); // lendo struct no arquivo na posicao I
+                fread(&a, sizeof(ASSINATURA), 1, arc);
+
+                fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                fread(&ax, sizeof(ASSINATURA), 1, arc);
+
+                int dataInt1 = (a.d.ano * 10000) + (a.d.mes * 100) + a.d.dia; // convertendo data para um unico numero
+                int dataInt2 = (ax.d.ano * 10000) + (ax.d.mes * 100) + ax.d.dia;
+                if (dataInt1 < dataInt2) { // se a data atual for menor, inverter as posicoes 
+                    fseek(arc, i * sizeof(ASSINATURA), 0);
+                    fwrite(&ax, sizeof(ASSINATURA), 1, arc);
+
+                    fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
+                    fwrite(&a, sizeof(ASSINATURA), 1, arc);
+                }
+            }
+            qtd--;
+        }
+        fclose(arc);
+    }
+}
+
 
 void criarAssinatura() { // ok~
     int op, b;
@@ -2036,7 +2141,7 @@ void criarAssinatura() { // ok~
         fflush(stdin);
         gets(c.cpf);
 
-        b = busca(cli, c.cpf);
+        b = buscaCliente(cli, c.cpf);
 
         if (b == -1) {
             printf("\n[CPF de cliente nao cadastrado]\n");
@@ -2115,6 +2220,7 @@ void renovarAssinatura() {
         fclose(arc);
     }
 }
+
 void consultarStatus() {
     int op;
     ASSINATURA a;
@@ -2166,40 +2272,6 @@ void consultarStatus() {
     }
 }
 
-void ordenarAssinaturas() {
-    int qtd = 0, i;
-    ASSINATURA a, ax;
-    FILE *arc = fopen("assinatura.bin", "rb+");
-    if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-        fseek(arc, 0, 2);
-        qtd = ftell(arc) / sizeof(ASSINATURA);
-
-        while (qtd > 1){ // bubble sort
-            for (i=0;i<qtd-1;i++) {
-                fseek(arc, i * sizeof(ASSINATURA), 0); // lendo struct no arquivo na posicao I
-                fread(&a, sizeof(ASSINATURA), 1, arc);
-
-                fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
-                fread(&ax, sizeof(ASSINATURA), 1, arc);
-
-                int dataInt1 = (a.d.ano * 10000) + (a.d.mes * 100) + a.d.dia;
-                int dataInt2 = (ax.d.ano * 10000) + (ax.d.mes * 100) + ax.d.dia;
-                if (dataInt1 < dataInt2) { // se a data atual for menor, inverter as posicoes 
-                    fseek(arc, i * sizeof(ASSINATURA), 0);
-                    fwrite(&ax, sizeof(ASSINATURA), 1, arc);
-
-                    fseek(arc, (i+1) * sizeof(ASSINATURA), 0);
-                    fwrite(&a, sizeof(ASSINATURA), 1, arc);
-                }
-            }
-            qtd--;
-        }
-        fclose(arc);
-    }
-}
-
-
 void listarAssinaturas() { // ok~
     int op;
     ASSINATURA a;
@@ -2217,7 +2289,7 @@ void listarAssinaturas() { // ok~
         
         while (fread(&a, sizeof(ASSINATURA), 1, arc) == 1) {
             assi = 1;
-            printf("CPF Cliente: %s | Plano: %s | Vencimento: %02d/%02d/%04d | Status: %s\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
+            printf("CPF Cliente: %s | Plano: %s | Vencimento: %d/%d/%d | Status: %s\n", a.cpfCliente, a.plano, a.d.dia, a.d.mes, a.d.ano, a.status);
         }
         
         if (assi == 0) {
@@ -2232,28 +2304,42 @@ void listarAssinaturas() { // ok~
     }
 }
 
+/* FUNCOES ASSINATURAS-- */
 
 /* FUNCOES VENDAS */ 
-typedef struct { // depois levo la pra cima
-    int id;
-    char descricao[TS], status[20];
-    char cpfCliente[15];
-    DATA dataPedido;
-    float valorTotal; 
-} PEDIDO;
 
-int buscarPedido(FILE *arc, int cod) {
-    PEDIDO p;
-    rewind(arc);
-    fread(&p, sizeof(PEDIDO), 1, arc);
+void ordenarPedidos() {
+    PEDIDO p, px;
+    int qtde = 0, i;
+    
+    FILE *arc = fopen("pedidos.bin", "rb+");
+    if (arc == NULL) 
+        printf("\n[Erro ao carregar o arquivo]\n");
+    else {
+        fseek(arc, 0, 2);
+        qtde = ftell(arc) / sizeof(PEDIDO);
+        
+        while (qtde > 1) {
+            for (i=0;i<qtde-1;i++) {
+                
+                fseek(arc, i * sizeof(PEDIDO), 0); 
+                fread(&p, sizeof(PEDIDO), 1, arc);
+                
+                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
+                fread(&px, sizeof(PEDIDO), 1, arc);
+                
+                if (p.id > px.id) { // id crescente
+                    fseek(arc, i * sizeof(PEDIDO), 0);
+                    fwrite(&px, sizeof(PEDIDO), 1, arc);
 
-    while (!feof(arc) && p.id != cod) 
-        fread(&p, sizeof(PEDIDO), 1, arc);
-    
-    if (!feof(arc)) 
-        return ftell(arc) - sizeof(PEDIDO);
-    else return -1;
-    
+                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
+                    fwrite(&p, sizeof(PEDIDO), 1, arc);
+                }
+            }
+            qtde--;
+        }
+        fclose(arc);
+    }
 }
 
 void cadastrarPedido() { // ok~
@@ -2352,7 +2438,6 @@ void cadastrarPedido() { // ok~
                                         strcpy(p.descricao, prod.nome);
                                         itemCadastrado = 1;
                                     } else {
-                                        strcat(p.descricao, " | ");
                                         strcat(p.descricao, prod.nome);
                                     }
 
@@ -2545,40 +2630,6 @@ void confirmarEntrega() { // ok~
     }
 }
 
-void ordenarPedidos() {
-    PEDIDO p, px;
-    int qtde = 0, i;
-    
-    FILE *arc = fopen("pedidos.bin", "rb+");
-    if (arc == NULL) 
-        printf("\n[Erro ao carregar o arquivo]\n");
-    else {
-        fseek(arc, 0, 2);
-        qtde = ftell(arc) / sizeof(PEDIDO);
-        
-        while (qtde > 1) {
-            for (i=0;i<qtde-1;i++) {
-                
-                fseek(arc, i * sizeof(PEDIDO), 0); 
-                fread(&p, sizeof(PEDIDO), 1, arc);
-                
-                fseek(arc, (i + 1) * sizeof(PEDIDO), 0); // lendo elemento na posicao i + 1
-                fread(&px, sizeof(PEDIDO), 1, arc);
-                
-                if (p.id > px.id) { // id crescente
-                    fseek(arc, i * sizeof(PEDIDO), 0);
-                    fwrite(&px, sizeof(PEDIDO), 1, arc);
-
-                    fseek(arc, (i + 1) * sizeof(PEDIDO), 0);
-                    fwrite(&p, sizeof(PEDIDO), 1, arc);
-                }
-            }
-            qtde--;
-        }
-        fclose(arc);
-    }
-}
-
 void listarPedidos() {
 	ordenarPedidos(); // ordenando por ID
     int op;
@@ -2595,8 +2646,9 @@ void listarPedidos() {
 
             while (fread(&p, sizeof(PEDIDO), 1, arc) == 1) {
                 pedido = 1;
-                printf("ID: [%d] - Data: %d/%d/%d\n\nNome | Valor\n %s\n| Total: R$ %.2f\n| Status: %s\n", 
+                printf("ID: [%d] - Data: %d/%d/%d\n\nPRODUTOS:\n | %s\n| Total: R$ %.2f\n| Status: %s\n", 
                         p.id, p.dataPedido.dia, p.dataPedido.mes, p.dataPedido.ano, p.descricao, p.valorTotal, p.status);
+                printf("--------------------------------------------------\n");
             }
 
             if (!pedido) {
@@ -2609,11 +2661,9 @@ void listarPedidos() {
             printf("\n[0] Voltar\n");
             scanf("%d", &op);
         }
-
 }
 
-
-void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redundantes, depois eu ajeito, vou finalizar os outros primeiro
+void finalizarPedido() {
     int op;
     PEDIDO p;
     FILE *arc = fopen("pedidos.bin", "rb");
@@ -2639,8 +2689,7 @@ void finalizarPedido() { // pedido esta com umas funcoes que talvez sejam redund
     }
 }
 
-// FUNCOES RELATORIOS GERENCIONAIS
-
+/* FUNCOES RELATORIOS GERENCIONAIS */
 
 void exibirVendasPeriodo() { // ok?
     int op;
@@ -2672,7 +2721,7 @@ void exibirVendasPeriodo() { // ok?
                 }
         }
 
-        if (!pedido) {
+        if (pedido != 1) {
             printf("[Nenhuma venda finalizada neste periodo]\n");
         }
         printf("--------------------------------------------\n");
@@ -2694,11 +2743,12 @@ void exibirProdutosQTDBaixo() {
 	scanf("%d", &baixo); //
     int prod = 0;
     
-    printf("\n--- PRODUTOS COM ESTOQUE BAIXO (Abaixo de %d) ---\n", baixo);
+    printf("\n--- PRODUTOS COM ESTOQUE ABAIXO DE %d ---\n", baixo);
     
     if (arc == NULL) {
         printf("\n[Erro ao carregar o arquivo]\n");
     } else {
+        ordenarProdutos();
         printf("\n--------------------------------------------\n");
         while (fread(&p, sizeof(PRODUTO), 1, arc) == 1) {
             if (p.qtd <= baixo) {
@@ -2708,7 +2758,6 @@ void exibirProdutosQTDBaixo() {
         }
         if (!prod) 
             printf("[Sem produto com estoque baixo]\n");
-
         printf("--------------------------------------------\n");
 
         fclose(arc);
@@ -2716,6 +2765,7 @@ void exibirProdutosQTDBaixo() {
     printf("\n[0] Voltar\n");
     scanf("%d", &op);
 }
+
 
 void ordenarTicket() {
     PEDIDO p, px;
@@ -2807,7 +2857,8 @@ void consultarVencimento() { // ok~
     FILE *arc = fopen("assinatura.bin", "rb");
     if (arc == NULL) printf("\n[Erro ao carregar o arquivo]\n");
     else {
-    printf("\n---------LISTAR ASSINATURAS PROXIMAS DO VENCIMENTO-----------\n");
+        ordenarAssinaturas();
+        printf("\n---------LISTAR ASSINATURAS PROXIMAS DO VENCIMENTO-----------\n");
         // pede apenas o mes e o ano que o usuario quer checar
         printf("\nDigite o mes e o ano que deseja consultar (Ex: 12 2026): ");
         scanf("%d %d", &mes, &ano);
